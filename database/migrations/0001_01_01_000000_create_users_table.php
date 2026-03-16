@@ -27,7 +27,7 @@ return new class extends Migration
         DB::table('users')->insert([
             [
                 'name' => 'Admin',
-                'email' => 'admin@example.test',
+                'email' => 'admin@admin.test',
                 'role' => 'admin',
                 'password' => bcrypt('password'),
                 'created_at' => now(),
@@ -35,7 +35,7 @@ return new class extends Migration
             ],
             [
                 'name' => 'Government',
-                'email' => 'gov@example.test',
+                'email' => 'gov@gov.test',
                 'role' => 'gov',
                 'password' => bcrypt('password'),
                 'created_at' => now(),
@@ -43,7 +43,7 @@ return new class extends Migration
             ],
             [
                 'name' => 'SOE',
-                'email' => 'soe@example.test',
+                'email' => 'soe@soe.test',
                 'role' => 'soe',
                 'password' => bcrypt('password'),
                 'created_at' => now(),
@@ -51,7 +51,7 @@ return new class extends Migration
             ],
             [
                 'name' => 'SME',
-                'email' => 'sme@example.test',
+                'email' => 'sme@sme.test',
                 'role' => 'sme',
                 'password' => bcrypt('password'),
                 'created_at' => now(),
@@ -59,7 +59,7 @@ return new class extends Migration
             ],
             [
                 'name' => 'Private',
-                'email' => 'private@example.test',
+                'email' => 'private@private.test',
                 'role' => 'private',
                 'password' => bcrypt('password'),
                 'created_at' => now(),
@@ -67,24 +67,8 @@ return new class extends Migration
             ],
             [
                 'name' => 'Collection',
-                'email' => 'collection@example.test',
+                'email' => 'collection@collection.test',
                 'role' => 'collection',
-                'password' => bcrypt('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'CTC',
-                'email' => 'ctc@example.test',
-                'role' => 'ctc',
-                'password' => bcrypt('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Rising Star',
-                'email' => 'risingstar@example.test',
-                'role' => 'risingStar',
                 'password' => bcrypt('password'),
                 'created_at' => now(),
                 'updated_at' => now(),
