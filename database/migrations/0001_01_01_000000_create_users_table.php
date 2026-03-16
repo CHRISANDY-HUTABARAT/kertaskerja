@@ -23,58 +23,6 @@ return new class extends Migration
             $table->timestamps();
         });
 
-        // Insert default users for each role so they exist after migrate
-        DB::table('users')->insert([
-            [
-                'name' => 'Admin',
-                'email' => 'admin@admin.test',
-                'role' => 'admin',
-                'password' => bcrypt('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Government',
-                'email' => 'gov@gov.test',
-                'role' => 'gov',
-                'password' => bcrypt('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'SOE',
-                'email' => 'soe@soe.test',
-                'role' => 'soe',
-                'password' => bcrypt('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'SME',
-                'email' => 'sme@sme.test',
-                'role' => 'sme',
-                'password' => bcrypt('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Private',
-                'email' => 'private@private.test',
-                'role' => 'private',
-                'password' => bcrypt('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-            [
-                'name' => 'Collection',
-                'email' => 'collection@collection.test',
-                'role' => 'collection',
-                'password' => bcrypt('password'),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ],
-        ]);
-
         Schema::create('password_reset_tokens', function (Blueprint $table) {
             $table->string('email')->primary();
             $table->string('token');
