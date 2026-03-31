@@ -129,7 +129,7 @@
                                     class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Komitmen (Rp)</label>
                                 <input type="number" name="regions[{{ $regionKey }}][commitment]"
                                     id="{{ $regionKey }}_commitment" value="{{ $commitmentVal ?? '' }}"
-                                    placeholder="Masukkan target" min="0" step="0.01" data-telda="{{ $regionKey }}"
+                                    placeholder="1000000" min="0" step="0.01" data-telda="{{ $regionKey }}"
                                     data-original="{{ $commitmentVal ?? '' }}"
                                     class="telda-commitment w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
 
@@ -138,7 +138,7 @@
                                         class="block text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1.5">Realisasi (Rp)</label>
                                     <input type="number" name="regions[{{ $regionKey }}][real_ratio]" id="{{ $regionKey }}_real"
                                         value="{{ $realVal ?? '' }}"
-                                        placeholder="{{ $realDisabled ? 'Isi commitment dulu' : 'Masukkan realisasi' }}" min="0"
+                                        placeholder="{{ $realDisabled ? 'Isi commitment dulu' : '1000000' }}" min="0"
                                         step="0.01" inputmode="decimal" {{ $realDisabled ? 'disabled' : '' }}
                                         data-original="{{ $realVal ?? '' }}"
                                         class="telda-real w-full px-3 py-2 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors disabled:bg-slate-50 disabled:text-slate-300 disabled:cursor-not-allowed">

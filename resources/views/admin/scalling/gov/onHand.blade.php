@@ -453,9 +453,9 @@
 
                     {{-- Mitra --}}
                     <div>
-                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Mitra <span class="text-red-500">*</span></label>
+                        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Mitra</label>
                         <input type="text" name="mitra" value="{{ old('mitra') }}" placeholder="cth: Dengan Mitra"
-                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                            class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                     </div>
 
                     {{-- Plan Bulan --}}
