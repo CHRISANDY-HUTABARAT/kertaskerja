@@ -460,9 +460,14 @@ class ReportController extends Controller
                     if ($import) {
                         $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
 
-                        $importedRows = $dataRows->where('is_manual', false);
-                        $commitAmount = $importedRows->count();
-                        $commitRp     = (float) $importedRows->sum('est_nilai_bc') / 1000000;
+                        if ($type === 'initiate') {
+                            $commitAmount = $dataRows->count();
+                            $commitRp     = (float) $dataRows->sum('est_nilai_bc') / 1000000;
+                        } else {
+                            $importedRows = $dataRows->where('is_manual', false);
+                            $commitAmount = $importedRows->count();
+                            $commitRp     = (float) $importedRows->sum('est_nilai_bc') / 1000000;
+                        }
 
                         $dataIds  = $dataRows->pluck('id');
                         $funnels  = FunnelTracking::whereIn('data_id', $dataIds)->get();
