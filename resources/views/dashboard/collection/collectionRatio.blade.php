@@ -201,8 +201,8 @@
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Realisasi (%)</label>
                             <div class="relative">
-                                <input type="number" step="0.01" name="real_ratio" required
-                                    placeholder="0.00" min="0"
+                                <input type="number" step="any" name="real_ratio" required
+                                    placeholder="8.59" min="0"
                                     class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                                 <div class="absolute inset-y-0 right-0 pr-5 flex items-center pointer-events-none">
                                     <span class="text-slate-400 font-black text-2xl">%</span>

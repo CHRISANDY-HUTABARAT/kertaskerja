@@ -408,7 +408,6 @@ class ScallingController extends Controller
             'cc'                       => 'required|string|max:100',
             'nipnas'                   => 'nullable|string|max:50',
             'am'                       => 'required|string|max:100',
-            'mitra'                    => 'required|string|max:255',
             'plan_bulan_billcomp_2025' => 'required|integer|min:1|max:12',
             'est_nilai_bc'             => 'required|numeric|min:0',
         ], [

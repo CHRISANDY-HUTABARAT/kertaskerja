@@ -145,7 +145,7 @@
                             </div>
                             <div>
                                 <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Plan (Rp)</label>
+                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Data Prospek (Rp)</label>
                                 <input type="number" step="0.01" name="plan" placeholder="cth: 1000000"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                             </div>
@@ -196,7 +196,7 @@
                                 <tr class="bg-slate-50 border-b border-slate-100">
                                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Plan</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Prospek</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
@@ -355,7 +355,7 @@
                                     Tipe</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Plan</th>
+                                    Data Prospek</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Komitmen</th>

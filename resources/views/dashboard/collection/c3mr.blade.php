@@ -74,72 +74,72 @@
 
         {{-- ══ STATUS CARDS ══ --}}
         {{-- ══ PERIODE SELECTOR ══ --}}
-@php
-    $periodeLabel = \Carbon\Carbon::createFromFormat('Y-m', $selectedPeriode)->translatedFormat('F Y');
-    $isCurrentPeriode = $selectedPeriode === now()->format('Y-m');
-@endphp
+        @php
+            $periodeLabel = \Carbon\Carbon::createFromFormat('Y-m', $selectedPeriode)->translatedFormat('F Y');
+            $isCurrentPeriode = $selectedPeriode === now()->format('Y-m');
+        @endphp
 
-<form method="GET" action="{{ route('collection.c3mr') }}" class="mb-6" id="form-periode">
-    @foreach(request()->except('selected_periode') as $key => $val)
-        <input type="hidden" name="{{ $key }}" value="{{ $val }}">
-    @endforeach
-    <div class="flex items-center space-x-3">
-        <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Periode:</label>
-        <div class="relative">
-            <select name="selected_periode" onchange="document.getElementById('form-periode').submit()"
-                class="appearance-none text-sm font-bold text-slate-700 bg-white border-2 border-slate-200 hover:border-red-400 rounded-xl pl-4 pr-10 py-2.5 shadow-sm focus:outline-none focus:border-red-400 cursor-pointer transition-colors">
-                @foreach($periodeOptions as $p)
-                    <option value="{{ $p }}" {{ $p === $selectedPeriode ? 'selected' : '' }}>
-                        {{ \Carbon\Carbon::createFromFormat('Y-m', $p)->translatedFormat('F Y') }}
-                        {{ $p === now()->format('Y-m') ? '(Berjalan)' : '' }}
-                    </option>
-                @endforeach
-            </select>
-            <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
-                <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
-                </svg>
+        <form method="GET" action="{{ route('collection.c3mr') }}" class="mb-6" id="form-periode">
+            @foreach(request()->except('selected_periode') as $key => $val)
+                <input type="hidden" name="{{ $key }}" value="{{ $val }}">
+            @endforeach
+            <div class="flex items-center space-x-3">
+                <label class="text-xs font-black text-slate-500 uppercase tracking-widest">Periode:</label>
+                <div class="relative">
+                    <select name="selected_periode" onchange="document.getElementById('form-periode').submit()"
+                        class="appearance-none text-sm font-bold text-slate-700 bg-white border-2 border-slate-200 hover:border-red-400 rounded-xl pl-4 pr-10 py-2.5 shadow-sm focus:outline-none focus:border-red-400 cursor-pointer transition-colors">
+                        @foreach($periodeOptions as $p)
+                            <option value="{{ $p }}" {{ $p === $selectedPeriode ? 'selected' : '' }}>
+                                {{ \Carbon\Carbon::createFromFormat('Y-m', $p)->translatedFormat('F Y') }}
+                                {{ $p === now()->format('Y-m') ? '(Berjalan)' : '' }}
+                            </option>
+                        @endforeach
+                    </select>
+                    <div class="pointer-events-none absolute inset-y-0 right-3 flex items-center">
+                        <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </div>
+                </div>
+                @if(!$isCurrentPeriode)
+                <span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
+                    Melihat periode lampau
+                </span>
+                @endif
+            </div>
+        </form>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
+            {{-- Commitment --}}
+            <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Target Commitment — {{ $periodeLabel }}</p>
+                @if($comm && $comm->commitment !== null)
+                    <p class="text-4xl font-black text-slate-900">{{ number_format($comm->commitment, 2) }}<span class="text-2xl text-red-600">%</span></p>
+                    <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Ditetapkan oleh Admin</p>
+                @else
+                    <p class="text-2xl font-black text-slate-300">—</p>
+                    <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada target dari admin untuk periode ini</p>
+                @endif
+            </div>
+            {{-- Realisasi --}}
+            <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
+                <div class="absolute top-0 left-0 right-0 h-1 bg-green-500"></div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Realisasi Terakhir — {{ $periodeLabel }}</p>
+                @if($comm && $comm->commitment !== null)
+                    @if($comm->real_ratio !== null)
+                        <p class="text-4xl font-black text-green-600">{{ number_format($comm->real_ratio, 2) }}<span class="text-2xl">%</span></p>
+                        <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $comm->created_at->translatedFormat('d M Y H:i') }}</p>
+                    @else
+                        <p class="text-2xl font-black text-slate-300">0.00<span class="text-2xl">%</span></p>
+                        <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada realisasi untuk periode ini</p>
+                    @endif
+                @else
+                    <p class="text-2xl font-black text-slate-300">—</p>
+                    <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada target, sehingga realisasi tidak dapat dicatat</p>
+                @endif
             </div>
         </div>
-        @if(!$isCurrentPeriode)
-        <span class="text-xs font-bold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-1.5">
-            Melihat periode lampau
-        </span>
-        @endif
-    </div>
-</form>
-
-<div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
-    {{-- Commitment --}}
-    <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Target Commitment — {{ $periodeLabel }}</p>
-        @if($comm && $comm->commitment !== null)
-            <p class="text-4xl font-black text-slate-900">{{ number_format($comm->commitment, 2) }}<span class="text-2xl text-red-600">%</span></p>
-            <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Ditetapkan oleh Admin</p>
-        @else
-            <p class="text-2xl font-black text-slate-300">—</p>
-            <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada target dari admin untuk periode ini</p>
-        @endif
-    </div>
-    {{-- Realisasi --}}
-    <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
-        <div class="absolute top-0 left-0 right-0 h-1 bg-green-500"></div>
-        <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Realisasi Terakhir — {{ $periodeLabel }}</p>
-        @if($comm && $comm->commitment !== null)
-            @if($comm->real_ratio !== null)
-                <p class="text-4xl font-black text-green-600">{{ number_format($comm->real_ratio, 2) }}<span class="text-2xl">%</span></p>
-                <p class="text-xs text-slate-400 font-semibold mt-2 uppercase tracking-wide">Terakhir diperbarui: {{ $comm->created_at->translatedFormat('d M Y H:i') }}</p>
-            @else
-                <p class="text-2xl font-black text-slate-300">0.00<span class="text-2xl">%</span></p>
-                <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada realisasi untuk periode ini</p>
-            @endif
-        @else
-            <p class="text-2xl font-black text-slate-300">—</p>
-            <p class="text-xs text-slate-400 font-semibold mt-2">Belum ada target, sehingga realisasi tidak dapat dicatat</p>
-        @endif
-    </div>
-</div>
 
         {{-- ══ FORM REALISASI ══ --}}
         <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
@@ -152,15 +152,15 @@
                     </div>
                 </div>
                 <div class="flex items-center space-x-2">
-    <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
-        {{ $periodeLabel }}
-    </span>
-    @if(!$isCurrentPeriode)
-    <span class="text-[10px] font-black tracking-widest text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-1 uppercase">
-        Periode Lampau
-    </span>
-    @endif
-</div>
+                    <span class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-3 py-1 uppercase">
+                        {{ $periodeLabel }}
+                    </span>
+                    @if(!$isCurrentPeriode)
+                    <span class="text-[10px] font-black tracking-widest text-amber-700 bg-amber-50 border border-amber-200 rounded-md px-3 py-1 uppercase">
+                        Periode Lampau
+                    </span>
+                    @endif
+                </div>
             </div>
             <div class="p-8">
                 @if($comm && $comm->commitment !== null && $comm->status != 'active')

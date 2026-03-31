@@ -89,9 +89,9 @@ class ReportController extends Controller
 
         $utipCorrective = [
             'label'    => 'UTIP Corrective',
-            'planRp'   => $utipCorRow ? $toFloat($utipCorRow->plan)       : 0,
-            'commitRp' => $utipCorRow ? $toFloat($utipCorRow->commitment) : 0,
-            'realRp'   => $utipCorRow ? $toFloat($utipCorRow->real_ratio) : 0,
+            'planRp'   => round($utipCorRow ? $toFloat($utipCorRow->plan) / 1000000 : 0, 2),
+            'commitRp' => round($utipCorRow ? $toFloat($utipCorRow->commitment) / 1000000 : 0, 2),
+            'realRp'   => round($utipCorRow ? $toFloat($utipCorRow->real_ratio) / 1000000 : 0, 2),
             'updated_at' => $utipCorRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
@@ -125,9 +125,9 @@ class ReportController extends Controller
 
             $newUtipPeriodes[] = [
                 'label'      => $p['label'],
-                'planRp'     => $row ? $toFloat($row->plan)       : 0,
-                'commitRp'   => $row ? $toFloat($row->commitment) : 0,
-                'realRp'     => $row ? $toFloat($row->real_ratio) : 0,
+                'planRp'     => round($row ? $toFloat($row->plan) / 1000000 : 0, 2),
+                'commitRp'   => round($row ? $toFloat($row->commitment) / 1000000 : 0, 2),
+                'realRp'     => round($row ? $toFloat($row->real_ratio) / 1000000 : 0, 2),
                 'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
@@ -160,18 +160,19 @@ class ReportController extends Controller
             $row    = Ct0::where('region', $region)->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
             $commit = $row ? $toFloat($row->commitment) : 0;
             $real   = $row ? $toFloat($row->real_ratio) : 0;
+            $ach    = $commit == 0 ? '-' : number_format(($real / $commit) * 100, 2, ',', '.') . '%';
             $ct0Data[] = [
                 'label'  => $ct0RegionLabels[$region] ?? $region,
-                'commit' => $commit,
-                'real'   => $real,
-                'ach' => $commit == 0 ? '-' : number_format(($real / $commit) * 100, 1, ',', '.') . '%',
+                'commit' => round($commit / 1000000, 2),
+                'real'   => round($real / 1000000, 2),
+                'ach'    => $ach,
                 'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
 
         $ct0TotalCommit = array_sum(array_column($ct0Data, 'commit'));
         $ct0TotalReal   = array_sum(array_column($ct0Data, 'real'));
-        $ct0Score = $ct0TotalCommit == 0 ? '-' : number_format(($ct0TotalReal / $ct0TotalCommit) * 100, 1, ',', '.') . '%';
+        $ct0Score = $ct0TotalCommit == 0 ? '-' : number_format(($ct0TotalReal / $ct0TotalCommit) * 100, 2, ',', '.') . '%';
 
         $ctcCt0Row       = Ctc::where('segment', 'CT0')->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
         $ctcCt0Real      = $ctcCt0Row ? $toFloat($ctcCt0Row->real_ratio) : 0;
@@ -184,9 +185,9 @@ class ReportController extends Controller
             $commit = $row ? $toFloat($row->commitment) : 0;
             $real   = $row ? $toFloat($row->real_ratio) : 0;
             if ($seg === 'Churn') {
-                $ach = $real == 0 ? '-' : number_format(($commit / $real) * 100, 1) . '%';
+                $ach = $real == 0 ? '-' : number_format(($commit / $real) * 100, 2) . '%';
             } else {
-                $ach = $commit == 0 ? '-' : number_format(($real / $commit) * 100, 1, ',', '.') . '%';
+                $ach = $commit == 0 ? '-' : number_format(($real / $commit) * 100, 2, ',', '.') . '%';
             }
             $ctcData[$seg] = [
                 'commit'     => $commit,
@@ -198,7 +199,7 @@ class ReportController extends Controller
 
         $lossRateDenom = $ctcData['Sales HSI (all)']['real'] + $ctcData['Winback']['real'];
         $lossRateReal  = $lossRateDenom == 0 ? '-'
-            : number_format((($ctcCt0Real + $ctcData['Churn']['real']) / $lossRateDenom) * 100, 1, ',', '.') . '%';
+            : number_format((($ctcCt0Real + $ctcData['Churn']['real']) / $lossRateDenom) * 100, 2, ',', '.') . '%';
         $lossRateAch   = $lossRateReal;
         $lossRateUpdatedAt = '-';
 
@@ -237,7 +238,7 @@ class ReportController extends Controller
         $smeRatio  = $b1Data[2]['commit'] > 0 ? $b1Data[2]['real'] / $b1Data[2]['commit'] : 0;
         $hotdRatio = $b1Data[4]['commit'] > 0 ? $b1Data[4]['real'] / $b1Data[4]['commit'] : 0;
         $b1Ach    = ($gmRatio * 0.40) + ((($govRatio + $smeRatio + $hotdRatio) / 3) * 0.60);
-        $b1Score  = number_format($b1Ach * 100, 1, ',', '.') . '%';
+        $b1Score  = number_format($b1Ach * 100, 2, ',', '.') . '%';
 
         $b2TypeIds = [5, 6, 7, 8];
         $b2Labels  = [5 => 'Profiling MAPS AM Gov', 6 => 'Profiling MAPS AM SME', 7 => 'Profiling HOTD: LEGS', 8 => 'Profiling HOTD: SME'];
@@ -263,7 +264,7 @@ class ReportController extends Controller
         $legsRatio  = $b2Data[7]['commit'] > 0 ? $b2Data[7]['real'] / $b2Data[7]['commit'] : 0;
         $hotdSmeRatio = $b2Data[8]['commit'] > 0 ? $b2Data[8]['real'] / $b2Data[8]['commit'] : 0;
         $b2Ach    = ($mapsRatio + $legsRatio + $hotdSmeRatio) / 3;
-        $b2Score  = number_format($b2Ach * 100, 1, ',', '.') . '%';
+        $b2Score  = number_format($b2Ach * 100, 2, ',', '.') . '%';
 
         $b3TypeIds = [9, 10];
         $b3Labels  = [9 => 'Kecukupan LOP: Gov', 10 => 'Kecukupan LOP: SME'];
@@ -286,7 +287,7 @@ class ReportController extends Controller
         $b3TotalReal   = $b3Data[9]['real']   + $b3Data[10]['real'];
         $b3TotalCommit = $b3Data[9]['commit'] + $b3Data[10]['commit'];
         $b3Ach   = $b3TotalCommit > 0 ? $b3TotalReal / $b3TotalCommit : 0;
-        $b3Score = number_format($b3Ach * 100, 1, ',', '.') . '%';
+        $b3Score = number_format($b3Ach * 100, 2, ',', '.') . '%';
         $b3UpdatedAt = $b3Data[9]['updated_at'] !== '-' ? $b3Data[9]['updated_at'] : ($b3Data[10]['updated_at'] ?? '-');
 
         $rsLatestByUser = function (int $typeId, int $userId) use ($filterPeriodeRs) {
@@ -325,8 +326,8 @@ class ReportController extends Controller
         $ratio3p  = $commit3p > 0 ? $real3p / $commit3p : 0;
         $b4RpMillion = (0.30 * $ratio03) + (0.70 * $ratio3p);
         $b4Ach       = $b4RpMillion > 0 ? $b4RpMillion / 0.70 : 0;
-        $b4Score     = number_format($b4Ach * 100, 1, ',', '.') . '%';
-        $b4RpDisplay = number_format($b4RpMillion * 100, 1, ',', '');
+        $b4Score     = number_format($b4Ach * 100, 2, ',', '.') . '%';
+        $b4RpDisplay = number_format($b4RpMillion * 100, 2, ',', '');
         $b4UpdatedAt = collect($b4Data)->first(fn($d) => $d['updated_at'] !== '-')['updated_at'] ?? '-';
 
         $filterPeriodePsak = function ($q) use ($filtered, $filterBulan, $filterTahun) {
@@ -364,10 +365,10 @@ class ReportController extends Controller
                     ->first();
 
                 $commSsl = $row ? $toFloat($row->comm_ssl) : 0;
-                $commRp  = $row ? $toFloat($row->comm_rp)  : 0;
+                $commRp  = $row ? round($toFloat($row->comm_rp) / 1000000, 2)  : 0;
                 $realSsl = $row ? $toFloat($row->real_ssl) : 0;
-                $realRp  = $row ? $toFloat($row->real_rp)  : 0;
-                $ach     = $commRp == 0 ? '-' : number_format(($realRp / $commRp) * 100, 1, ',', '.') . '%';
+                $realRp  = $row ? round($toFloat($row->real_rp) / 1000000, 2)  : 0;
+                $ach     = $commRp == 0 ? '-' : number_format(($realRp / $commRp) * 100, 2, ',', '.') . '%';
 
                 $totalCommRp += $commRp;
                 $totalRealRp += $realRp;
@@ -383,7 +384,7 @@ class ReportController extends Controller
                 ];
             }
 
-            $score = $totalCommRp == 0 ? '-' : number_format(($totalRealRp / $totalCommRp) * 100, 1, ',', '.') . '%';
+            $score = $totalCommRp == 0 ? '-' : number_format(($totalRealRp / $totalCommRp) * 100, 2, ',', '.') . '%';
 
             $psakData[$typeKey] = [
                 'label'      => $typeLabel,
@@ -457,13 +458,11 @@ class ReportController extends Controller
                         ->first();
 
                     if ($import) {
-                        $dateRows = ScallingData::where('imports_log_id', $import->id)
-                            ->where('created_at', '=', $import->created_at)
-                            ->get();
                         $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
 
-                        $commitAmount = $dateRows->count();
-                        $commitRp     = (float) $dateRows->sum('est_nilai_bc') / 1000000;
+                        $importedRows = $dataRows->where('is_manual', false);
+                        $commitAmount = $importedRows->count();
+                        $commitRp     = (float) $importedRows->sum('est_nilai_bc') / 1000000;
 
                         $dataIds  = $dataRows->pluck('id');
                         $funnels  = FunnelTracking::whereIn('data_id', $dataIds)->get();
@@ -509,7 +508,7 @@ class ReportController extends Controller
         $teldaRegions = [
             'lubukpakam'      => 'Lubuk Pakam',
             'binjai'          => 'Binjai',
-            'pematangsiantar' => 'Pematang Siantar',
+            'siantar'         => 'Pematang Siantar',
             'kisaran'         => 'Kisaran',
             'kabanjahe'       => 'Kabanjahe',
             'rantauprapat'    => 'Rantau Prapat',
@@ -528,8 +527,8 @@ class ReportController extends Controller
 
             $teldaData[$regionKey] = [
                 'label'     => $regionLabel,
-                'commit_rp' => $record ? (float) $record->commitment : null,
-                'real_rp'   => $record ? (float) $record->real_ratio : null,
+                'commit_rp' => $record ? round((float) $record->commitment / 1000000, 2) : null,
+                'real_rp'   => $record ? round((float) $record->real_ratio / 1000000, 2) : null,
                 'updated_at' => $record?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
@@ -541,8 +540,8 @@ class ReportController extends Controller
             ->first();
 
         $upsellingData = [
-            'commit_rp' => (float) ($upsellingRow->commitment ?? 0),
-            'real_rp'   => (float) ($upsellingRow->real_ratio ?? 0),
+            'commit_rp' => round((float) ($upsellingRow->commitment ?? 0) / 1000000, 2),
+            'real_rp'   => round((float) ($upsellingRow->real_ratio ?? 0) / 1000000, 2),
             'updated_at' => $upsellingRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 

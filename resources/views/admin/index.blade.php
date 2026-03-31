@@ -418,14 +418,14 @@
                             ],
                             [
                                 'label' => 'PSAK SOE',
-                                'sub' => 'BUMN PSAK Data',
+                                'sub' => 'SOE PSAK Data',
                                 'badge' => 'SOE',
                                 'route' => route('admin.psak.soe'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                             ],
                             [
                                 'label' => 'PSAK SME',
-                                'sub' => 'UKM PSAK Data',
+                                'sub' => 'SME PSAK Data',
                                 'badge' => 'SME',
                                 'route' => route('admin.psak.sme'),
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'

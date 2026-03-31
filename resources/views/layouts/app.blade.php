@@ -81,5 +81,18 @@
     @endif
 
     @yield('content')
+    <script>
+        window.addEventListener('beforeunload', function() {
+            sessionStorage.setItem('scrollPos_' + window.location.pathname, window.scrollY);
+        });
+
+        window.addEventListener('DOMContentLoaded', function() {
+            var savedPos = sessionStorage.getItem('scrollPos_' + window.location.pathname);
+            if (savedPos) {
+                window.scrollTo(0, parseInt(savedPos));
+                sessionStorage.removeItem('scrollPos_' + window.location.pathname);
+            }
+        });
+    </script>
 </body>
 </html>

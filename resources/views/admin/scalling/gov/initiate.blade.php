@@ -232,16 +232,13 @@
                                         File Name</th>
                                     <th
                                         class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                        Admin</th>
+                                        User</th>
                                     <th
                                         class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                         Periode</th>
                                     <th
                                         class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                         Status</th>
-                                    <th
-                                        class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                        Rows</th>
                                     <th
                                         class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                         Aksi</th>
@@ -281,11 +278,6 @@
                                                     Inactive
                                                 </span>
                                             @endif
-                                        </td>
-                                        <td class="px-6 py-4">
-                                            <span class="text-xs font-bold text-slate-500 bg-slate-100 rounded-md px-2.5 py-1">
-                                                {{ $data->total_rows_imported ?? 0 }} rows
-                                            </span>
                                         </td>
                                         <td class="px-6 py-4">
                                         <div class="flex items-center justify-center space-x-2">

@@ -111,7 +111,7 @@
                             <div class="relative">
                                 <input type="number" name="commitment"
                                     value="{{ old('commitment', $existing?->commitment) }}"
-                                    placeholder="0.00" min="0" step="0.01"
+                                    placeholder="10000000" min="0"
                                     class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors @error('commitment') border-red-400 @enderror">
                                 <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                     <span class="text-slate-400 font-black text-2xl">Rp</span>
@@ -126,7 +126,7 @@
                             <div class="relative">
                                 <input type="number" name="real_ratio"
                                     value="{{ old('real_ratio', $existing?->real_ratio) }}"
-                                    placeholder="0.00" min="0" step="0.01"
+                                    placeholder="2000000" min="0" 
                                     class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors @error('real_ratio') border-red-400 @enderror">
                                 <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                     <span class="text-slate-400 font-black text-2xl">Rp</span>
@@ -142,7 +142,7 @@
                                 <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                 </svg>
-                                <span>{{ $existing && $existing->real_ratio !== null ? 'Update Realisasi' : 'Simpan Realisasi' }}</span>
+                                <span>{{ $existing && $existing->real_ratio !== null ? 'Update' : 'Simpan' }}</span>
                             </button>
                         </div>
                     </div>
