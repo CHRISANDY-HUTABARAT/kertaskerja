@@ -96,6 +96,28 @@
                     </svg>
                 </a>
             </div>
+            <div class="grid grid-cols gap-4 mb-8">
+                <a onclick="document.getElementById('modalAddLop').classList.remove('hidden')"
+                    class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+                            style="background:#fff1f2; border:1.5px solid #fecdd3;">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
+                                    d="M12 4v16m8-8H4" />
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-black text-slate-900 text-sm">Tambah Project</p>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">Tambah data project baru</p>
+                        </div>
+                    </div>
+                    <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none"
+                        stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7" />
+                    </svg>
+                </a>
+            </div>
 
             {{-- ══ UPLOAD FILE ══ --}}
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm p-8 mb-8">
