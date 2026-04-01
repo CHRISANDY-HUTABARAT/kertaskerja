@@ -437,7 +437,7 @@ class ReportController extends Controller
                     $import = ScallingImport::where('segment', $seg['segment'])
                         ->where('type', 'koreksi')
                         ->where('periode', $scalingPeriodeDate)
-                        ->where('status', 'active')
+                        ->latest()
                         ->first();
 
                     if ($import) {
@@ -454,7 +454,7 @@ class ReportController extends Controller
                     $import = ScallingImport::where('segment', $seg['segment'])
                         ->where('type', $type)
                         ->where('periode', $scalingPeriodeDate)
-                        ->where('status', 'active')
+                        ->latest()
                         ->first();
 
                     if ($import) {
