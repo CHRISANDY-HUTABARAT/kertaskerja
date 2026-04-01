@@ -397,8 +397,7 @@ class ReportController extends Controller
         $scalingTahun = $filtered && $filterTahun ? (int) $filterTahun : Carbon::now()->year;
 
         if ($filtered && $filterBulan && !$filterTahun) {
-            $foundImport = ScallingImport::where('status', 'active')
-                ->whereMonth('periode', $scalingBulan)
+            $foundImport = ScallingImport::whereMonth('periode', $scalingBulan)
                 ->orderByDesc('periode')
                 ->first();
             if ($foundImport) {
@@ -595,7 +594,6 @@ class ReportController extends Controller
 
     $availableImports = \App\Models\ScallingImport::where('segment', $segmentDb)
         ->where('type', $type)
-        ->where('status', 'active')
         ->orderByDesc('periode')
         ->get();
 
@@ -626,7 +624,7 @@ class ReportController extends Controller
         $import = \App\Models\ScallingImport::where('segment', $segmentDb)
             ->where('type', 'koreksi')
             ->where('periode', $periodeDate)
-            ->where('status', 'active')
+            ->latest()
             ->first();
 
         $koreksiRows = $import
@@ -650,7 +648,7 @@ class ReportController extends Controller
     $import = \App\Models\ScallingImport::where('segment', $segmentDb)
         ->where('type', $type)
         ->where('periode', $periodeDate)
-        ->where('status', 'active')
+        ->latest()
         ->first();
 
     $dataRows  = collect();
@@ -660,7 +658,6 @@ class ReportController extends Controller
         $importIds = \App\Models\ScallingImport::where('segment', $segmentDb)
             ->where('type', $type)
             ->where('periode', $periodeDate)
-            ->where('status', 'active')
             ->pluck('id');
 
         if ($importIds->isNotEmpty()) {
