@@ -137,7 +137,7 @@
                                     LOP</label>
                                 <input type="text" name="id_lop" value="{{ old('id_lop') }}" placeholder="cth: LOP-001"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
-                                    required>
+                                    >
                             </div>
 
                             {{-- CC --}}
@@ -155,7 +155,7 @@
                                     class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Nipnas</label>
                                 <input type="text" name="nipnas" value="{{ old('nipnas') }}" placeholder="cth: 1234567890"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors"
-                                    required>
+                                    >
                             </div>
 
                             {{-- AM --}}
