@@ -12,6 +12,7 @@ use App\Http\Controllers\PrivateController;
 use App\Http\Controllers\SmeController;
 use App\Http\Controllers\SoeController;
 use App\Http\Controllers\CollectionController;
+use App\Http\Controllers\NgtmaController;
 
 Route::get('/', function () {
     return redirect()->route('auth.login.form');
@@ -90,6 +91,27 @@ Route::middleware('auth')->group(function () {
         // Telda routes
         Route::get('/admin/telda', [Admin2Controller::class, 'teldaTable'])->name('admin.telda.index');
         Route::post('/admin/telda', [Admin2Controller::class, 'teldaStore'])->name('admin.telda.store');
+
+        // NGTMA routes
+        Route::prefix('admin/ngtma')->name('admin.ngtma.')->group(function () {
+            Route::get('/{segment}', [NgtmaController::class, 'index'])
+                ->where('segment', 'gov|private|soe|sme')
+                ->name('index');
+            Route::get('/{segment}/progress', [NgtmaController::class, 'progress'])
+                ->where('segment', 'gov|private|soe|sme')
+                ->name('progress');
+            Route::post('/{segment}/funnel', [NgtmaController::class, 'updateFunnelCheckbox'])
+                ->where('segment', 'gov|private|soe|sme')
+                ->name('progress.funnel.update');
+            Route::post('/{segment}/import', [NgtmaController::class, 'import'])
+                ->where('segment', 'gov|private|soe|sme')
+                ->name('import');
+            Route::post('/{segment}/store', [NgtmaController::class, 'storeData'])
+                ->where('segment', 'gov|private|soe|sme')
+                ->name('store');
+            Route::patch('/toggle-status/{id}', [NgtmaController::class, 'toggleStatus'])
+                ->name('toggle-status');
+        });
 
         // Scalling routes
         Route::get('/scalling/gov', [ScallingController::class, 'indexGov'])->name('admin.scalling.gov');

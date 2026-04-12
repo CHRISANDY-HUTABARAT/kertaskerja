@@ -29,6 +29,12 @@ class ScallingImport extends Model
         // table column is "imports_log_id" (plural) according to the migration
         return $this->hasMany(ScallingData::class, 'imports_log_id');
     }
+
+    public function ngtma()
+    {
+        // table column is "imports_log_id" (plural) according to the migration
+        return $this->hasMany(Ngtma::class, 'imports_log_id');
+    }
     
     public function koreksi()
     {

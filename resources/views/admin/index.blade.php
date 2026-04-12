@@ -472,6 +472,92 @@
                 </div>
             </div>
 
+            {{-- ══ 6. NGTMA ══ --}}
+            <div class="mb-6">
+                <div class="flex items-center justify-between mb-5">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                        <div>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">NGTMA</h2>
+                        </div>
+                    </div>
+                    <span
+                        class="text-xs font-bold text-slate-500 bg-white border border-slate-200 rounded-full px-4 py-1.5 shadow-sm">Project by Segment</span>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
+                    @php
+                        $ngtmaCards = [
+                            [
+                                'key' => 'gov',
+                                'label' => 'NGTMA Gov',
+                                'sub' => 'Government NGTMA Data',
+                                'badge' => 'GOV',
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                            ],
+                            [
+                                'key' => 'private',
+                                'label' => 'NGTMA Private',
+                                'sub' => 'Private NGTMA Data',
+                                'badge' => 'PVT',
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                            ],
+                            [
+                                'key' => 'soe',
+                                'label' => 'NGTMA SOE',
+                                'sub' => 'SOE NGTMA Data',
+                                'badge' => 'SOE',
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                            ],
+                            [
+                                'key' => 'sme',
+                                'label' => 'NGTMA SME',
+                                'sub' => 'SME NGTMA Data',
+                                'badge' => 'SME',
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
+                            ],
+                        ];
+                    @endphp
+                    @foreach($ngtmaCards as $card)
+                        <a href="{{ route('admin.ngtma.index', ['segment' => $card['key']]) }}"
+                            class="group bg-white rounded-2xl border-2 border-slate-100 hover:border-red-200 shadow-sm hover:shadow-xl hover:shadow-red-500/10 transition-all duration-300 hover:-translate-y-1.5 overflow-hidden relative">
+                            <div
+                                class="h-1 w-full bg-gradient-to-r from-red-600 to-red-400 opacity-0 group-hover:opacity-100 transition-all duration-300">
+                            </div>
+                            <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                                style="background: radial-gradient(ellipse at top right, #fff1f2 0%, transparent 60%);"></div>
+                            <div class="p-6 relative">
+                                <div class="flex items-start justify-between mb-5">
+                                    <div class="rounded-xl flex items-center justify-center shadow-sm border-2"
+                                        style="background: linear-gradient(135deg, #fff1f2, #ffe4e6); border-color: #fecdd3; width:52px; height:52px;">
+                                        <svg class="w-6 h-6 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            {!! $card['icon'] !!}
+                                        </svg>
+                                    </div>
+                                    <span
+                                        class="text-[10px] font-black tracking-widest text-red-600 bg-red-50 border border-red-100 rounded-md px-2 py-0.5">{{ $card['badge'] }}</span>
+                                </div>
+                                <h3 class="text-lg font-black text-slate-900 tracking-tight mb-1">{{ $card['label'] }}</h3>
+                                <p class="text-sm text-slate-500 font-medium mb-5">{{ $card['sub'] }}</p>
+                                <div class="flex items-center justify-between">
+                                    <span
+                                        class="text-xs font-black text-slate-400 group-hover:text-red-600 uppercase tracking-widest transition-colors duration-200">Manage
+                                        Data</span>
+                                    <div
+                                        class="w-7 h-7 rounded-lg bg-slate-100 group-hover:bg-red-600 flex items-center justify-center transition-all duration-200">
+                                        <svg class="w-3.5 h-3.5 text-slate-400 group-hover:text-white transition-colors"
+                                            fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"
+                                                d="M9 5l7 7-7 7" />
+                                        </svg>
+                                    </div>
+                                </div>
+                            </div>
+                        </a>
+                    @endforeach
+                </div>
+            </div>
+
         </div>
     </div>
 @endsection

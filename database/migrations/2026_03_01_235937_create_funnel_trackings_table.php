@@ -12,7 +12,8 @@ return new class extends Migration
             $table->id();
             $table->string('data_type'); // 'on_hand', 'qualified', 'koreksi', 'initiate'
             $table->unsignedBigInteger('data_id'); // ID dari tabel data yang terkait
-            
+            $table->unsignedBigInteger('ngtma_id'); // ID dari tabel NGTMA yang terkait
+
             // F0 - Lead
             // $table->boolean('f0_lead')->default(false);
             $table->boolean('f0_inisiasi_solusi')->default(false);
@@ -56,9 +57,9 @@ return new class extends Migration
             $table->timestamps();
             
             // Index untuk query lebih cepat
-            $table->index(['data_type', 'data_id']);
+            $table->index(['data_type', 'data_id', 'ngtma_id']);
             $table->foreign('data_id')->references('id')->on('scalling_data')->onDelete('cascade');
-
+            $table->foreign('ngtma_id')->references('id')->on('ngtmas')->onDelete('cascade');
         });
     }
 

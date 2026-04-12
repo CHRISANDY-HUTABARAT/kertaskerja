@@ -14,6 +14,7 @@ class FunnelTracking extends Model
     protected $fillable = [
         'data_type',
         'data_id',
+        'ngtma_id',
         // F0
         'f0_inisiasi_solusi',
         // F1
@@ -88,6 +89,11 @@ class FunnelTracking extends Model
     public function data()
     {
         return $this->belongsTo(ScallingData::class, 'data_id');
+    }
+
+    public function ngtma()
+    {
+        return $this->belongsTo(Ngtma::class, 'ngtma_id');
     }
 
     /**
