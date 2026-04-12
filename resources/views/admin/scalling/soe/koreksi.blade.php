@@ -313,21 +313,25 @@
                                                                 <tr>
                                                                     @php
                                                                         $first = $previewRows->first()->toArray();
-                                                                        $excluded = ['id', 'imports_log_id', 'created_at', 'updated_at']; // tambahkan kolom lain kalau perlu
+                                                                        $excluded = ['id', 'imports_log_id', 'created_at', 'updated_at', 'is_manual']; // tambahkan kolom lain kalau perlu
                                                                         $headers = array_diff(array_keys($first), $excluded);
                                                                     @endphp
-                                                                    @foreach($headers as $header)
-                                                                        <th
-                                                                            class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                                            {{ $header }}</th>
-                                                                    @endforeach
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">NO</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">NAMA PELANGGAN</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">NILAI KOMITMEN</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">PROGRESS</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">REALISASI</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody class="divide-y divide-slate-100">
                                                                 @foreach($previewRows as $row)
                                                                     <tr class="hover:bg-slate-50">
                                                                         @foreach($headers as $field)
-                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field} ?? '-' }}</td>
+                                                                            @if($field === 'nilai_komitmen' || $field === 'realisasi')
+                                                                                <td class="px-4 py-2.5 text-slate-700">{{ number_format($row->{$field} ?? 0, 0, ',', '.') }}</td>
+                                                                            @else
+                                                                            <td class="px-4 py-2.5 text-slate-700">{{ $row->{$field}?? '-' }}</td>
+                                                                            @endif
                                                                         @endforeach
                                                                     </tr>
                                                                 @endforeach

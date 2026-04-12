@@ -166,40 +166,40 @@
                             </td>
                             {{-- F2 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p0_p1" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p0_p1') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p0_p1" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p0_p1') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p2" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p2') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p2" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p2') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p3" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p3') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p3" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p3') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p4" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p4') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p4" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p4') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_offering" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_offering') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_offering" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_offering') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p5" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p5') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p5" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p5') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_proposal" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_proposal') ? 'checked' : '' }}>
                             </td>
                             {{-- F3 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_p6" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f3_p6') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_p6" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f3_p6') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_p7" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f3_p7') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_p7" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f3_p7') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_submit" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f3_submit') ? 'checked' : '' }}>
@@ -210,27 +210,27 @@
                             </td>
                             {{-- F5 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_sk_mitra" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f5_sk_mitra') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_sk_mitra" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f5_sk_mitra') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_ttd_kontrak" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f5_ttd_kontrak') ? 'checked' : '' }}>
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_p8" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f5_p8') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_p8" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f5_p8') ? 'checked' : '' }}>
+                                
                             </td>
                             {{-- DELIVERY --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_kontrak" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('delivery_kontrak') ? 'checked' : '' }}>
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_baut_bast" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('delivery_baut_bast') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_baut_bast" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('delivery_baut_bast') ? 'checked' : '' }}>
+                                
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
-                                @if($denganMitra)<input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_baso" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('delivery_baso') ? 'checked' : '' }}>
-                                @else<span class="text-slate-300 font-bold">—</span>@endif
+                                <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_baso" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('delivery_baso') ? 'checked' : '' }}>
+                                
                             </td>
                             {{-- BILLING COMPLETE --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-indigo-50">

@@ -354,11 +354,15 @@
                                                                         $excluded = ['id', 'total_row_imports', 'created_at', 'updated_at' , 'imports_log_id','is_manual'];
                                                                         $headers = array_diff(array_keys($first), $excluded);
                                                                     @endphp
-                                                                    @foreach($headers as $header)
-                                                                        <th
-                                                                            class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                                                            {{ $header }}</th>
-                                                                    @endforeach
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">NO</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">PROJECT</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">ID LOP</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">CC</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">NIPNAS</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">AM</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">MITRA</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">EST BULAN BC</th>
+                                                                    <th class="px-4 py-2.5 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">EST NILAI BC</th>
                                                                 </tr>
                                                             </thead>
                                                             <tbody class="divide-y divide-slate-100">
