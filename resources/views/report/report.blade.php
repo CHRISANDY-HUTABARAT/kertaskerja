@@ -355,6 +355,11 @@
                                 <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 text-[9px] font-black flex items-center justify-center flex-shrink-0">5</span>
                                 <span>PSAK</span>
                             </button>
+                            <button data-export="6"
+                                class="export-option w-full flex items-center space-x-2.5 px-4 py-2.5 hover:bg-slate-50 text-slate-600 text-xs font-semibold transition-colors text-left">
+                                <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 text-[9px] font-black flex items-center justify-center flex-shrink-0">6</span>
+                                <span>New GTMA</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -862,7 +867,45 @@
                                         <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $ind['updated_at'] ?? '-' }}</td>
                                     </tr>
                                 @endforeach
-                            @endforeach
+                                @endforeach
+
+                                    <tr class="border-b-2 border-black font-bold">
+                                        <td class="border border-gray-400 text-center">6</td>
+                                        <td colspan="10" class="border border-gray-400 px-2 py-1 uppercase bg-gray-50">New GTMA</td>
+                                    </tr>
+
+                                    @foreach($ngtmaSegments as $segKey => $seg)
+                                    @php
+                                        $row    = $ngtmaData[$segKey];
+                                        $cRp    = $row['commit_rp'];
+                                        $rRp    = $row['real_rp'];
+                                        $achVal = $cRp > 0 ? ($rRp / $cRp) * 100 : null;
+                                        $achC   = scalingAchColor($achVal);
+                                        $scoreC = scalingAchColor($achVal);
+                                    @endphp
+                                    <tr id="ngtma-row-{{ $segKey }}">
+                                        @if($loop->first)
+                                            <td rowspan="{{ count($ngtmaSegments) }}" class="border border-gray-400"></td>
+                                        @endif
+                                        <td class="border border-gray-400 px-2 py-1 font-semibold">{{ $row['label'] }}</td>
+                                        <td class="border border-gray-400 px-2 py-1">On Hand</td>
+                                        <td class="border border-gray-400 text-center">lop</td>
+                                        <td class="border border-gray-400 px-2 text-right">{{ $row['commit_amount'] > 0 ? $row['commit_amount'] : '' }}</td>
+                                        <td class="border border-gray-400 px-2 text-right">{{ $cRp > 0 ? number_format($cRp, fmod($cRp,1)==0?0:2,',','.') : '' }}</td>
+                                        <td class="border border-gray-400 px-2 text-right">{{ $row['real_amount'] > 0 ? $row['real_amount'] : '' }}</td>
+                                        <td class="border border-gray-400 px-2 text-right">{{ $rRp > 0 ? number_format($rRp, fmod($rRp,1)==0?0:2,',','.') : '' }}</td>
+                                        @if($loop->first)
+                                            <td rowspan="{{ count($ngtmaSegments) }}" class="border border-gray-400 text-center align-middle">0-100</td>
+                                        @endif
+                                        <td class="border border-gray-400 text-right font-bold" style="{{ $achC['bg'] }}">
+                                            <span class="{{ $achC['text'] }}">{{ $achC['label'] }}</span>
+                                        </td>
+                                        <td class="border border-gray-400 text-right font-bold align-middle" style="{{ $scoreC['bg'] }}">
+                                            <span class="{{ $scoreC['text'] }}">{{ $scoreC['label'] }}</span>
+                                        </td>
+                                        <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $row['updated_at'] ?? '-' }}</td>
+                                    </tr>
+                                    @endforeach
 
                         </tbody>
                     </table>
@@ -1013,6 +1056,10 @@
         { id:'scaling-row-sme-qualified',    href:'{{ $scalingDetailRoutes['sme']['qualified'] }}' },
         { id:'scaling-row-sme-initiate',     href:'{{ $scalingDetailRoutes['sme']['initiate'] }}' },
         { id:'scaling-row-sme-koreksi',      href:'{{ $scalingDetailRoutes['sme']['koreksi'] }}' },
+        { id:'ngtma-row-gov',     href:'{{ $ngtmaDetailRoutes['gov'] }}' },
+        { id:'ngtma-row-private', href:'{{ $ngtmaDetailRoutes['private'] }}' },
+        { id:'ngtma-row-soe',     href:'{{ $ngtmaDetailRoutes['soe'] }}' },
+        { id:'ngtma-row-sme',     href:'{{ $ngtmaDetailRoutes['sme'] }}' },
     ];
 
     function renderDetailButtons() {
@@ -1070,6 +1117,7 @@
         { no:3, name:'Combat The Churn', keyword:'COMBAT THE CHURN' },
         { no:4, name:'Rising Star',      keyword:'RISING STAR' },
         { no:5, name:'PSAK',             keyword:'PSAK' },
+        { no:6, name:'New GTMA',         keyword:'NEW GTMA' },
     ];
 
     function setProgress(pct) { document.getElementById('export-progress-bar').style.width = pct+'%'; }

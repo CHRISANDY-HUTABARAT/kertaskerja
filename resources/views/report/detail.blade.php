@@ -18,7 +18,7 @@
                     <div>
                         <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
                         <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
-                            Detail <span class="text-red-600">Scalling</span>
+                            Detail <span class="text-red-600">{{ $type === 'ngtma' ? 'NGTMA' : 'Scalling' }}</span>
                         </h1>
                         <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">
                             {{ $segmentLabel }} — {{ $typeLabel }} — {{ $periodeLabel }}
@@ -57,6 +57,11 @@
                 </h2>
             </div>
             <div class="flex items-center space-x-3 flex-wrap gap-2">
+                @php
+                    $hasData = $type === 'koreksi' ? ($import && $koreksiRows->count()) : ($import && $dataRows->count());
+                @endphp
+
+                @if($hasData)
                 <button id="btn-export-detail"
                     class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-black text-[11px] px-3 py-1 rounded-md transition-all uppercase tracking-widest">
                     <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -64,6 +69,7 @@
                     </svg>
                     <span>Export JPG</span>
                 </button>
+                @endif
                 <span class="text-[11px] font-black tracking-widest uppercase px-3 py-1 rounded-md border
                     @if($segment === 'gov')     bg-blue-50   border-blue-200   text-blue-700
                     @elseif($segment === 'private') bg-purple-50 border-purple-200 text-purple-700
@@ -683,7 +689,7 @@ function cloneTable() {
             + '<div class="detail-export-header-divider"></div>'
             + '<div>'
             +   '<div style="font-size:8.5px;font-weight:800;letter-spacing:0.3em;color:#dc2626;text-transform:uppercase;margin-bottom:2px;">Witel Sumut</div>'
-            +   '<div style="font-size:15px;font-weight:900;text-transform:uppercase;color:#0f172a;line-height:1;">Detail Scalling</div>'
+            +   '<div style="font-size:15px;font-weight:900;text-transform:uppercase;color:#0f172a;line-height:1;">Detail ' + (isKoreksi ? 'Koreksi' : (typeLabel === 'New GTMA' ? 'NGTMA' : 'Scalling')) + '</div>'
             +   '<div style="font-size:8px;color:#64748b;font-weight:600;margin-top:3px;text-transform:uppercase;letter-spacing:0.05em;">'
             +     segmentLabel + ' &nbsp;|&nbsp; ' + typeLabel + ' &nbsp;|&nbsp; ' + periodeLabel
             +   '</div>'

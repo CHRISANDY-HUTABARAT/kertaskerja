@@ -351,7 +351,7 @@ class NgtmaController extends Controller
 
         $dataRows  = collect();
         $funnelMap = collect();
-        
+
         if ($import) {
             $dataRows = \App\Models\Ngtma::where('imports_log_id', $import->id)
                 ->with(['funnel.todayProgress'])

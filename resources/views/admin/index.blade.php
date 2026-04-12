@@ -490,29 +490,29 @@
                         $ngtmaCards = [
                             [
                                 'key' => 'gov',
-                                'label' => 'NGTMA Gov',
-                                'sub' => 'Government NGTMA Data',
+                                'label' => 'Government',
+                                'sub' => 'New GTMA Government',
                                 'badge' => 'GOV',
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                             ],
                             [
                                 'key' => 'private',
-                                'label' => 'NGTMA Private',
-                                'sub' => 'Private NGTMA Data',
+                                'label' => 'Private',
+                                'sub' => 'New GTMA Private',
                                 'badge' => 'PVT',
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                             ],
                             [
                                 'key' => 'soe',
-                                'label' => 'NGTMA SOE',
-                                'sub' => 'SOE NGTMA Data',
+                                'label' => 'SOE',
+                                'sub' => 'New GTMA SOE',
                                 'badge' => 'SOE',
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                             ],
                             [
                                 'key' => 'sme',
-                                'label' => 'NGTMA SME',
-                                'sub' => 'SME NGTMA Data',
+                                'label' => 'SME',
+                                'sub' => 'New GTMA SME',
                                 'badge' => 'SME',
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>'
                             ],

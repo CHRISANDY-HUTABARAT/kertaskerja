@@ -497,6 +497,54 @@ class ReportController extends Controller
             }
         }
 
+        $ngtmaSegments = [
+            'gov'     => ['label' => 'Government',     'segment' => 'government'],
+            'private' => ['label' => 'Private', 'segment' => 'private'],
+            'soe'     => ['label' => 'SOE',     'segment' => 'soe'],
+            'sme'     => ['label' => 'SME',     'segment' => 'sme'],
+        ];
+
+        $ngtmaData = [];
+        foreach ($ngtmaSegments as $segKey => $seg) {
+            $import = ScallingImport::where('segment', $seg['segment'])
+                ->where('type', 'ngtma')
+                ->where('periode', $scalingPeriodeDate)
+                ->latest()
+                ->first();
+
+            $commitAmount = 0; $commitRp = 0; $realAmount = 0; $realRp = 0;
+            $funnelUpdatedAt = '-';
+
+            if ($import) {
+                $dataRows = \App\Models\Ngtma::where('imports_log_id', $import->id)->get();
+                $commitAmount = $dataRows->count();
+                $commitRp     = (float) $dataRows->sum('est_nilai_bc') / 1000000;
+
+                $dataIds  = $dataRows->pluck('id');
+                $funnels  = FunnelTracking::whereIn('ngtma_id', $dataIds)->get();
+                $realAmount = $funnels->where('delivery_billing_complete', true)->count();
+                $realRp     = (float) $funnels->sum('delivery_nilai_billcomp') / 1000000;
+
+                $latestFunnel = $funnels->sortByDesc('updated_at')->first();
+                $funnelUpdatedAt = $latestFunnel?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
+            }
+
+            $ngtmaData[$segKey] = [
+                'label'         => $seg['label'],
+                'commit_amount' => $commitAmount,
+                'commit_rp'     => $commitRp,
+                'real_amount'   => $realAmount,
+                'real_rp'       => $realRp,
+                'updated_at'    => $funnelUpdatedAt,
+            ];
+        }
+            $ngtmaDetailRoutes = [
+                'gov'     => route('report.detail', ['segment' => 'gov',     'type' => 'ngtma', 'periode' => $scalingPeriodeYm]),
+                'private' => route('report.detail', ['segment' => 'private', 'type' => 'ngtma', 'periode' => $scalingPeriodeYm]),
+                'soe'     => route('report.detail', ['segment' => 'soe',     'type' => 'ngtma', 'periode' => $scalingPeriodeYm]),
+                'sme'     => route('report.detail', ['segment' => 'sme',     'type' => 'ngtma', 'periode' => $scalingPeriodeYm]),
+            ];
+
         $hsiAgencyRow = Hsi::where('type', 'Sales HSI Non AM Non Telda')
             ->whereYear('periode', $scalingTahun)
             ->whereMonth('periode', $scalingBulan)
@@ -564,6 +612,7 @@ class ReportController extends Controller
             'b4Data', 'b4RpMillion', 'b4RpDisplay', 'b4Score', 'b4UpdatedAt',
             'psakData',
             'scallingSegments', 'scallingTypes', 'scallingData',
+            'ngtmaSegments', 'ngtmaData', 'ngtmaDetailRoutes',
             'hsiData', 'teldaData', 'teldaRegions', 'upsellingData',
             'scalingPeriodeYm', 'lossRateUpdatedAt'
         ));
@@ -583,6 +632,7 @@ class ReportController extends Controller
         'qualified' => 'Qualified',
         'initiate'  => 'Initiate',
         'koreksi'   => 'Correction',
+        'ngtma'     => 'New GTMA',
     ];
 
     abort_if(!isset($segmentMap[$segment]), 404);
@@ -611,9 +661,6 @@ class ReportController extends Controller
         $currentPeriode = \Carbon\Carbon::now()->format('Y-m');
     }
 
-    if (!in_array($currentPeriode, $periodOptions) && count($periodOptions)) {
-        $currentPeriode = $periodOptions[0];
-    }
 
     [$periodeYear, $periodeMonth] = explode('-', $currentPeriode);
     $periodeLabel = \Carbon\Carbon::createFromDate((int)$periodeYear, (int)$periodeMonth, 1)->format('F Y');
@@ -641,6 +688,38 @@ class ReportController extends Controller
         ))->with([
             'dataRows'  => collect(), // kosong, tidak dipakai
             'funnelMap' => collect(), // kosong, tidak dipakai
+        ]);
+    }
+
+    if ($type === 'ngtma') {
+        $import = \App\Models\ScallingImport::where('segment', $segmentDb)
+            ->where('type', 'ngtma')
+            ->where('periode', $periodeDate)
+            ->latest()
+            ->first();
+
+        $ngtmaRows = $import
+            ? \App\Models\Ngtma::where('imports_log_id', $import->id)->get()
+            : collect();
+
+        $funnelMap = collect();
+        if ($ngtmaRows->isNotEmpty()) {
+            $ngtmaIds   = $ngtmaRows->pluck('id');
+            $allFunnels = \App\Models\FunnelTracking::whereIn('ngtma_id', $ngtmaIds)->get();
+            $funnelMap  = $ngtmaIds->mapWithKeys(function ($id) use ($allFunnels) {
+                return [$id => $allFunnels->where('ngtma_id', $id)->sortByDesc('updated_at')->first()];
+            });
+        }
+
+        return view('report.detail', compact(
+            'segment', 'type',
+            'segmentLabel', 'typeLabel',
+            'periodeLabel', 'currentPeriode',
+            'periodOptions',
+            'import', 'funnelMap'
+        ))->with([
+            'dataRows'    => $ngtmaRows,
+            'koreksiRows' => collect(),
         ]);
     }
 
