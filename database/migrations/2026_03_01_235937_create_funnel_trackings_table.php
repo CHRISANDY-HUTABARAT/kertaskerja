@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('funnel_tracking', function (Blueprint $table) {
             $table->id();
             $table->string('data_type'); // 'on_hand', 'qualified', 'koreksi', 'initiate'
-            $table->unsignedBigInteger('data_id'); // ID dari tabel data yang terkait
-            $table->unsignedBigInteger('ngtma_id'); // ID dari tabel NGTMA yang terkait
+            $table->unsignedBigInteger('data_id')->nullable(); // ID dari tabel data yang terkait
+            $table->unsignedBigInteger('ngtma_id')->nullable(); // ID dari tabel NGTMA yang terkait
 
             // F0 - Lead
             // $table->boolean('f0_lead')->default(false);
@@ -58,8 +58,8 @@ return new class extends Migration
             
             // Index untuk query lebih cepat
             $table->index(['data_type', 'data_id', 'ngtma_id']);
-            $table->foreign('data_id')->references('id')->on('scalling_data')->onDelete('cascade');
-            $table->foreign('ngtma_id')->references('id')->on('ngtmas')->onDelete('cascade');
+            $table->foreign('data_id')->references('id')->on('scalling_data')->onDelete('cascade')->nullOnDelete();
+            $table->foreign('ngtma_id')->references('id')->on('ngtmas')->onDelete('cascade')->nullOnDelete();
         });
     }
 
