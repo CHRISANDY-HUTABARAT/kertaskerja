@@ -446,13 +446,17 @@
                                             {{ $row['commit_amount'] > 0 ? $row['commit_amount'] : ($cRp > 0 ? '-' : '') }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $cRp > 0 ? number_format($cRp, fmod($cRp, 1) == 0 ? 0 : 2, ',', '.') : '' }}
+                                            @if(!is_null($cRp) && $row['commit_amount'] > 0)
+                                            {{ $cRp >= 0 ? number_format($cRp, fmod($cRp, 1) == 0 ? 0 : 2, ',', '.') : '' }}
+                                            @endif
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
                                             {{ $row['real_amount'] > 0 ? $row['real_amount'] : ($rRp > 0 ? '-' : '') }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $rRp > 0 ? number_format($rRp, fmod($rRp, 1) == 0 ? 0 : 2, ',', '.') : '' }}
+                                            @if(!is_null($rRp) && $row['real_amount'] > 0)
+                                            {{ $rRp >= 0 ? number_format($rRp, fmod($rRp, 1) == 0 ? 0 : 2, ',', '.') : '' }}
+                                            @endif
                                         </td>
 
                                         @if($segKey === 'gov' && $isFirst)
