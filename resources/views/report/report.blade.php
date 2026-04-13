@@ -738,9 +738,9 @@
                                     @endif
                                     <td class="border border-gray-400 px-2 py-1">{{ $row['label'] }}</td>
                                     <td class="border border-gray-400 text-center">%</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] !== null ? number_format($row['commit'], 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] > 0 ? number_format($row['real'], 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] !== null ? number_format($row['real'], 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
                                     @if($loop->first)
                                         <td rowspan="{{ count($b1Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
@@ -757,9 +757,9 @@
                                     @endif
                                     <td class="border border-gray-400 px-2 py-1">{{ $row['label'] }}</td>
                                     <td class="border border-gray-400 text-center">%</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] !== null ? number_format($row['commit'], 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] > 0 ? number_format($row['real'], 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold {{ $row['achColor'] }}">{{ $row['real'] !== null ? number_format($row['real'], 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
                                     @if($loop->first)
                                         <td rowspan="{{ count($b2Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
@@ -777,9 +777,9 @@
                                 @endif
                                 <td class="border border-gray-400 px-2 py-1">{{ $row['label'] }}</td>
                                 <td class="border border-gray-400 text-center">%</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] > 0 ? number_format($row['commit'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $row['commit'] !== null ? number_format($row['commit'], 2, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right font-bold {{ getColorClass($b3RowPct, $fairnessRs) }}">{{ $row['real'] > 0 ? number_format($row['real'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right font-bold {{ getColorClass($b3RowPct, $fairnessRs) }}">{{ $row['real'] !== null ? number_format($row['real'], 2, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
                                 @if($loop->first)
                                     <td rowspan="{{ count($b3Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessRs }}</td>
@@ -796,13 +796,13 @@
                                 @endif
                                 <td class="border border-gray-400 px-2 py-1">{{ $b4row['label'] }}</td>
                                 <td class="border border-gray-400 text-center">%</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $b4row['commit'] > 0 ? number_format($b4row['commit'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $b4row['commit'] !== null ? number_format($b4row['commit'], 2, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
                                 @php
                                     $b4RowPct   = $b4row['commit'] > 0 ? number_format($b4row['real'] / $b4row['commit'] * 100, 2, ',', '.') . '%' : '-';
                                     $b4RowColor = getColorClass($b4RowPct, $fairnessB4);
                                 @endphp
-                                <td class="border border-gray-400 px-2 text-right font-bold {{ $b4RowColor }}">{{ $b4row['real'] > 0 ? number_format($b4row['real'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right font-bold {{ $b4RowColor }}">{{ $b4row['real'] !== null ? number_format($b4row['real'], 2, ',', '.') : '' }}</td>
                                 @if($loop->first)
                                     <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 px-2 text-right align-middle">{{ $b4RpMillion > 0 ? $b4RpDisplay . '%' : '' }}</td>
                                     <td rowspan="{{ count($b4Data) }}" class="border border-gray-400 text-center align-middle">{{ $fairnessB4 }}</td>

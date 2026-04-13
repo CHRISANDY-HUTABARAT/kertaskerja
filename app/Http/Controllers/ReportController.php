@@ -47,7 +47,7 @@ class ReportController extends Controller
                 ->tap($filterPeriode)
                 ->orderBy('created_at', 'desc')
                 ->first();
-            return $row ? (float) str_replace(',', '.', $row->{$col} ?? 0) : 0;
+            return $row ? (float) str_replace(',', '.', $row->{$col} ?? 0) : null;
         };
 
         $c3mrKomitmen  = $latestVal('C3MR', 'commitment');
@@ -221,8 +221,8 @@ class ReportController extends Controller
         $b1AchSum = 0; $b1AchCount = 0;
         foreach ($b1TypeIds as $tid) {
             $row    = $rsLatest($tid);
-            $commit = $row ? $toFloat($row->commitment) : 0;
-            $real   = $row ? $toFloat($row->real_ratio) : 0;
+            $commit = $row ? $toFloat($row->commitment) : null;
+            $real   = $row ? $toFloat($row->real_ratio) : null;
             $ratio  = $commit > 0 ? ($real / $commit) * 100 : 0;
             if ($commit > 0) { $b1AchSum += $ratio; $b1AchCount++; }
             $b1Data[$tid] = [
@@ -246,8 +246,8 @@ class ReportController extends Controller
         $b2AchSum = 0; $b2AchCount = 0;
         foreach ($b2TypeIds as $tid) {
             $row    = $rsLatest($tid);
-            $commit = $row ? $toFloat($row->commitment) : 0;
-            $real   = $row ? $toFloat($row->real_ratio) : 0;
+            $commit = $row ? $toFloat($row->commitment) : null;
+            $real   = $row ? $toFloat($row->real_ratio) : null;
             $ratio  = $commit > 0 ? ($real / $commit) * 100 : 0;
             if ($commit > 0) { $b2AchSum += $ratio; $b2AchCount++; }
             $b2Data[$tid] = [
@@ -272,8 +272,8 @@ class ReportController extends Controller
         $b3AchSum = 0; $b3AchCount = 0;
         foreach ($b3TypeIds as $tid) {
             $row    = $rsLatest($tid);
-            $commit = $row ? $toFloat($row->commitment) : 0;
-            $real   = $row ? $toFloat($row->real_ratio) : 0;
+            $commit = $row ? $toFloat($row->commitment) : null;
+            $real   = $row ? $toFloat($row->real_ratio) : null;
             $ratio  = $commit > 0 ? ($real / $commit) * 100 : 0;
             if ($commit > 0) { $b3AchSum += $ratio; $b3AchCount++; }
             $b3Data[$tid] = [
@@ -308,8 +308,8 @@ class ReportController extends Controller
         $b4Data = [];
         foreach ($b4Rows as $item) {
             $row    = $item['row'];
-            $commit = $row ? $toFloat($row->commitment) : 0;
-            $real   = $row ? $toFloat($row->real_ratio) : 0;
+            $commit = $row ? $toFloat($row->commitment) : null;
+            $real   = $row ? $toFloat($row->real_ratio) : null;
             $b4Data[] = [
                 'label'      => $item['label'],
                 'commit'     => $commit,
