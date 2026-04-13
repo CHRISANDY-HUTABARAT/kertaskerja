@@ -901,11 +901,8 @@
                                         @if($loop->first)
                                             <td rowspan="{{ count($ngtmaSegments) }}" class="border border-gray-400 text-center align-middle">0-100</td>
                                         @endif
-                                        <td class="border border-gray-400 text-right font-bold" style="{{ $achC['bg'] }}">
+                                        <td colspan="2" class="border border-gray-400 text-right font-bold align-middle" style="{{ $achC['bg'] }}">
                                             <span class="{{ $achC['text'] }}">{{ $achC['label'] }}</span>
-                                        </td>
-                                        <td class="border border-gray-400 text-right font-bold align-middle" style="{{ $scoreC['bg'] }}">
-                                            <span class="{{ $scoreC['text'] }}">{{ $scoreC['label'] }}</span>
                                         </td>
                                         <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $row['updated_at'] ?? '-' }}</td>
                                     </tr>
