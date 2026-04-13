@@ -478,7 +478,7 @@
                     <div class="flex items-center space-x-3">
                         <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
                         <div>
-                            <h2 class="text-xl font-black text-slate-900 tracking-tight">NGTMA</h2>
+                            <h2 class="text-xl font-black text-slate-900 tracking-tight">NGTMA Management</h2>
                         </div>
                     </div>
                     <span
