@@ -513,7 +513,7 @@
                     <tfoot class="sticky bottom-0 z-10">
                         <tr class="border-t-2 border-red-200 bg-slate-50">
                             <td colspan="7" class="px-4 py-3 text-right text-xs font-black text-slate-700 uppercase tracking-widest border-r border-slate-100">TOTAL:</td>
-                            <td class="px-4 py-3 text-right font-black text-emerald-700 border-r border-slate-100 bg-emerald-50">
+                            <td class="px-4 py-3 text-right font-black text-emerald-700 border-r border-slate-100 bg-emerald-50" id="footer-total-est-nilai">
                                 {{ number_format($dataRows->sum(fn($r) => floatval($r->est_nilai_bc ?? 0)), 0, ',', '.') }}
                             </td>
                             <td colspan="20" class="border-r border-slate-100"></td>
@@ -545,7 +545,6 @@
             </svg>
             <div class="text-xs text-blue-700 leading-relaxed space-y-0.5">
                 <div><span class="font-black">Kolom Est Nilai BC:</span> Klik angka untuk mengedit. Tekan <span class="font-black">Enter</span> atau ✓ untuk simpan, <span class="font-black">Esc</span> atau ✕ untuk batal. Total otomatis berubah.</div>
-                <div><span class="font-black">Kolom Billing Complete:</span> Centang jika sudah billing complete. Nilai BC otomatis masuk ke <span class="font-black">Nilai Bill Comp</span> dan total terupdate.</div>
             </div>
         </div>
 
@@ -1136,7 +1135,7 @@ document.addEventListener('DOMContentLoaded', function () {
             if (billingCb && billingCb.checked) {
                 const nilaiCell = document.querySelector('tr[data-row-id="' + rowId + '"] .nilai-billcomp-cell');
                 if (nilaiCell) {
-                    nilaiCell.innerHTML = newValue > 0 
+                    nilaiCell.innerHTML = newValue > 0
                         ? '<span class="font-black text-slate-800">' + formatNumber(newValue) + '</span>'
                         : '<span class="text-slate-300">—</span>';
                 }
@@ -1145,12 +1144,12 @@ document.addEventListener('DOMContentLoaded', function () {
                 fetch(updateUrl, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
-                    body: JSON.stringify({ 
-                        data_type: '{{ $type }}', 
-                        data_id: rowId, 
-                        field: 'delivery_billing_complete', 
+                    body: JSON.stringify({
+                        data_type: '{{ $type }}',
+                        data_id: rowId,
+                        field: 'delivery_billing_complete',
                         value: true,
-                        est_nilai_bc: newValue 
+                        est_nilai_bc: newValue
                     })
                 })
                 .then(r => r.json())
@@ -1192,18 +1191,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
     function updateEstNilaiTotal() {
-        // Hitung total dari estNilaiMap
-        let total = 0;
-        for (let rowId in estNilaiMap) {
-            total += estNilaiMap[rowId];
-        }
-        
-        // Update footer total (column 8)
-        const footer = document.querySelector('tfoot td:nth-child(8)');
-        if (footer) {
-            footer.textContent = formatNumber(total);
-        }
+    let total = 0;
+    for (let rowId in estNilaiMap) {
+        total += estNilaiMap[rowId];
     }
+
+    const footer = document.getElementById('footer-total-est-nilai');
+    if (footer) {
+        footer.textContent = formatNumber(total);
+    }
+}
 });
 </script>
 @endif
