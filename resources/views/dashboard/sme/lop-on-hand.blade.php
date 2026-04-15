@@ -110,10 +110,10 @@
         </div>
 
         {{-- ══ TABLE ══ --}}
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
+            <div style="max-height: 95vh; overflow-y: auto;">
                 <table class="min-w-full divide-y divide-gray-200 text-xs">
-                    <thead>
+                   <thead class="sticky top-0 z-10">
                         <tr>
                             <th rowspan="2" class="px-3 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50 sticky-col-header">NO</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50 sticky-col-header">PROJECT</th>
@@ -374,7 +374,7 @@
                         </tr>
                         @endforeach
                     </tbody>
-                    <tfoot>
+                    <tfoot class="sticky bottom-0 z-10">
                         <tr class="border-t-2 border-red-200 bg-slate-50">
                             <td colspan="7" class="px-4 py-3 text-right text-xs font-black text-slate-700 uppercase tracking-widest border-r border-slate-100">TOTAL:</td>
                             <td class="px-4 py-3 text-center font-black text-emerald-700 border-r border-slate-100 bg-emerald-50">
