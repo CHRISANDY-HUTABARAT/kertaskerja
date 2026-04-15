@@ -124,10 +124,10 @@
                 <table class="min-w-full divide-y divide-gray-200 text-xs">
                     <thead>
                         <tr>
-                            <th rowspan="2" class="px-3 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">NO</th>
-                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">PROJECT</th>
-                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-emerald-50">ID LOP</th>
-                            <th rowspan="2" class="px-3 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">CC</th>
+                            <th rowspan="2" class="px-3 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50 sticky-col-header">NO</th>
+                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50 sticky-col-header">PROJECT</th>
+                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-emerald-50 sticky-col-header">ID LOP</th>
+                            <th rowspan="2" class="px-3 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50 sticky-col-header">CC</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">AM</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-emerald-50">Mitra</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">Est Bulan BC</th>
@@ -180,10 +180,10 @@
                             }
                         @endphp
                         <tr class="hover:bg-slate-50 transition-colors" data-row-id="{{ $row->id }}" data-cancelled="{{ $checked('cancel') ? 'true' : 'false' }}">
-                            <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center">{{ $row->no }}</td>
-                            <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100 font-medium">{{ $row->project }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-700 border-r border-slate-100 bg-emerald-50 font-bold">{{ $row->id_lop }}</td>
-                            <td class="px-3 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100">{{ $row->cc }}</td>
+                            <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center sticky-col">{{ $row->no }}</td>
+                            <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100 font-medium sticky-col">{{ $row->project }}</td>
+                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-700 border-r border-slate-100 bg-emerald-50 font-bold sticky-col">{{ $row->id_lop }}</td>
+                            <td class="px-3 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 sticky-col">{{ $row->cc }}</td>
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 }}</td>
@@ -864,5 +864,40 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const stickyCount = 4; // NO, PROJECT, ID LOP, CC
+    const table = document.querySelector('table');
+    if (!table) return;
+
+    // Ambil lebar dari td di baris pertama
+    const firstRow = table.querySelector('tbody tr:first-child');
+    if (!firstRow) return;
+    const cells = firstRow.querySelectorAll('td');
+
+    let pos = 0;
+    for (let i = 0; i < stickyCount; i++) {
+        const width = cells[i].offsetWidth;
+
+        // Update semua td di kolom ini
+        table.querySelectorAll('tbody tr td:nth-child(' + (i+1) + ')').forEach(td => {
+            td.style.left = pos + 'px';
+        });
+
+        // Update th di kolom ini
+        table.querySelectorAll('thead tr th:nth-child(' + (i+1) + ')').forEach(th => {
+            th.style.left = pos + 'px';
+        });
+
+        pos += width;
+    }
+});
+</script>
+
+<style>
+.sticky-col-header { position:sticky; z-index:3; }
+.sticky-col { position:sticky; z-index:1; background:white; }
+</style>
 
 @endsection
