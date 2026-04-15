@@ -23,6 +23,18 @@ class PrivateController extends Controller
         return view('dashboard.private.scalling');
     }
 
+    public function initiate()
+    {
+        $logs = ScallingImport::where('type', 'initiate')->where('segment', 'private')->latest()->paginate(10);
+        $projects       = ScallingData::with('scallingImport')
+            ->whereHas('scallingImport', function ($query) {
+                $query->where('type', 'initiate')->where('segment', 'private');
+            })
+            ->latest()
+            ->paginate(10);
+        return view('dashboard.private.initiate', compact('logs', 'projects'));
+    }
+
     public function lopOnHand()
     {
         // gunakan parameter periode (format YYYY-MM) daripada month/year terpisah
@@ -204,11 +216,8 @@ class PrivateController extends Controller
             'status'                   => 'required|in:active,inactive',
             'periode'                  => 'required|date_format:Y-m',
             'project'                  => 'required|string|max:255',
-            'id_lop'                   => 'required|string|max:100',
             'cc'                       => 'required|string|max:100',
-            'nipnas'                   => 'required|string|max:50',
             'am'                       => 'required|string|max:100',
-            'mitra'                    => 'nullable|string|max:255',
             'plan_bulan_billcomp_2025' => 'required|integer|min:1|max:12',
             'est_nilai_bc'             => 'required|numeric|min:0',
         ], [
@@ -218,12 +227,8 @@ class PrivateController extends Controller
             'periode.date_format'               => 'Format periode harus berupa bulan dan tahun (contoh: 2025-03)',
             'project.required'                  => 'Nama project wajib diisi',
             'project.max'                       => 'Nama project maksimal 255 karakter',
-            'id_lop.required'                   => 'ID LOP wajib diisi',
-            'id_lop.max'                        => 'ID LOP maksimal 100 karakter',
             'cc.required'                       => 'CC wajib diisi',
             'cc.max'                            => 'CC maksimal 100 karakter',
-            'nipnas.required'                   => 'NIPNAS wajib diisi',
-            'nipnas.max'                        => 'NIPNAS maksimal 50 karakter',
             'am.required'                       => 'Nama AM wajib diisi',
             'am.max'                            => 'Nama AM maksimal 100 karakter',
             'plan_bulan_billcomp_2025.required' => 'Plan bulan wajib diisi',

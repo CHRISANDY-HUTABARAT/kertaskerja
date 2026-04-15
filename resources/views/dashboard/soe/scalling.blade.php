@@ -83,7 +83,7 @@
                         'label' => 'LOP Initiate',
                         'sub'   => 'Data LOP Initiate SOE',
                         'badge' => 'INITIATE',
-                        'route' => route('dashboard.soe.lop-initiate'),
+                        'route' => route('dashboard.soe.initiate'),
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
                     ],
                     

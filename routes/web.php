@@ -241,7 +241,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/koreksi', [GovController::class, 'lopKoreksi'])->name('dashboard.gov.lop-koreksi');
         Route::post('/scalling/koreksi/update-realisasi', [GovController::class, 'updateRealisasiKoreksi'])->name('dashboard.gov.koreksi.update-realisasi');
         Route::get('/scalling/qualified', [GovController::class, 'lopQualified'])->name('dashboard.gov.lop-qualified');
-        Route::get('/scalling/initiate', [GovController::class, 'lopInitiate'])->name('dashboard.gov.lop-initiate');
+        Route::get('/scalling/initiate/progress', [GovController::class, 'lopInitiate'])->name('dashboard.gov.lop-initiate');
+        Route::get('/scalling/initiate', [GovController::class, 'initiate'])->name('dashboard.gov.initiate');
         Route::post('/funnel/update', [GovController::class, 'updateFunnelCheckbox'])->name('dashboard.gov.funnel.update');
 
         Route::post('/scalling/addData', [GovController::class, 'storeData'])->name('dashboard.gov.add-data');
@@ -262,7 +263,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/koreksi', [SoeController::class, 'lopKoreksi'])->name('dashboard.soe.lop-koreksi');
         Route::post('/scalling/koreksi/update-realisasi', [SoeController::class, 'updateRealisasiKoreksi'])->name('dashboard.soe.koreksi.update-realisasi');
         Route::get('/scalling/qualified', [SoeController::class, 'lopQualified'])->name('dashboard.soe.lop-qualified');
-        Route::get('/scalling/initiate', [SoeController::class, 'lopInitiate'])->name('dashboard.soe.lop-initiate');
+        Route::get('/scalling/initiate/progress', [SoeController::class, 'lopInitiate'])->name('dashboard.soe.lop-initiate');
+        Route::get('/scalling/initiate', [SoeController::class, 'initiate'])->name('dashboard.soe.initiate');
         Route::post('/funnel/update', [SoeController::class, 'updateFunnelCheckbox'])->name('dashboard.soe.funnel.update');
 
         Route::post('/scalling/addData', [SoeController::class, 'storeData'])->name('dashboard.soe.add-data');
@@ -277,7 +279,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/koreksi', [SmeController::class, 'lopKoreksi'])->name('dashboard.sme.lop-koreksi');
         Route::post('/scalling/koreksi/update-realisasi', [SmeController::class, 'updateRealisasiKoreksi'])->name('dashboard.sme.koreksi.update-realisasi');
         Route::get('/scalling/qualified', [SmeController::class, 'lopQualified'])->name('dashboard.sme.lop-qualified');
-        Route::get('/scalling/initiate', [SmeController::class, 'lopInitiate'])->name('dashboard.sme.lop-initiate');
+        Route::get('/scalling/initiate/progress', [SmeController::class, 'lopInitiate'])->name('dashboard.sme.lop-initiate');
+        Route::get('/scalling/initiate', [SmeController::class, 'initiate'])->name('dashboard.sme.initiate');
         Route::post('/funnel/update', [SmeController::class, 'updateFunnelCheckbox'])->name('dashboard.sme.funnel.update');
 
         Route::get('/aosodomoro/above-3-bulan', [SmeController::class, 'aosodomoroAbove3Bulan'])->name('dashboard.sme.aosodomoro-above-3-bulan');
@@ -304,7 +307,8 @@ Route::middleware('auth')->group(function () {
         Route::get('/scalling/koreksi', [PrivateController::class, 'lopKoreksi'])->name('dashboard.private.lop-koreksi');
         Route::post('/scalling/koreksi/update-realisasi', [PrivateController::class, 'updateRealisasiKoreksi'])->name('dashboard.private.koreksi.update-realisasi');
         Route::get('/scalling/qualified', [PrivateController::class, 'lopQualified'])->name('dashboard.private.lop-qualified');
-        Route::get('/scalling/initiate', [PrivateController::class, 'lopInitiate'])->name('dashboard.private.lop-initiate');
+        Route::get('/scalling/initiate/progress', [PrivateController::class, 'lopInitiate'])->name('dashboard.private.lop-initiate');
+        Route::get('/scalling/initiate', [PrivateController::class, 'initiate'])->name('dashboard.private.initiate');
         Route::post('/funnel/update', [PrivateController::class, 'updateFunnelCheckbox'])->name('dashboard.private.funnel.update');
         Route::post('/scalling/addData', [PrivateController::class, 'storeData'])->name('dashboard.private.add-data');
     });

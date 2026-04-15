@@ -83,7 +83,7 @@
                         'label' => 'LOP Initiate',
                         'sub'   => 'Data LOP Initiate Government',
                         'badge' => 'INITIATE',
-                        'route' => route('dashboard.gov.lop-initiate'),
+                        'route' => route('dashboard.gov.initiate'),
                         'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 10V3L4 14h7v7l9-11h-7z"/>',
                     ],
                     
