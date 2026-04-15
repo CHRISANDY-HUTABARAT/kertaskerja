@@ -37,12 +37,14 @@ class GovController extends Controller
             ->unique()
             ->values();
 
-        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
-            ->where('type', 'on-hand')
-            ->where('segment', 'government')
-            ->where('periode', $currentPeriodeDate)
-            ->latest()
-            ->first();
+        $latestImport = ScallingImport::with(['data' => function($query) {
+            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+        }, 'data.funnel.todayProgress'])
+        ->where('type', 'on-hand')
+        ->where('segment', 'sme')
+        ->where('periode', $currentPeriodeDate)
+        ->latest()
+        ->first();
 
         return view('dashboard.gov.lop-on-hand', compact('latestImport', 'currentPeriode', 'periodOptions'));
     }
@@ -61,12 +63,14 @@ class GovController extends Controller
             ->unique()
             ->values();
 
-        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
-            ->where('type', 'koreksi')
-            ->where('segment', 'government')
-            ->where('periode', $currentPeriodeDate)
-            ->latest()
-            ->first();
+        $latestImport = ScallingImport::with(['data' => function($query) {
+            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+        }, 'data.funnel.todayProgress'])
+        ->where('type', 'on-hand')
+        ->where('segment', 'sme')
+        ->where('periode', $currentPeriodeDate)
+        ->latest()
+        ->first();
 
         $rows = $latestImport
         ? \App\Models\Koreksi::where('imports_log_id', $latestImport->id)->get()
@@ -103,12 +107,14 @@ class GovController extends Controller
             ->unique()
             ->values();
 
-        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
-            ->where('type', 'qualified')
-            ->where('segment', 'government')
-            ->where('periode', $currentPeriodeDate)
-            ->latest()
-            ->first();
+        $latestImport = ScallingImport::with(['data' => function($query) {
+            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+        }, 'data.funnel.todayProgress'])
+        ->where('type', 'on-hand')
+        ->where('segment', 'sme')
+        ->where('periode', $currentPeriodeDate)
+        ->latest()
+        ->first();
 
         // Get admin note
 
@@ -139,16 +145,18 @@ class GovController extends Controller
             ->get()
             ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
 
-        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
-            ->where('type', 'initiate')
-            ->where('segment', 'government')
-            ->where('periode', $currentPeriodeDate)
-            ->latest()
-            ->first();
+        $latestImport = ScallingImport::with(['data' => function($query) {
+            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+        }, 'data.funnel.todayProgress'])
+        ->where('type', 'on-hand')
+        ->where('segment', 'sme')
+        ->where('periode', $currentPeriodeDate)
+        ->latest()
+        ->first();
 
         // Hitung total langsung dari $rows yang sudah difilter
         $totalEstNilai = $rows->sum(fn($item) => floatval($item->est_nilai_bc ?? 0));
-        
+
         $totalBillComp = $rows->sum(function ($item) {
             $funnel        = $item->funnel;
             $master        = $funnel;

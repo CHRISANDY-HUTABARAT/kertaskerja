@@ -40,12 +40,14 @@ class SmeController extends Controller
             ->values();
             // dd($periodOptions);
 
-        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
-            ->where('type', 'on-hand')
-            ->where('segment', 'sme')
-            ->where('periode', $currentPeriodeDate)
-            ->latest()
-            ->first();
+        $latestImport = ScallingImport::with(['data' => function($query) {
+            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+        }, 'data.funnel.todayProgress'])
+        ->where('type', 'on-hand')
+        ->where('segment', 'sme')
+        ->where('periode', $currentPeriodeDate)
+        ->latest()
+        ->first();
             // dd($latestImport);
 
         // Get admin note
@@ -70,12 +72,14 @@ class SmeController extends Controller
             ->unique()
             ->values();
 
-        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
-            ->where('type', 'koreksi')
-            ->where('segment', 'sme')
-            ->where('periode', $currentPeriodeDate)
-            ->latest()
-            ->first();
+        $latestImport = ScallingImport::with(['data' => function($query) {
+            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+        }, 'data.funnel.todayProgress'])
+        ->where('type', 'on-hand')
+        ->where('segment', 'sme')
+        ->where('periode', $currentPeriodeDate)
+        ->latest()
+        ->first();
 
         $rows = $latestImport
         ? \App\Models\Koreksi::where('imports_log_id', $latestImport->id)->get()
@@ -114,12 +118,14 @@ class SmeController extends Controller
             ->unique()
             ->values();
 
-        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
-            ->where('type', 'qualified')
-            ->where('segment', 'sme')
-            ->where('periode', $currentPeriodeDate)
-            ->latest()
-            ->first();
+        $latestImport = ScallingImport::with(['data' => function($query) {
+            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+        }, 'data.funnel.todayProgress'])
+        ->where('type', 'on-hand')
+        ->where('segment', 'sme')
+        ->where('periode', $currentPeriodeDate)
+        ->latest()
+        ->first();
 
         // Get admin note
 
@@ -149,12 +155,14 @@ class SmeController extends Controller
             ->get()
             ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
 
-        $latestImport = ScallingImport::with(['data.funnel.todayProgress'])
-            ->where('type', 'initiate')
-            ->where('segment', 'sme')
-            ->where('periode', $currentPeriodeDate)
-            ->latest()
-            ->first();
+        $latestImport = ScallingImport::with(['data' => function($query) {
+            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+        }, 'data.funnel.todayProgress'])
+        ->where('type', 'on-hand')
+        ->where('segment', 'sme')
+        ->where('periode', $currentPeriodeDate)
+        ->latest()
+        ->first();
 
         // Hitung total langsung dari $rows yang sudah difilter
         $totalEstNilai = $rows->sum(fn($item) => floatval($item->est_nilai_bc ?? 0));

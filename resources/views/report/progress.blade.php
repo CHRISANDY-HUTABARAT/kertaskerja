@@ -53,6 +53,14 @@
                 </h2>
             </div>
             <div class="flex items-center space-x-3">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="Cari Project, ID LOP, AM, CC..." class="text-xs font-semibold text-slate-700 bg-white border-2 border-slate-200 hover:border-red-400 focus:border-red-400 focus:outline-none rounded-lg pl-8 pr-3 py-1.5 shadow-sm transition-colors w-64">
+                    <div class="pointer-events-none absolute inset-y-0 left-2 flex items-center">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                        </svg>
+                    </div>
+                </div>
                 @if(count($periodOptions))
                 <form method="GET" class="flex items-center">
                     <div class="relative">
@@ -1027,6 +1035,43 @@ document.addEventListener('DOMContentLoaded', function () {
 
         pos += width;
     }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+
+    // Kolom yang akan disearch: NO(0), PROJECT(1), ID LOP(2), CC(3), AM(4)
+    const SEARCH_COLS = [0, 1, 2, 3, 4];
+
+    searchInput.addEventListener('input', function () {
+        const keyword = this.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+            const cells = row.querySelectorAll('td');
+            const match = SEARCH_COLS.some(function (idx) {
+                const cell = cells[idx];
+                return cell && cell.textContent.toLowerCase().includes(keyword);
+            });
+
+            row.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+
+        // Tampilkan pesan kosong jika tidak ada hasil
+        let emptyMsg = document.getElementById('searchEmptyMsg');
+        if (!emptyMsg) {
+            emptyMsg = document.createElement('tr');
+            emptyMsg.id = 'searchEmptyMsg';
+            emptyMsg.innerHTML = '<td colspan="30" class="text-center py-10 text-slate-400 font-bold text-xs uppercase tracking-widest">Tidak ada data yang cocok</td>';
+            document.querySelector('tbody').appendChild(emptyMsg);
+        }
+        emptyMsg.style.display = (visibleCount === 0 && keyword !== '') ? '' : 'none';
+    });
 });
 </script>
 
