@@ -41,7 +41,8 @@ class SmeController extends Controller
             // dd($periodOptions);
 
         $latestImport = ScallingImport::with(['data' => function($query) {
-            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+            $query->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc');
         }, 'data.funnel.todayProgress'])
         ->where('type', 'on-hand')
         ->where('segment', 'sme')
@@ -73,9 +74,10 @@ class SmeController extends Controller
             ->values();
 
         $latestImport = ScallingImport::with(['data' => function($query) {
-            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+            $query->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc');
         }, 'data.funnel.todayProgress'])
-        ->where('type', 'on-hand')
+        ->where('type', 'koreksi')
         ->where('segment', 'sme')
         ->where('periode', $currentPeriodeDate)
         ->latest()
@@ -119,9 +121,10 @@ class SmeController extends Controller
             ->values();
 
         $latestImport = ScallingImport::with(['data' => function($query) {
-            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+            $query->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc');
         }, 'data.funnel.todayProgress'])
-        ->where('type', 'on-hand')
+        ->where('type', 'qualified')
         ->where('segment', 'sme')
         ->where('periode', $currentPeriodeDate)
         ->latest()
@@ -156,9 +159,10 @@ class SmeController extends Controller
             ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
 
         $latestImport = ScallingImport::with(['data' => function($query) {
-            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+            $query->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc');
         }, 'data.funnel.todayProgress'])
-        ->where('type', 'on-hand')
+        ->where('type', 'initiate')
         ->where('segment', 'sme')
         ->where('periode', $currentPeriodeDate)
         ->latest()

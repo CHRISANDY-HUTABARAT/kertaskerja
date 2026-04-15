@@ -38,10 +38,11 @@ class GovController extends Controller
             ->values();
 
         $latestImport = ScallingImport::with(['data' => function($query) {
-            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+            $query->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc');
         }, 'data.funnel.todayProgress'])
         ->where('type', 'on-hand')
-        ->where('segment', 'sme')
+        ->where('segment', 'government')
         ->where('periode', $currentPeriodeDate)
         ->latest()
         ->first();
@@ -64,10 +65,11 @@ class GovController extends Controller
             ->values();
 
         $latestImport = ScallingImport::with(['data' => function($query) {
-            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+            $query->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc');
         }, 'data.funnel.todayProgress'])
-        ->where('type', 'on-hand')
-        ->where('segment', 'sme')
+        ->where('type', 'koreksi')
+        ->where('segment', 'government')
         ->where('periode', $currentPeriodeDate)
         ->latest()
         ->first();
@@ -108,10 +110,11 @@ class GovController extends Controller
             ->values();
 
         $latestImport = ScallingImport::with(['data' => function($query) {
-            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+            $query->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc');
         }, 'data.funnel.todayProgress'])
-        ->where('type', 'on-hand')
-        ->where('segment', 'sme')
+        ->where('type', 'qualified')
+        ->where('segment', 'government')
         ->where('periode', $currentPeriodeDate)
         ->latest()
         ->first();
@@ -146,10 +149,11 @@ class GovController extends Controller
             ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
 
         $latestImport = ScallingImport::with(['data' => function($query) {
-            $query->orderBy('am', 'asc')->orderBy('no', 'asc');
+            $query->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc');
         }, 'data.funnel.todayProgress'])
-        ->where('type', 'on-hand')
-        ->where('segment', 'sme')
+        ->where('type', 'initiate')
+        ->where('segment', 'government')
         ->where('periode', $currentPeriodeDate)
         ->latest()
         ->first();

@@ -742,6 +742,8 @@ class ReportController extends Controller
         if ($importIds->isNotEmpty()) {
             $import = \App\Models\ScallingImport::find($importIds->first());
             $dataRows = \App\Models\ScallingData::whereIn('imports_log_id', $importIds)
+                ->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc')
                 ->get()
                 ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
                 ->values();
@@ -749,6 +751,8 @@ class ReportController extends Controller
     } else {
         if ($import) {
             $dataRows = \App\Models\ScallingData::where('imports_log_id', $import->id)
+                ->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc')
                 ->get()
                 ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
                 ->values();
@@ -856,6 +860,8 @@ public function progress(Request $request, string $segment, string $type)
     if ($import) {
         $dataRows = \App\Models\ScallingData::where('imports_log_id', $import->id)
             ->with(['funnel.todayProgress'])
+            ->orderBy('am', 'asc')
+            ->orderByRaw('CAST(no AS UNSIGNED) asc')
             ->get()
             ->filter(fn($r) => strtoupper(trim($r->no ?? '')) !== 'TOTAL')
             ->values();
