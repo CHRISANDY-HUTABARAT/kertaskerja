@@ -142,7 +142,6 @@ class PrivateController extends Controller
         $rows = ScallingData::with(['funnel.todayProgress'])
             ->whereHas('scallingImport', function ($query) use ($currentPeriodeDate) {
                 $query->where('type', 'initiate')
-                    // ->where('status', 'active')
                     ->where('segment', 'private')
                     ->where('periode', $currentPeriodeDate);
             })
@@ -160,7 +159,7 @@ class PrivateController extends Controller
         $totalEstNilai = $rows->sum(fn($item) => floatval($item->est_nilai_bc ?? 0));
 
         $totalBillComp = $rows->sum(function ($item) {
-            $funnel        = $item->first()->funnel;
+            $funnel        = $item->funnel;
             $master        = $funnel;
             $todayProgress = $funnel?->todayProgress;
 
@@ -179,6 +178,7 @@ class PrivateController extends Controller
             }
             return 0;
         });
+        // dd($totalBillComp);
 
         return view('dashboard.private.lop-initiate', compact(
             'latestImport', 'currentPeriode', 'periodOptions', 'rows', 'totalEstNilai', 'totalBillComp'

@@ -148,9 +148,9 @@ class GovController extends Controller
 
         // Hitung total langsung dari $rows yang sudah difilter
         $totalEstNilai = $rows->sum(fn($item) => floatval($item->est_nilai_bc ?? 0));
-
+        
         $totalBillComp = $rows->sum(function ($item) {
-            $funnel        = $item->first()->funnel;
+            $funnel        = $item->funnel;
             $master        = $funnel;
             $todayProgress = $funnel?->todayProgress;
 

@@ -159,7 +159,7 @@
                     <tbody class="bg-white divide-y divide-slate-100">
                         @foreach($rows as $row)
                         @php
-                            $funnel = $row->first()->funnel;
+                            $funnel = $row->funnel;
                             $denganMitra = filled($row->mitra);
                             $master = $funnel;
                             $today  = $funnel?->todayProgress;
@@ -458,6 +458,20 @@ document.addEventListener('DOMContentLoaded', function() {
     function formatNumber(num) {
         if (!num) return '-';
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function recalcTotal() {
+    let total = 0;
+    document.querySelectorAll('tr[data-row-id]').forEach(row => {
+        if (row.dataset.cancelled === 'true') return;
+        const nilaiCell = row.querySelector('.nilai-billcomp-cell span');
+        if (!nilaiCell) return;
+        const text = nilaiCell.textContent.trim().replace(/\./g, '');
+        const num  = parseFloat(text);
+        if (!isNaN(num)) total += num;
+    });
+    const totalEl = document.querySelector('#total-nilai-billcomp span');
+    if (totalEl) totalEl.textContent = formatNumber(total);
     }
 
     // ══ FUNGSI DISABLE/ENABLE ROW ══

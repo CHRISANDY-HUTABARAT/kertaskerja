@@ -155,7 +155,7 @@ class SoeController extends Controller
         $totalEstNilai = $rows->sum(fn($item) => floatval($item->est_nilai_bc ?? 0));
 
         $totalBillComp = $rows->sum(function ($item) {
-            $funnel        = $item->first()->funnel;
+            $funnel        = $item->funnel;
             $master        = $funnel;
             $todayProgress = $funnel?->todayProgress;
 

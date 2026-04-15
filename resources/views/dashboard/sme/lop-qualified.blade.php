@@ -631,6 +631,20 @@ document.addEventListener('DOMContentLoaded', function() {
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 
+    function recalcTotal() {
+    let total = 0;
+    document.querySelectorAll('tr[data-row-id]').forEach(row => {
+        if (row.dataset.cancelled === 'true') return;
+        const nilaiCell = row.querySelector('.nilai-billcomp-cell span');
+        if (!nilaiCell) return;
+        const text = nilaiCell.textContent.trim().replace(/\./g, '');
+        const num  = parseFloat(text);
+        if (!isNaN(num)) total += num;
+    });
+    const totalEl = document.querySelector('#total-nilai-billcomp span');
+    if (totalEl) totalEl.textContent = formatNumber(total);
+    }
+
     // ══ FUNGSI DISABLE/ENABLE ROW ══
     function setRowDisabled(row, disabled) {
         row.querySelectorAll('.funnel-checkbox, .billing-checkbox').forEach(cb => {
