@@ -539,6 +539,16 @@
             </div>
         </div>
 
+        <div class="mt-5 bg-blue-50 border border-blue-200 rounded-xl px-5 py-3 flex items-start space-x-3">
+            <svg class="w-4 h-4 text-blue-500 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <div class="text-xs text-blue-700 leading-relaxed space-y-0.5">
+                <div><span class="font-black">Kolom Est Nilai BC:</span> Klik angka untuk mengedit. Tekan <span class="font-black">Enter</span> atau ✓ untuk simpan, <span class="font-black">Esc</span> atau ✕ untuk batal. Total otomatis berubah.</div>
+                <div><span class="font-black">Kolom Billing Complete:</span> Centang jika sudah billing complete. Nilai BC otomatis masuk ke <span class="font-black">Nilai Bill Comp</span> dan total terupdate.</div>
+            </div>
+        </div>
+
         @endif {{-- end koreksi / non-koreksi --}}
 
         @else
@@ -1054,6 +1064,21 @@ document.addEventListener('DOMContentLoaded', function () {
         display.classList.remove('hidden');
     };
 
+    // ── Track est_nilai_bc values globally ──
+    const estNilaiMap = {};
+
+    // Initialize dari display values
+    document.querySelectorAll('[id^="estnilai-display-"]').forEach(function (display) {
+        const rowId = display.id.replace('estnilai-display-', '');
+        const text = display.textContent.trim();
+        if (text && text !== '— klik untuk isi' && text !== '—') {
+            const cleanValue = parseFloat(text.replace(/\./g, ''));
+            estNilaiMap[rowId] = isNaN(cleanValue) ? 0 : cleanValue;
+        } else {
+            estNilaiMap[rowId] = 0;
+        }
+    });
+
     window.handleKeyEstNilai = function (event, rowId) {
         if (event.key === 'Enter') { event.preventDefault(); saveEstNilai(rowId); }
         else if (event.key === 'Escape') { cancelEditEstNilai(rowId); }
@@ -1095,11 +1120,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 (newValue > 0 ? 'text-slate-800 hover:text-amber-600' : 'text-slate-300 hover:text-slate-400');
             display.setAttribute('onclick', 'startEditEstNilai(' + rowId + ')');
 
+            // Update tracking map
+            estNilaiMap[rowId] = newValue;
+
             // Update data attribute untuk billing checkbox (agar nilai terbaru digunakan)
             const billingCb = document.querySelector('.billing-checkbox[data-data-id="' + rowId + '"]');
             if (billingCb) {
                 billingCb.dataset.estNilai = newValue;
             }
+
+            // Update total est_nilai_bc di footer
+            updateEstNilaiTotal();
 
             // TAMBAHAN: Jika billing complete sudah dicentang, update delivery_nilai_billcomp otomatis
             if (billingCb && billingCb.checked) {
@@ -1158,6 +1189,20 @@ document.addEventListener('DOMContentLoaded', function () {
     function formatNumber(num) {
         if (!num) return '-';
         return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+    }
+
+    function updateEstNilaiTotal() {
+        // Hitung total dari estNilaiMap
+        let total = 0;
+        for (let rowId in estNilaiMap) {
+            total += estNilaiMap[rowId];
+        }
+        
+        // Update footer total (column 8)
+        const footer = document.querySelector('tfoot td:nth-child(8)');
+        if (footer) {
+            footer.textContent = formatNumber(total);
+        }
     }
 });
 </script>
