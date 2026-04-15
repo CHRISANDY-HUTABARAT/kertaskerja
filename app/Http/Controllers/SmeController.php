@@ -300,6 +300,7 @@ class SmeController extends Controller
         $funnel = \App\Models\FunnelTracking::firstOrCreate([
             'data_type' => $request->data_type,
             'data_id'   => $request->data_id,
+            'ngtma_id'  => $request->ngtma_id,
         ]);
 
         $autoFields = [];
