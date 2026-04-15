@@ -154,6 +154,7 @@ class PrivateController extends Controller
                     ->where('segment', 'private')
                     ->where('periode', $currentPeriodeDate);
             })
+            ->orderBy('am', 'asc')
             ->get()
             ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
 

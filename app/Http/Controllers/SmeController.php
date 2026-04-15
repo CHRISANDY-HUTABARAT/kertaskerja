@@ -151,10 +151,10 @@ class SmeController extends Controller
         $rows = ScallingData::with(['funnel.todayProgress'])
             ->whereHas('scallingImport', function ($query) use ($currentPeriodeDate) {
                 $query->where('type', 'initiate')
-                    // ->where('status', 'active')
                     ->where('segment', 'sme')
                     ->where('periode', $currentPeriodeDate);
             })
+            ->orderBy('am', 'asc')
             ->get()
             ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
 
