@@ -11,6 +11,30 @@ class SoeController extends Controller
     /**
      * Display a listing of the resource.
      */
+
+    private const FUNNEL_ORDER = [
+        'f0_inisiasi_solusi',
+        'f1_tech_budget',
+        'f2_p0_p1',
+        'f2_p2',
+        'f2_p3',
+        'f2_p4',
+        'f2_offering',
+        'f2_p5',
+        'f2_proposal',
+        'f3_p6',
+        'f3_p7',
+        'f3_submit',
+        'f4_negosiasi',
+        'f5_sk_mitra',
+        'f5_ttd_kontrak',
+        'f5_p8',
+        'delivery_kontrak',
+        'delivery_baut_bast',
+        'delivery_baso',
+        'delivery_billing_complete',
+    ];
+
     public function index()
     {
         //
@@ -316,60 +340,78 @@ class SoeController extends Controller
         ]);
 
         $autoFields = [];
-        $funnel->{$request->field} = $value;
+        $currentField = $request->field;
 
-        if ($request->field === 'delivery_billing_complete') {
-            $funnel->delivery_nilai_billcomp = $value && is_numeric($rawEst) ? (float) $rawEst : null;
+        // Temukan posisi field yang diubah di FUNNEL_ORDER
+        $currentIndex = array_search($currentField, self::FUNNEL_ORDER);
 
-            $autoFields = collect($funnel->getCasts())
-                ->filter(fn($c, $k) => $c === 'boolean' && $k !== 'delivery_billing_complete' && $k !== 'cancel')
-                ->keys()
-                ->toArray();
-
-            foreach ($autoFields as $fld) {
-                $funnel->{$fld} = $value;
+        if ($currentIndex !== false) {
+            if ($value === true) {
+                // Centang semua field SEBELUM field ini (yang belum tercentang)
+                $autoFields = array_slice(self::FUNNEL_ORDER, 0, $currentIndex);
+                foreach ($autoFields as $fld) {
+                    $funnel->{$fld} = true;
+                }
+            } else {
+                // Uncentang semua field SETELAH field ini
+                $autoFields = array_slice(self::FUNNEL_ORDER, $currentIndex + 1);
+                foreach ($autoFields as $fld) {
+                    $funnel->{$fld} = false;
+                }
+                // Jika uncentang billing complete, reset nilai juga
+                if (in_array('delivery_billing_complete', $autoFields) || $currentField === 'delivery_billing_complete') {
+                    $funnel->delivery_nilai_billcomp = null;
+                }
             }
         }
 
-        if ($request->field === 'cancel' && $value === true) {
-            $funnel->delivery_billing_complete = 0;
+        // Set field yang diubah
+        $funnel->{$currentField} = $value;
+
+        // Handle billing complete khusus untuk nilai
+        if ($currentField === 'delivery_billing_complete') {
+            $funnel->delivery_nilai_billcomp = $value && is_numeric($rawEst) ? (float) $rawEst : null;
+        }
+
+        // Handle cancel
+        if ($currentField === 'cancel' && $value === true) {
+            $funnel->delivery_billing_complete = false;
             $funnel->delivery_nilai_billcomp   = null;
         }
 
         $funnel->save();
 
+        // TaskProgress — logika sama
         $taskProgress = \App\Models\TaskProgress::firstOrCreate([
             'task_id' => $funnel->id,
             'user_id' => auth()->id(),
             'tanggal' => today(),
         ]);
 
-        $taskProgress->{$request->field} = $value;
+        $taskProgress->{$currentField} = $value;
 
-        if ($request->field === 'delivery_billing_complete') {
-            $taskProgress->delivery_nilai_billcomp = $value && is_numeric($rawEst) ? (float) $rawEst : null;
-
-            foreach ($autoFields as $fld) {
-                $taskProgress->{$fld} = $value;
-            }
+        foreach ($autoFields as $fld) {
+            $taskProgress->{$fld} = $value === true ? true : false;
         }
 
-        // ← TAMBAHAN: jika cancel di-set true, reset billing complete dan nilainya
-        if ($request->field === 'cancel' && $value === true) {
-            $taskProgress->delivery_billing_complete = 0;
+        if ($currentField === 'delivery_billing_complete') {
+            $taskProgress->delivery_nilai_billcomp = $value && is_numeric($rawEst) ? (float) $rawEst : null;
+        }
+
+        if ($currentField === 'cancel' && $value === true) {
+            $taskProgress->delivery_billing_complete = false;
             $taskProgress->delivery_nilai_billcomp   = null;
         }
 
         $taskProgress->save();
 
-        $dataId   = $request->data_id;
-        $funnel   = \App\Models\FunnelTracking::where('data_id', $dataId)->first();
-        $periodeImport = \App\Models\ScallingData::find($dataId)?->scallingImport;
-
+        // Hitung total billcomp — tetap sama
+        $dataId          = $request->data_id;
+        $periodeImport   = \App\Models\ScallingData::find($dataId)?->scallingImport;
         $dataIdsInPeriode = collect();
+
         if ($periodeImport) {
-            $dataIdsInPeriode = \App\Models\ScallingData::where('imports_log_id', $periodeImport->id)
-                ->pluck('id');
+            $dataIdsInPeriode = \App\Models\ScallingData::where('imports_log_id', $periodeImport->id)->pluck('id');
         }
 
         $total = \App\Models\FunnelTracking::whereIn('data_id', $dataIdsInPeriode)
@@ -383,7 +425,7 @@ class SoeController extends Controller
             'nilai_billcomp' => $taskProgress->delivery_nilai_billcomp,
             'total'          => number_format((float) $total, 0, ',', '.'),
             'auto_fields'    => $autoFields,
-            'auto_value'     => $request->field === 'delivery_billing_complete' ? $value : null,
+            'auto_value'     => $value,  // ← sekarang kirim value asli bukan hanya untuk billcomp
         ]);
     }
 
