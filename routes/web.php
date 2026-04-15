@@ -225,6 +225,8 @@ Route::middleware('auth')->group(function () {
         ->name('admin.progress');
         Route::post('/progress/{segment}/{type}/funnel', [ReportController::class, 'progressFunnelUpdate'])
         ->name('admin.progress.funnel.update');
+        Route::post('/progress/{segment}/{type}/scalling/update-est-nilai', [ReportController::class, 'progressScallingUpdateEstNilai'])
+        ->name('admin.progress.scalling.update-est-nilai');
         Route::post('/progress/{segment}/koreksi/update-realisasi', [ReportController::class, 'progressKoreksiUpdate'])
         ->name('admin.progress.koreksi.update-realisasi');
 

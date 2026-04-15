@@ -944,4 +944,45 @@ public function progressKoreksiUpdate(Request $request, string $segment)
         $controller = app($controllerMap[$segment]);
         return $controller->updateFunnelCheckbox($request);
     }
+
+    public function progressScallingUpdateEstNilai(Request $request, string $segment, string $type)
+    {
+        try {
+            $request->validate([
+                'data_id'       => 'required|integer|exists:scalling_data,id',
+                'est_nilai_bc'  => 'required|numeric|min:0',
+            ]);
+
+            $segmentDbMap = [
+                'gov'     => 'government',
+                'private' => 'private',
+                'soe'     => 'soe',
+                'sme'     => 'sme',
+            ];
+            abort_if(!isset($segmentDbMap[$segment]), 404);
+            $segmentDb = $segmentDbMap[$segment];
+
+            $scallingData = \App\Models\ScallingData::findOrFail($request->data_id);
+            $import = $scallingData->scallingImport;
+            abort_if(!$import || $import->segment !== $segmentDb, 403);
+
+            $scallingData->update([
+                'est_nilai_bc' => $request->est_nilai_bc,
+            ]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('progressScallingUpdateEstNilai error: ' . $e->getMessage(), [
+                'segment' => $segment,
+                'type' => $type,
+                'data_id' => $request->data_id ?? null,
+                'est_nilai_bc' => $request->est_nilai_bc ?? null,
+            ]);
+            
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage()
+            ], 500);
+        }
+    }
 }

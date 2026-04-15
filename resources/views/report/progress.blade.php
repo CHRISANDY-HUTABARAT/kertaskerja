@@ -360,7 +360,42 @@
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-right text-slate-800 border-r border-slate-100">{{ number_format($row->est_nilai_bc, 0, ',', '.') }}</td>
+                            {{-- EST NILAI BC — editable inline --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-amber-50/40" id="estnilai-cell-{{ $row->id }}" data-row-id="{{ $row->id }}">
+                                <div class="flex items-center justify-end space-x-1.5">
+                                    <div class="estnilai-display font-black tabular-nums cursor-pointer transition-colors text-right
+                                        {{ $row->est_nilai_bc ? 'text-slate-800 hover:text-amber-600' : 'text-slate-300 hover:text-slate-400' }}"
+                                        id="estnilai-display-{{ $row->id }}"
+                                        onclick="startEditEstNilai({{ $row->id }})"
+                                        title="Klik untuk edit estimasi nilai BC">
+                                        @if($row->est_nilai_bc)
+                                            {{ number_format($row->est_nilai_bc, 0, ',', '.') }}
+                                        @else
+                                            <span class="text-xs font-medium text-slate-300">— isi</span>
+                                        @endif
+                                    </div>
+                                    <div class="estnilai-edit hidden items-center space-x-1" id="estnilai-edit-{{ $row->id }}">
+                                        <input type="number" min="0" step="1"
+                                            id="estnilai-input-{{ $row->id }}"
+                                            value="{{ $row->est_nilai_bc > 0 ? $row->est_nilai_bc : '' }}"
+                                            placeholder="0"
+                                            class="w-40 px-2 py-1 border-2 border-amber-400 rounded-lg text-xs font-black text-slate-800 text-right focus:outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-100 tabular-nums"
+                                            onkeydown="handleKeyEstNilai(event, {{ $row->id }})">
+                                        <button onclick="saveEstNilai({{ $row->id }})"
+                                            class="p-1 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditEstNilai({{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
                             {{-- F0 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-blue-600 rounded cursor-pointer"
@@ -997,6 +1032,132 @@ document.addEventListener('DOMContentLoaded', function () {
             if (cb) cb.checked = !value;
             alert('Error: ' + err.message);
         });
+    }
+
+    // ── EDIT EST NILAI BC ──
+    window.startEditEstNilai = function (rowId) {
+        const display = document.getElementById('estnilai-display-' + rowId);
+        const edit = document.getElementById('estnilai-edit-' + rowId);
+        display.classList.add('hidden');
+        edit.classList.remove('hidden');
+        edit.classList.add('flex');
+        const input = document.getElementById('estnilai-input-' + rowId);
+        input.focus();
+        input.select();
+    };
+
+    window.cancelEditEstNilai = function (rowId) {
+        const display = document.getElementById('estnilai-display-' + rowId);
+        const edit = document.getElementById('estnilai-edit-' + rowId);
+        edit.classList.add('hidden');
+        edit.classList.remove('flex');
+        display.classList.remove('hidden');
+    };
+
+    window.handleKeyEstNilai = function (event, rowId) {
+        if (event.key === 'Enter') { event.preventDefault(); saveEstNilai(rowId); }
+        else if (event.key === 'Escape') { cancelEditEstNilai(rowId); }
+    };
+
+    window.saveEstNilai = function (rowId) {
+        const input = document.getElementById('estnilai-input-' + rowId);
+        const rawValue = input.value.trim();
+        const newValue = rawValue === '' ? 0 : parseFloat(rawValue);
+        if (isNaN(newValue) || newValue < 0) {
+            input.classList.add('border-red-500');
+            input.focus();
+            setTimeout(function () { input.classList.remove('border-red-500'); }, 1500);
+            return;
+        }
+
+        const display = document.getElementById('estnilai-display-' + rowId);
+        const edit = document.getElementById('estnilai-edit-' + rowId);
+        display.innerHTML = '<span class="text-slate-400 text-xs font-bold animate-pulse">Menyimpan...</span>';
+        display.classList.remove('hidden');
+        edit.classList.add('hidden');
+        edit.classList.remove('flex');
+
+        fetch('{{ route("admin.progress.scalling.update-est-nilai", ["segment" => $segment, "type" => $type]) }}', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: JSON.stringify({ data_id: rowId, est_nilai_bc: newValue })
+        })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (data) {
+            if (!data.success) throw new Error(data.message || 'Gagal');
+
+            // Update display
+            input.value = newValue > 0 ? newValue : '';
+            display.innerHTML = newValue > 0
+                ? formatNumber(newValue)
+                : '<span class="text-xs font-bold text-slate-300">— klik untuk isi</span>';
+            display.className = 'estnilai-display font-black tabular-nums cursor-pointer transition-colors text-right ' +
+                (newValue > 0 ? 'text-slate-800 hover:text-amber-600' : 'text-slate-300 hover:text-slate-400');
+            display.setAttribute('onclick', 'startEditEstNilai(' + rowId + ')');
+
+            // Update data attribute untuk billing checkbox (agar nilai terbaru digunakan)
+            const billingCb = document.querySelector('.billing-checkbox[data-data-id="' + rowId + '"]');
+            if (billingCb) {
+                billingCb.dataset.estNilai = newValue;
+            }
+
+            // TAMBAHAN: Jika billing complete sudah dicentang, update delivery_nilai_billcomp otomatis
+            if (billingCb && billingCb.checked) {
+                const nilaiCell = document.querySelector('tr[data-row-id="' + rowId + '"] .nilai-billcomp-cell');
+                if (nilaiCell) {
+                    nilaiCell.innerHTML = newValue > 0 
+                        ? '<span class="font-black text-slate-800">' + formatNumber(newValue) + '</span>'
+                        : '<span class="text-slate-300">—</span>';
+                }
+
+                // Kirim update delivery_nilai_billcomp ke server
+                fetch(updateUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                    body: JSON.stringify({ 
+                        data_type: '{{ $type }}', 
+                        data_id: rowId, 
+                        field: 'delivery_billing_complete', 
+                        value: true,
+                        est_nilai_bc: newValue 
+                    })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.total) {
+                        const tc = document.getElementById('total-nilai-billcomp');
+                        if (tc) tc.querySelector('span').textContent = data.total;
+                    }
+                })
+                .catch(err => console.error('Error updating delivery value:', err));
+            }
+
+            // Recalc total jika ada yang billing complete
+            if (billingCb && billingCb.checked) {
+                recalcTotal();
+            }
+
+            const cell = document.getElementById('estnilai-cell-' + rowId);
+            cell.style.background = '#fef2f2';
+            setTimeout(function () { cell.style.background = ''; }, 1200);
+        })
+        .catch(function (err) {
+            display.innerHTML = newValue > 0
+                ? formatNumber(newValue)
+                : '<span class="text-xs font-bold text-slate-300">— klik untuk isi</span>';
+            display.className = 'estnilai-display font-black tabular-nums cursor-pointer transition-colors text-right ' +
+                (newValue > 0 ? 'text-slate-800 hover:text-amber-600' : 'text-slate-300 hover:text-slate-400');
+            display.setAttribute('onclick', 'startEditEstNilai(' + rowId + ')');
+            const cell = document.getElementById('estnilai-cell-' + rowId);
+            cell.style.background = '#fee2e2';
+            setTimeout(function () { cell.style.background = ''; }, 1500);
+            alert('Gagal menyimpan: ' + err.message);
+        });
+    };
+
+    function formatNumber(num) {
+        if (!num) return '-';
+        return Math.round(num).toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
     }
 });
 </script>
