@@ -19,22 +19,28 @@ class ReportController extends Controller
 {
     public function index(Request $request)
     {
-        $filtered    = $request->has('filter');
-        $filterBulan = $request->input('bulan');
-        $filterTahun = $request->input('tahun');
+        $filtered      = $request->has('filter');
+        $filterBulan   = $request->input('bulan');
+        $filterTahun   = $request->input('tahun');
+        $filterTanggal = $request->input('tanggal');
 
         if (!$filtered) {
-            $filtered    = true;
-            $filterBulan = Carbon::now()->month;
-            $filterTahun = Carbon::now()->year;
+            $filtered      = true;
+            $filterBulan   = Carbon::now()->month;
+            $filterTahun   = Carbon::now()->year;
+            $filterTanggal = null;
         }
 
-        $filterPeriode = function ($q) use ($filtered, $filterBulan, $filterTahun) {
+        $filterPeriode = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal) {
             if ($filtered && $filterBulan) {
                 $q->whereMonth('periode', $filterBulan);
             }
             if ($filtered && $filterTahun) {
                 $q->whereYear('periode', $filterTahun);
+            }
+            if ($filtered && $filterTanggal && $filterBulan && $filterTahun) {
+                $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                $q->where('created_at', '<=', $cutoff);
             }
         };
 
@@ -132,9 +138,13 @@ class ReportController extends Controller
             ];
         }
 
-        $filterPeriodeCt0 = function ($q) use ($filtered, $filterBulan, $filterTahun) {
+        $filterPeriodeCt0 = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
             if ($filtered && $filterTahun) $q->whereYear('periode', $filterTahun);
+            if ($filtered && $filterTanggal && $filterBulan && $filterTahun) {
+                $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                $q->where('created_at', '<=', $cutoff);
+            }
         };
 
         $ct0Regions = [
@@ -203,9 +213,13 @@ class ReportController extends Controller
         $lossRateAch   = $lossRateReal;
         $lossRateUpdatedAt = '-';
 
-        $filterPeriodeRs = function ($q) use ($filtered, $filterBulan, $filterTahun) {
+        $filterPeriodeRs = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
             if ($filtered && $filterTahun) $q->whereYear('periode', $filterTahun);
+            if ($filtered && $filterTanggal && $filterBulan && $filterTahun) {
+                $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                $q->where('created_at', '<=', $cutoff);
+            }
         };
 
         $rsLatest = function (int $typeId) use ($filterPeriodeRs) {
@@ -330,9 +344,13 @@ class ReportController extends Controller
         $b4RpDisplay = number_format($b4RpMillion * 100, 2, ',', '');
         $b4UpdatedAt = collect($b4Data)->first(fn($d) => $d['updated_at'] !== '-')['updated_at'] ?? '-';
 
-        $filterPeriodePsak = function ($q) use ($filtered, $filterBulan, $filterTahun) {
+        $filterPeriodePsak = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
-            if ($filtered && $filterTahun)  $q->whereYear('periode', $filterTahun);
+            if ($filtered && $filterTahun) $q->whereYear('periode', $filterTahun);
+            if ($filtered && $filterTanggal && $filterBulan && $filterTahun) {
+                $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                $q->where('created_at', '<=', $cutoff);
+            }
         };
 
         $psakSegments = [
@@ -469,7 +487,12 @@ class ReportController extends Controller
                         }
 
                         $dataIds  = $dataRows->pluck('id');
-                        $funnels  = FunnelTracking::whereIn('data_id', $dataIds)->get();
+                        $funnels  = FunnelTracking::whereIn('data_id', $dataIds)
+                            ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                                $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                                $q->where('updated_at', '<=', $cutoff);
+                            })
+                            ->get();
                         $realAmount = $funnels->where('delivery_billing_complete', true)->count();
                         $realRp     = (float) $funnels->sum('delivery_nilai_billcomp') / 1000000;
                     }
@@ -521,11 +544,22 @@ class ReportController extends Controller
                 $commitRp     = (float) $dataRows->sum('est_nilai_bc') / 1000000;
 
                 $dataIds  = $dataRows->pluck('id');
-                $funnels  = FunnelTracking::whereIn('ngtma_id', $dataIds)->get();
+                $funnels  = FunnelTracking::whereIn('data_id', $dataIds)
+                    ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                        $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                        $q->where('updated_at', '<=', $cutoff);
+                    })
+                    ->get();
                 $realAmount = $funnels->where('delivery_billing_complete', true)->count();
                 $realRp     = (float) $funnels->sum('delivery_nilai_billcomp') / 1000000;
 
-                $latestFunnel = $funnels->sortByDesc('updated_at')->first();
+                $latestFunnel = FunnelTracking::whereIn('data_id', $dataIds)
+                    ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                        $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                        $q->where('updated_at', '<=', $cutoff);
+                    })
+                    ->orderBy('updated_at', 'desc')
+                    ->first();
                 $funnelUpdatedAt = $latestFunnel?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
             }
 
@@ -548,6 +582,9 @@ class ReportController extends Controller
         $hsiAgencyRow = Hsi::where('type', 'Sales HSI Non AM Non Telda')
             ->whereYear('periode', $scalingTahun)
             ->whereMonth('periode', $scalingBulan)
+            ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                $q->where('created_at', '<=', Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay());
+            })
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -574,6 +611,9 @@ class ReportController extends Controller
             $record = Telda::where('region', $regionKey)
                 ->whereYear('periode', $scalingTahun)
                 ->whereMonth('periode', $scalingBulan)
+                ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                    $q->where('created_at', '<=', Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay());
+                })
                 ->orderBy('created_at', 'desc')
                 ->first();
 
@@ -588,6 +628,9 @@ class ReportController extends Controller
         $upsellingRow = Hsi::where('type', 'Next Level HSI')
             ->whereYear('periode', $scalingTahun)
             ->whereMonth('periode', $scalingBulan)
+            ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                $q->where('created_at', '<=', Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay());
+            })
             ->orderBy('created_at', 'desc')
             ->first();
 
@@ -598,7 +641,7 @@ class ReportController extends Controller
         ];
 
         return view('report.report', compact(
-            'filtered', 'filterBulan', 'filterTahun',
+            'filtered', 'filterBulan', 'filterTahun', 'filterTanggal',
             'c3mrKomitmen', 'c3mrRealisasi', 'c3mrUpdatedAt',
             'bilperKomitmen', 'bilperRealisasi', 'bilperUpdatedAt',
             'crData', 'crUpdatedAt',
@@ -978,7 +1021,7 @@ public function progressKoreksiUpdate(Request $request, string $segment)
                 'data_id' => $request->data_id ?? null,
                 'est_nilai_bc' => $request->est_nilai_bc ?? null,
             ]);
-            
+
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage()

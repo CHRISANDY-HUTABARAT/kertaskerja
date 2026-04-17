@@ -82,7 +82,9 @@
 
         $periodeLabel = 'Semua Data';
         if ($filtered) {
-            if ($filterBulan && $filterTahun)
+            if ($filterBulan && $filterTahun && ($filterTanggal ?? null))
+                $periodeLabel = $filterTanggal . ' ' . $bulanNames[$filterBulan] . ' ' . $filterTahun;
+            elseif ($filterBulan && $filterTahun)
                 $periodeLabel = $bulanNames[$filterBulan] . ' ' . $filterTahun;
             elseif ($filterTahun)
                 $periodeLabel = 'Tahun ' . $filterTahun;
@@ -264,8 +266,17 @@
                     <div class="flex items-end justify-between gap-4">
                         <div class="flex items-end gap-4 flex-1">
                             <div class="flex-1">
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tanggal</label>
+                                <select name="tanggal" id="select-tanggal" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 bg-white">
+                                    <option value="">— Semua Tanggal —</option>
+                                    @for($d = 1; $d <= 31; $d++)
+                                        <option value="{{ $d }}" {{ ($filterTanggal ?? '') == $d ? 'selected' : '' }}>{{ $d }}</option>
+                                    @endfor
+                                </select>
+                            </div>
+                            <div class="flex-1">
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Bulan</label>
-                                <select name="bulan" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 bg-white">
+                                <select name="bulan" id="select-bulan" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 bg-white">
                                     <option value="">— Semua Bulan —</option>
                                     @for($m = 1; $m <= 12; $m++)
                                         <option value="{{ $m }}" {{ $filterBulan == $m ? 'selected' : '' }}>{{ $bulanNames[$m] }}</option>
@@ -274,7 +285,7 @@
                             </div>
                             <div class="flex-1">
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-1.5">Tahun</label>
-                                <select name="tahun" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 bg-white">
+                                <select name="tahun" id="select-tahun" class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 bg-white">
                                     <option value="">— Semua Tahun —</option>
                                     @for($y = 2025; $y <= 2026; $y++)
                                         <option value="{{ $y }}" {{ $filterTahun == $y ? 'selected' : '' }}>{{ $y }}</option>
@@ -1466,6 +1477,45 @@
     hideOverlay();
 }
 
+})();
+</script>
+
+<script>
+(function () {
+    var selBulan   = document.getElementById('select-bulan');
+    var selTahun   = document.getElementById('select-tahun');
+    var selTanggal = document.getElementById('select-tanggal');
+
+    if (!selBulan || !selTahun || !selTanggal) return;
+
+    function getDaysInMonth(month, year) {
+        if (!month) return 31;
+        if (!year)  return 31;
+        return new Date(year, month, 0).getDate();
+    }
+
+    function updateTanggalOptions() {
+        var m   = parseInt(selBulan.value)   || 0;
+        var y   = parseInt(selTahun.value)   || 0;
+        var max = getDaysInMonth(m, y);
+        var cur = parseInt(selTanggal.value) || 0;
+
+        Array.from(selTanggal.options).forEach(function (opt) {
+            var v = parseInt(opt.value) || 0;
+            if (v === 0) return;
+            opt.hidden    = (v > max);
+            opt.disabled  = (v > max);
+        });
+
+        if (cur > max) {
+            selTanggal.value = '';
+        }
+    }
+
+    selBulan.addEventListener('change', updateTanggalOptions);
+    selTahun.addEventListener('change', updateTanggalOptions);
+
+    updateTanggalOptions();
 })();
 </script>
 
