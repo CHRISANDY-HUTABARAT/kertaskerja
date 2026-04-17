@@ -454,7 +454,7 @@
                                         <td class="border border-gray-400 text-center">lop</td>
 
                                         <td class="border border-gray-400 px-2 text-right">
-                                            {{ $row['commit_amount'] > 0 ? $row['commit_amount'] : ($cRp > 0 ? '-' : '') }}
+                                            {{ $row['commit_amount'] > 0 ? $row['commit_amount'] : ($cRp > 0 ? '' : '') }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
                                             @if($typeKey === 'initiate' || $row['commit_amount'] > 0)

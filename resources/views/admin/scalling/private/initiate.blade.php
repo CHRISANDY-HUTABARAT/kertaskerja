@@ -117,7 +117,7 @@
                     <form action="{{ route('admin.scalling.initiate.addGap') }}" method="POST">
                         @csrf
                         <input type="hidden" name="segment" value="private">
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-5 mb-6">
                             {{-- Periode --}}
                             <div>
                                 <label
