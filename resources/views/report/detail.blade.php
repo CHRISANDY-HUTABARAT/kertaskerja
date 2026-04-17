@@ -478,6 +478,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <script>
 (function(){
+    var ROWS_PER_PAGE = 10;
+
     var segmentLabel = @json($segmentLabel);
     var typeLabel    = @json($typeLabel);
     var periodeLabel = @json($periodeLabel);
@@ -489,213 +491,8 @@
     function showOverlay() { var o=document.getElementById('export-overlay'); o.style.display='flex'; setProgress(0); }
     function hideOverlay() { document.getElementById('export-overlay').style.display='none'; }
 
-    function cloneCards() {
-        var cards = document.querySelector('.grid.grid-cols-2.md\\:grid-cols-4');
-        if (!cards) return '';
-        return cards.outerHTML;
-    }
-
-function cloneTable() {
-    var table = document.querySelector('table');
-    if (!table) return '';
-    var wrapper = document.createElement('div');
-    wrapper.style.cssText = 'overflow:visible;margin-top:14px;';
-    var tClone = table.cloneNode(true);
-
-    tClone.style.cssText = 'width:100%;border-collapse:collapse;font-size:8px;font-family:Inter,Arial,sans-serif;table-layout:auto;';
-
-    var oldCg = tClone.querySelector('colgroup');
-    if (oldCg) oldCg.remove();
-
-    var firstRow = tClone.querySelector('tbody tr');
-    var colCount = firstRow ? firstRow.querySelectorAll('td').length : 30;
-    var isKoreksi = colCount <= 5;
-
-    if (isKoreksi) {
-        var cgK = document.createElement('colgroup');
-        var koreksiWidths = ['40px', '280px', '160px', '120px', '160px'];
-        koreksiWidths.forEach(function(w) {
-            var col = document.createElement('col');
-            col.style.width = w;
-            cgK.appendChild(col);
-        });
-        tClone.insertBefore(cgK, tClone.firstChild);
-
-        tClone.querySelectorAll('th').forEach(function(th) {
-            var bg    = window.getComputedStyle(th).backgroundColor;
-            var color = window.getComputedStyle(th).color;
-            th.style.cssText = 'border:1px solid rgba(255,255,255,0.15);padding:8px 10px;font-size:8px;'
-                + 'background:'+bg+';color:'+color+';font-weight:800;'
-                + 'text-align:center;vertical-align:middle;'
-                + 'text-transform:uppercase;letter-spacing:0.08em;';
-        });
-
-        tClone.querySelectorAll('td').forEach(function(td) {
-            var bg  = window.getComputedStyle(td).backgroundColor;
-            var col = window.getComputedStyle(td).color;
-            var fw  = window.getComputedStyle(td).fontWeight;
-            var ta  = window.getComputedStyle(td).textAlign;
-            td.style.cssText = 'border:1px solid #e2e8f0;padding:6px 10px 10px 10px;font-size:8px;'
-                + 'background:'+bg+';color:'+col+';font-weight:'+fw+';'
-                + 'text-align:'+ta+';vertical-align:middle;';
-        });
-
-        wrapper.appendChild(tClone);
-        return wrapper.outerHTML;
-    }
-
-    var widths = [
-        '35px',
-        '130px',
-        '65px',
-        '65px',
-        '105px',
-        '70px',
-        '40px',
-        '110px',
-        '60px',
-        '65px',
-        '55px',
-        '26px',
-        '26px',
-        '26px',
-        '75px',
-        '26px',
-        '75px',
-        '26px',
-        '26px',
-        '60px',
-        '80px',
-        '55px',
-        '70px',
-        '26px',
-        '70px',
-        '90px',
-        '55px',
-        '75px',
-        '65px',
-        '12px',
-    ];
-
-    var cg = document.createElement('colgroup');
-    widths.forEach(function(w) {
-        var col = document.createElement('col');
-        col.style.width = w;
-        cg.appendChild(col);
-    });
-    tClone.insertBefore(cg, tClone.firstChild);
-
-    var checkCells   = new Set();
-    var greyCells    = new Set();
-
-    tClone.querySelectorAll('td').forEach(function(td) {
-        if (td.querySelector('span.bg-green-500, span[class*="bg-green-500"]')) checkCells.add(td);
-        else if (td.querySelector('span.bg-slate-100, span[class*="bg-slate-100"]')) greyCells.add(td);
-    });
-
-    tClone.querySelectorAll('td').forEach(function(td) {
-        if (checkCells.has(td)) {
-            td.innerHTML = '<div style="width:100%;text-align:center;line-height:1;">'
-                + '<svg viewBox="0 0 16 16" width="13" height="13" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">'
-                + '<circle cx="8" cy="8" r="7.5" fill="#22c55e"/>'
-                + '<polyline points="4.5,8.5 7,11 11.5,5.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
-                + '</svg></div>';
-            return;
-        }
-        if (greyCells.has(td)) {
-            td.innerHTML = '<div style="width:100%;text-align:center;line-height:1;">'
-                + '<svg viewBox="0 0 16 16" width="10" height="10" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">'
-                + '<circle cx="8" cy="8" r="7.5" fill="#e2e8f0"/>'
-                + '</svg></div>';
-            return;
-        }
-        var dashSpan = td.querySelector('span.text-slate-300');
-        if (dashSpan && dashSpan.textContent.trim() === '—') {
-            td.innerHTML = '<span style="color:#cbd5e1;font-size:8px;">—</span>';
-            return;
-        }
-    });
-
-    tClone.querySelectorAll('th').forEach(function(th) {
-        var bg    = window.getComputedStyle(th).backgroundColor;
-        var color = window.getComputedStyle(th).color;
-        var rowspan  = th.getAttribute('rowspan');
-        var colspan  = th.getAttribute('colspan');
-        var tr       = th.parentElement;
-        var theadRows = Array.from(th.closest('thead').querySelectorAll('tr'));
-        var isFirstRow = theadRows.indexOf(tr) === 0;
-        var isMergedDown = rowspan && parseInt(rowspan) > 1;
-        var isGroupHeader = colspan && parseInt(colspan) > 1;
-        var isSingleTop = isFirstRow && !isMergedDown && !isGroupHeader;
-
-        var padBottom = isMergedDown ? '4px' : (isGroupHeader || isSingleTop) ? '6px' : '20px';
-        var valign    = (isMergedDown || isGroupHeader || isSingleTop) ? 'middle' : 'bottom';
-        th.style.cssText = 'border:1px solid rgba(0,0,0,0.1);padding:2px 2px '+padBottom+' 2px;font-size:6px;'
-            + 'background:'+bg+';color:'+color+';font-weight:800;'
-            + 'text-align:center;vertical-align:'+valign+';'
-            + 'word-break:break-word;line-height:1.2;'
-            + 'text-transform:uppercase;letter-spacing:0.02em;';
-    });
-
-    // Style td
-    tClone.querySelectorAll('td').forEach(function(td) {
-        var bg  = window.getComputedStyle(td).backgroundColor;
-        var col = window.getComputedStyle(td).color;
-        var fw  = window.getComputedStyle(td).fontWeight;
-        var ta  = window.getComputedStyle(td).textAlign;
-        var idx = td.cellIndex;
-
-        var isCheck = checkCells.has(td);
-        var isGrey  = greyCells.has(td);
-        var isCheckCol = (idx >= 8 && idx <= 27) || idx === 29;
-
-        var extraWrap = '';
-        if (idx === 4) {
-            extraWrap = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
-        } else if (idx === 28 || idx === 7) {
-            extraWrap = 'white-space:nowrap;';
-        } else if (idx <= 5) {
-            extraWrap = 'word-break:break-word;overflow-wrap:break-word;';
-        } else {
-            extraWrap = 'overflow:hidden;';
-        }
-
-        var colorOverride = '';
-        var fontOverride  = '';
-        var sizeOverride  = '';
-        if (isCheck || isGrey) {
-            colorOverride = '';
-            fontOverride  = '';
-            sizeOverride  = 'font-size:0px;';
-        } else if (idx === 28) {
-            colorOverride = 'color:#1e293b;';
-            fontOverride  = 'font-weight:900;';
-            sizeOverride  = 'font-size:7px;';
-        } else if (idx >= 8 && idx !== 7) {
-            colorOverride = 'color:#94a3b8;';
-            fontOverride  = 'font-weight:600;';
-            sizeOverride  = 'font-size:9px;';
-        }
-
-        var align = (isCheckCol)
-            ? 'text-align:center;vertical-align:middle;'
-            : 'text-align:'+ta+';vertical-align:middle;';
-
-        var padding = isCheckCol
-            ? 'padding:0px 1px;'
-            : 'padding:2px 2px 8px 2px;';
-
-        td.style.cssText = 'border:1px solid #e2e8f0;font-size:7px;'
-            + padding
-            + 'background:'+bg+';'+colorOverride+fontOverride+sizeOverride
-            + align + 'line-height:1.4;' + extraWrap;
-    });
-
-    wrapper.appendChild(tClone);
-    return wrapper.outerHTML;
-}
-    function buildExportEl() {
-        var headerHtml = '<div class="detail-export-header">'
+    function buildHeader() {
+        return '<div class="detail-export-header">'
             + '<img src="'+logoUrl+'" crossorigin="anonymous">'
             + '<div class="detail-export-header-divider"></div>'
             + '<div>'
@@ -706,65 +503,216 @@ function cloneTable() {
             +   '</div>'
             + '</div>'
             + '</div>';
+    }
 
-        var cardsHtml = cloneCards();
-        var tableHtml = cloneTable();
+    // Ambil semua baris tbody yang visible (tidak tersembunyi oleh search)
+    function getVisibleRows() {
+        return Array.from(document.querySelectorAll('table tbody tr')).filter(function(tr) {
+            return tr.style.display !== 'none' && tr.id !== 'searchEmptyMsg';
+        });
+    }
 
+    function cloneTableWithRows(allRows, startIdx, endIdx, includeFooter) {
+        var table = document.querySelector('table');
+        if (!table) return '';
+
+        var wrapper = document.createElement('div');
+        wrapper.style.cssText = 'overflow:visible;margin-top:14px;';
+
+        var tClone = document.createElement('table');
+        tClone.style.cssText = 'width:100%;border-collapse:collapse;font-size:8px;font-family:Inter,Arial,sans-serif;table-layout:auto;';
+
+        // Clone thead
+        var thead = table.querySelector('thead');
+        if (thead) tClone.appendChild(thead.cloneNode(true));
+
+        // Clone hanya baris yang diperlukan
+        var tbody = document.createElement('tbody');
+        var pageRows = allRows.slice(startIdx, endIdx);
+        pageRows.forEach(function(tr) {
+            tbody.appendChild(tr.cloneNode(true));
+        });
+        tClone.appendChild(tbody);
+
+        // Clone tfoot hanya di halaman terakhir
+        if (includeFooter) {
+            var tfoot = table.querySelector('tfoot');
+            if (tfoot) tClone.appendChild(tfoot.cloneNode(true));
+        }
+
+        // Apply colgroup
+        var colCount = allRows[0] ? allRows[0].querySelectorAll('td').length : 30;
+        var isKoreksiTable = colCount <= 5;
+
+        var cg = document.createElement('colgroup');
+        if (isKoreksiTable) {
+            ['40px','280px','160px','120px','160px'].forEach(function(w) {
+                var col = document.createElement('col'); col.style.width = w; cg.appendChild(col);
+            });
+        } else {
+            ['35px','130px','65px','65px','105px','70px','40px','110px','60px','65px','55px','26px','26px','26px','75px','26px','75px','26px','26px','60px','80px','55px','70px','26px','70px','90px','55px','75px','65px','12px']
+            .forEach(function(w) {
+                var col = document.createElement('col'); col.style.width = w; cg.appendChild(col);
+            });
+        }
+        tClone.insertBefore(cg, tClone.firstChild);
+
+        // Style thead
+        tClone.querySelectorAll('th').forEach(function(th) {
+            var bg    = window.getComputedStyle(th).backgroundColor;
+            var color = window.getComputedStyle(th).color;
+            var rowspan  = th.getAttribute('rowspan');
+            var colspan  = th.getAttribute('colspan');
+            var tr       = th.parentElement;
+            var theadRows = Array.from(th.closest('thead').querySelectorAll('tr'));
+            var isFirstRow = theadRows.indexOf(tr) === 0;
+            var isMergedDown = rowspan && parseInt(rowspan) > 1;
+            var isGroupHeader = colspan && parseInt(colspan) > 1;
+            var isSingleTop = isFirstRow && !isMergedDown && !isGroupHeader;
+            var padBottom = isMergedDown ? '4px' : (isGroupHeader || isSingleTop) ? '6px' : '20px';
+            var valign    = (isMergedDown || isGroupHeader || isSingleTop) ? 'middle' : 'bottom';
+            th.style.cssText = 'border:1px solid rgba(0,0,0,0.1);padding:2px 2px '+padBottom+' 2px;font-size:6px;'
+                + 'background:'+bg+';color:'+color+';font-weight:800;'
+                + 'text-align:center;vertical-align:'+valign+';'
+                + 'word-break:break-word;line-height:1.2;text-transform:uppercase;letter-spacing:0.02em;';
+        });
+
+        // Style td — sama dengan cloneTable() asli
+        var checkCells = new Set();
+        var greyCells  = new Set();
+        tClone.querySelectorAll('td').forEach(function(td) {
+            if (td.querySelector('span.bg-green-500, span[class*="bg-green-500"]')) checkCells.add(td);
+            else if (td.querySelector('span.bg-slate-100, span[class*="bg-slate-100"]')) greyCells.add(td);
+        });
+
+        tClone.querySelectorAll('td').forEach(function(td) {
+            // Replace icon spans with inline SVG
+            if (checkCells.has(td)) {
+                td.innerHTML = '<div style="width:100%;text-align:center;line-height:1;">'
+                    + '<svg viewBox="0 0 16 16" width="13" height="13" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">'
+                    + '<circle cx="8" cy="8" r="7.5" fill="#22c55e"/>'
+                    + '<polyline points="4.5,8.5 7,11 11.5,5.5" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>'
+                    + '</svg></div>';
+                var bg = window.getComputedStyle(td).backgroundColor;
+                td.style.cssText = 'border:1px solid #e2e8f0;padding:0px 1px;background:'+bg+';font-size:0px;text-align:center;vertical-align:middle;';
+                return;
+            }
+            if (greyCells.has(td)) {
+                td.innerHTML = '<div style="width:100%;text-align:center;line-height:1;">'
+                    + '<svg viewBox="0 0 16 16" width="10" height="10" xmlns="http://www.w3.org/2000/svg" style="display:inline-block;vertical-align:middle;">'
+                    + '<circle cx="8" cy="8" r="7.5" fill="#e2e8f0"/>'
+                    + '</svg></div>';
+                var bg2 = window.getComputedStyle(td).backgroundColor;
+                td.style.cssText = 'border:1px solid #e2e8f0;padding:0px 1px;background:'+bg2+';font-size:0px;text-align:center;vertical-align:middle;';
+                return;
+            }
+            var dashSpan = td.querySelector('span.text-slate-300');
+            if (dashSpan && dashSpan.textContent.trim() === '—') {
+                td.innerHTML = '<span style="color:#cbd5e1;font-size:8px;">—</span>';
+            }
+
+            var bg  = window.getComputedStyle(td).backgroundColor;
+            var col = window.getComputedStyle(td).color;
+            var fw  = window.getComputedStyle(td).fontWeight;
+            var ta  = window.getComputedStyle(td).textAlign;
+            var idx = td.cellIndex;
+            var isCheckCol = (idx >= 8 && idx <= 27) || idx === 29;
+
+            var extraWrap = '';
+            if (idx === 4) extraWrap = 'white-space:nowrap;overflow:hidden;text-overflow:ellipsis;';
+            else if (idx === 28 || idx === 7) extraWrap = 'white-space:nowrap;';
+            else if (idx <= 5) extraWrap = 'word-break:break-word;overflow-wrap:break-word;';
+            else extraWrap = 'overflow:hidden;';
+
+            var colorOverride = '', fontOverride = '', sizeOverride = '';
+            if (idx === 28) { colorOverride='color:#1e293b;'; fontOverride='font-weight:900;'; sizeOverride='font-size:7px;'; }
+            else if (idx >= 8 && idx !== 7) { colorOverride='color:#94a3b8;'; fontOverride='font-weight:600;'; sizeOverride='font-size:9px;'; }
+
+            var align   = isCheckCol ? 'text-align:center;vertical-align:middle;' : 'text-align:'+ta+';vertical-align:middle;';
+            var padding = isCheckCol ? 'padding:0px 1px;' : 'padding:2px 2px 8px 2px;';
+
+            td.style.cssText = 'border:1px solid #e2e8f0;font-size:7px;'
+                + padding + 'background:'+bg+';'+colorOverride+fontOverride+sizeOverride
+                + align + 'line-height:1.4;' + extraWrap;
+        });
+
+        wrapper.appendChild(tClone);
+        return wrapper.outerHTML;
+    }
+
+    function buildPage(allRows, startIdx, endIdx, pageNum, totalPages, includeFooter) {
         var div = document.createElement('div');
         div.className = 'detail-export-page';
-        div.innerHTML = headerHtml
-            + '<div style="margin-top:12px;">' + cardsHtml + '</div>'
-            + tableHtml;
+
+        var pageLabel = totalPages > 1
+            ? ' <span style="font-size:9px;color:#94a3b8;font-weight:600;">— Hal. '+pageNum+'/'+totalPages+'</span>'
+            : '';
+
+        div.innerHTML = buildHeader()
+            + '<div style="font-size:8px;color:#94a3b8;margin-top:6px;margin-bottom:10px;text-align:right;">'
+            +   'Baris ' + (startIdx+1) + '–' + endIdx + ' dari ' + allRows.length + pageLabel
+            + '</div>'
+            + cloneTableWithRows(allRows, startIdx, endIdx, includeFooter);
         return div;
     }
 
     document.getElementById('btn-export-detail').addEventListener('click', async function() {
         showOverlay();
-        setStatus('Mempersiapkan...');
-        setProgress(20);
 
         var fontLink = document.getElementById('export-font-link');
         if (!fontLink) {
             fontLink = document.createElement('link');
-            fontLink.id   = 'export-font-link';
-            fontLink.rel  = 'stylesheet';
+            fontLink.id = 'export-font-link'; fontLink.rel = 'stylesheet';
             fontLink.href = 'https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap';
             document.head.appendChild(fontLink);
         }
 
-        var el   = buildExportEl();
-        var root = document.getElementById('export-detail-root');
-        root.appendChild(el);
-
         await document.fonts.ready;
-        await new Promise(function(r){ setTimeout(r, 200); });
 
-        setStatus('Merender...');
-        setProgress(60);
-
-        var canvas = await html2canvas(el, {
-            scale: 1.8,
-            useCORS: true,
-            backgroundColor: '#ffffff',
-            logging: false,
-            imageTimeout: 15000,
-        });
-
-        root.removeChild(el);
-        setProgress(95);
-
-        var filename = 'detail-'
-            + segmentLabel.toLowerCase() + '-'
+        var allRows   = getVisibleRows();
+        var total     = allRows.length;
+        var totalPages = Math.ceil(total / ROWS_PER_PAGE);
+        var root      = document.getElementById('export-detail-root');
+        var filenameBase = 'detail-' + segmentLabel.toLowerCase() + '-'
             + typeLabel.toLowerCase().replace(/\s+/g,'-') + '-'
-            + periodeLabel.toLowerCase().replace(/\s+/g,'-') + '.jpg';
+            + periodeLabel.toLowerCase().replace(/\s+/g,'-');
 
-        var a = document.createElement('a');
-        a.href = canvas.toDataURL('image/jpeg', 0.95);
-        a.download = filename;
-        a.click();
+        for (var p = 0; p < totalPages; p++) {
+            var start = p * ROWS_PER_PAGE;
+            var end   = Math.min(start + ROWS_PER_PAGE, total);
+            var isLast = (p === totalPages - 1);
+
+            setStatus('Memproses halaman ' + (p+1) + ' dari ' + totalPages + '...');
+            setProgress(Math.round((p / totalPages) * 85));
+
+            var el = buildPage(allRows, start, end, p+1, totalPages, isLast);
+            root.appendChild(el);
+
+            await new Promise(function(r){ setTimeout(r, 120); });
+
+            var canvas = await html2canvas(el, {
+                scale: 1.8,
+                useCORS: true,
+                backgroundColor: '#ffffff',
+                logging: false,
+                imageTimeout: 15000,
+            });
+
+            root.removeChild(el);
+
+            var suffix = totalPages > 1 ? '-page' + (p+1) : '';
+            var a = document.createElement('a');
+            a.href = canvas.toDataURL('image/jpeg', 0.95);
+            a.download = filenameBase + suffix + '.jpg';
+            a.click();
+
+            // Jeda singkat antar halaman agar browser tidak block download
+            await new Promise(function(r){ setTimeout(r, 300); });
+        }
 
         setProgress(100);
-        await new Promise(function(r){ setTimeout(r, 400); });
+        setStatus('Selesai. ' + totalPages + ' file diunduh.');
+        await new Promise(function(r){ setTimeout(r, 600); });
         hideOverlay();
     });
 })();
@@ -838,3 +786,4 @@ document.addEventListener('DOMContentLoaded', function () {
 </script>
 
 @endsection
+kabarin

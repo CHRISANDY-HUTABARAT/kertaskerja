@@ -30,6 +30,11 @@
                     if ($v < 80)    return 'bg-red-500 text-white';
                     if ($v < 100)   return 'bg-yellow-300';
                     return 'bg-green-500 text-white';
+                case '20-50':
+                    if ($v < 35)    return 'bg-black text-white';
+                    if ($v < 44)    return 'bg-red-500 text-white';
+                    if ($v < 50)    return 'bg-yellow-300';
+                    return 'bg-green-500 text-white';
                 case '0-70':
                     if ($v < 35)    return 'bg-black text-white';
                     if ($v < 56)    return 'bg-red-500 text-white';
@@ -121,7 +126,7 @@
         $colorScoreUTIP   = getColorClass($scoreUTIP, $fairnessUTIP);
         $utipRowspan      = 1 + count($newUtipPeriodes);
 
-        $fairnessCt0     = '0-100';
+        $fairnessCt0     = '20-50';
         $fairnessCtc     = '0-100';
         $fairnessLoss    = '100-30';
         $ct0RowCount     = count($ct0Data);
