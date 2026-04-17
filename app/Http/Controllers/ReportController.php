@@ -499,14 +499,21 @@ class ReportController extends Controller
                 }
 
                 $funnelUpdatedAt = '-';
-                if ($import && $type !== 'koreksi') {
-                    $dataIds = ScallingData::where('imports_log_id', $import->id)->pluck('id');
-                    $latestFunnel = FunnelTracking::whereIn('data_id', $dataIds)
-                        ->orderBy('updated_at', 'desc')
-                        ->first();
-                    $funnelUpdatedAt = $latestFunnel?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
-                } elseif ($import && $type === 'koreksi') {
-                    $funnelUpdatedAt = $import?->updated_at?->translatedFormat('d M Y H:i') ?? '-';
+                if ($import) {
+                    if ($type === 'koreksi') {
+                        $updatedAt = $import->updated_at;
+                    } else {
+                        $dataIds = ScallingData::where('imports_log_id', $import->id)->pluck('id');
+                        $latestFunnel = FunnelTracking::whereIn('data_id', $dataIds)
+                            ->orderBy('updated_at', 'desc')
+                            ->first();
+                        $updatedAt = $latestFunnel?->updated_at;
+                    }
+                    if ($updatedAt) {
+                        if (!$filtered || !$filterTanggal || $updatedAt->lte(Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay())) {
+                            $funnelUpdatedAt = $updatedAt->translatedFormat('d M Y H:i');
+                        }
+                    }
                 }
 
                 $scallingData[$segKey][$type] = [
