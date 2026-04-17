@@ -145,6 +145,7 @@ Route::middleware('auth')->group(function () {
         // initiate upload listing and actions
         Route::get('/scalling/gov/initiate', [ScallingController::class, 'initiateGov'])->name('admin.scalling.gov.initiate');
         Route::post('/scalling/gov/initiate', [ScallingController::class, 'storeData'])->name('admin.scalling.gov.initiate.storeData');
+        Route::post('/scalling/add-gap', [ScallingController::class, 'addGap'])->name('admin.scalling.initiate.addGap');
         Route::get('/scalling/private/initiate', [ScallingController::class, 'initiatePrivate'])->name('admin.scalling.private.initiate');
         Route::post('/scalling/private/initiate/store', [ScallingController::class, 'storeData'])->name('admin.scalling.private.initiate.storeData');
         Route::get('/scalling/soe/initiate', [ScallingController::class, 'initiateSoe'])->name('admin.scalling.soe.initiate');

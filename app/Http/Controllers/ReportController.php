@@ -7,6 +7,7 @@ use App\Models\Collection;
 use App\Models\Ct0;
 use App\Models\Ctc;
 use App\Models\RisingStar;
+use App\Models\Gap;
 use App\Models\Psak;
 use App\Models\ScallingImport;
 use App\Models\ScallingData;
@@ -476,17 +477,36 @@ class ReportController extends Controller
                         ->latest()
                         ->first();
 
-                    if ($import) {
-                        $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
+                    // ── SPECIAL HANDLING FOR INITIATE: dapat query Gap data tanpa import ──
+                    if ($type === 'initiate') {
+                        $dataGaps = Gap::where('periode', $scalingPeriodeDate)
+                            ->orderBy('created_at', 'desc')
+                            ->get()
+                            ->groupBy('segment')
+                            ->map->first();
+                            // dd($dataGaps);
 
-                        if ($type === 'initiate') {
-                            $commitAmount = $dataRows->count();
-                            $commitRp     = (float) $dataRows->sum('est_nilai_bc') / 1000000;
-                        } else {
-                            $importedRows = $dataRows->where('is_manual', false);
-                            $commitAmount = $importedRows->count();
-                            $commitRp     = (float) $importedRows->sum('est_nilai_bc') / 1000000;
+                        $commitAmount = null;
+                        $commitRp = (float) ($dataGaps->get($seg['segment'])?->value ?? 0) / 1000000;
+
+                        if ($import) {
+                            $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
+                            $dataIds  = $dataRows->pluck('id');
+                            $funnels  = FunnelTracking::whereIn('data_id', $dataIds)
+                                ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                                    $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                                    $q->where('updated_at', '<=', $cutoff);
+                                })
+                                ->get();
+                            $realAmount = $funnels->where('delivery_billing_complete', true)->count();
+                            $realRp     = (float) $funnels->sum('delivery_nilai_billcomp') / 1000000;
                         }
+                    } elseif ($import) {
+                        // ── ON-HAND / QUALIFIED: butuh import ──
+                        $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
+                        $importedRows = $dataRows->where('is_manual', false);
+                        $commitAmount = $importedRows->count();
+                        $commitRp     = (float) $importedRows->sum('est_nilai_bc') / 1000000;
 
                         $dataIds  = $dataRows->pluck('id');
                         $funnels  = FunnelTracking::whereIn('data_id', $dataIds)
@@ -504,14 +524,14 @@ class ReportController extends Controller
                 if ($import) {
                     if ($type === 'koreksi') {
                         $updatedAt = $import->updated_at;
-                    } else {
+                    } elseif ($type === 'initiate' || $type === 'on-hand' || $type === 'qualified') {
                         $dataIds = ScallingData::where('imports_log_id', $import->id)->pluck('id');
                         $latestFunnel = FunnelTracking::whereIn('data_id', $dataIds)
                             ->orderBy('updated_at', 'desc')
                             ->first();
                         $updatedAt = $latestFunnel?->updated_at;
                     }
-                    if ($updatedAt) {
+                    if ($updatedAt ?? null) {
                         if (!$filtered || !$filterTanggal || $updatedAt->lte(Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay())) {
                             $funnelUpdatedAt = $updatedAt->translatedFormat('d M Y H:i');
                         }

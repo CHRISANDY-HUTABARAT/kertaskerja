@@ -457,8 +457,8 @@
                                             {{ $row['commit_amount'] > 0 ? $row['commit_amount'] : ($cRp > 0 ? '-' : '') }}
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
-                                            @if(!is_null($cRp) && $row['commit_amount'] > 0)
-                                            {{ $cRp >= 0 ? number_format($cRp, fmod($cRp, 1) == 0 ? 0 : 2, ',', '.') : '' }}
+                                            @if($typeKey === 'initiate' || $row['commit_amount'] > 0)
+                                                {{ $cRp >= 0 ? number_format($cRp, fmod($cRp, 1) == 0 ? 0 : 2, ',', '.') : '' }}
                                             @endif
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">

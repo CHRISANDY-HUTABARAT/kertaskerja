@@ -6,6 +6,7 @@ use App\Models\ScallingData;
 use App\Models\ScallingImport;
 use App\Models\FunnelTracking;
 use App\Models\TaskProgress;
+use App\Models\Gap;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Carbon\Carbon;
@@ -90,6 +91,8 @@ class ScallingController extends Controller
     {
         $currentPeriode = now()->format('Y-m');
         $logs           = ScallingImport::where('type', 'initiate')->where('segment', 'government')->latest()->paginate(10);
+        $gaps           = Gap::where('segment', 'government')->where('periode', $currentPeriode . '-01')->latest()->first();
+        // dd($gaps);
         $projects       = ScallingData::with('scallingImport')
             ->whereHas('scallingImport', function ($query) {
                 $query->where('type', 'initiate')->where('segment', 'government');
@@ -104,7 +107,7 @@ class ScallingController extends Controller
             ->orderBy('periode', 'asc')
             ->pluck('periode');
 
-        return view('admin.scalling.gov.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+        return view('admin.scalling.gov.initiate', compact('logs', 'gaps', 'projects', 'periodes', 'currentPeriode'));
     }
 
     // ── SOE ───────────────────────────────────────────────────────────────────
@@ -137,6 +140,7 @@ class ScallingController extends Controller
     {
         $currentPeriode = now()->format('Y-m');
         $logs           = ScallingImport::where('type', 'initiate')->where('segment', 'soe')->latest()->paginate(10);
+        $gaps           = Gap::where('segment', 'soe')->where('periode', $currentPeriode . '-01')->latest()->first();
         $projects       = ScallingData::with('scallingImport')
             ->whereHas('scallingImport', function ($query) {
                 $query->where('type', 'initiate')->where('segment', 'soe');
@@ -151,7 +155,7 @@ class ScallingController extends Controller
             ->orderBy('periode', 'asc')
             ->pluck('periode');
 
-        return view('admin.scalling.soe.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+        return view('admin.scalling.soe.initiate', compact('logs', 'gaps', 'projects', 'periodes', 'currentPeriode'));
     }
 
     // ── PRIVATE ───────────────────────────────────────────────────────────────
@@ -183,6 +187,7 @@ class ScallingController extends Controller
     {
         $currentPeriode = now()->format('Y-m');
         $logs           = ScallingImport::where('type', 'initiate')->where('segment', 'private')->latest()->paginate(10);
+        $gaps           = Gap::where('segment', 'private')->where('periode', $currentPeriode . '-01')->latest()->first();
         $projects       = ScallingData::with('scallingImport')
             ->whereHas('scallingImport', function ($query) {
                 $query->where('type', 'initiate')->where('segment', 'private');
@@ -197,7 +202,7 @@ class ScallingController extends Controller
             ->orderBy('periode', 'asc')
             ->pluck('periode');
 
-        return view('admin.scalling.private.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+        return view('admin.scalling.private.initiate', compact('logs','gaps', 'projects', 'periodes', 'currentPeriode'));
     }
 
     // ── SME ───────────────────────────────────────────────────────────────────
@@ -229,6 +234,7 @@ class ScallingController extends Controller
     {
         $currentPeriode = now()->format('Y-m');
         $logs           = ScallingImport::where('type', 'initiate')->where('segment', 'sme')->latest()->paginate(10);
+        $gaps           = Gap::where('segment', 'sme')->where('periode', $currentPeriode . '-01')->latest()->first();
         $projects       = ScallingData::with('scallingImport')
             ->whereHas('scallingImport', function ($query) {
                 $query->where('type', 'initiate')->where('segment', 'sme');
@@ -243,7 +249,7 @@ class ScallingController extends Controller
             ->orderBy('periode', 'asc')
             ->pluck('periode');
 
-        return view('admin.scalling.sme.initiate', compact('logs', 'projects', 'periodes', 'currentPeriode'));
+        return view('admin.scalling.sme.initiate', compact('logs', 'gaps', 'projects', 'periodes', 'currentPeriode'));
     }
 
     // ── IMPORT ────────────────────────────────────────────────────────────────
@@ -474,10 +480,29 @@ class ScallingController extends Controller
             'est_nilai_bc'             => $request->est_nilai_bc,
         ]);
         }
-
-        
-
         return redirect()->back()->with('success', "Data untuk project \"{$data->project}\" berhasil disimpan.");
+    }
+
+    public function addGap(Request $request){
+        $request->validate([
+            'periode' => 'required|date_format:Y-m',
+            'value'   => 'required|numeric|min:0',
+        ], [
+            'periode.required' => 'Periode wajib diisi',
+            'periode.date_format' => 'Format periode harus berupa bulan dan tahun (contoh: 2025-03)',
+            'value.required' => 'Nilai gap wajib diisi',
+            'value.numeric' => 'Nilai gap harus berupa angka',
+            'value.min' => 'Nilai gap tidak boleh negatif',
+        ]);
+
+        $gap = Gap::create([
+            'user_id' => auth()->id(),
+            'segment' => $request->segment,
+            'periode' => $request->periode . '-01',
+            'value'   => $request->value,
+        ]);
+
+        return redirect()->back()->with('success', "Gap untuk periode \"{$request->periode}\" berhasil ditambahkan.");
     }
 
     // ── TOGGLE STATUS ─────────────────────────────────────────────────────────

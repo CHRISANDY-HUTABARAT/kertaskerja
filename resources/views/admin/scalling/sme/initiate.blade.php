@@ -64,25 +64,25 @@
             @endif
 
             {{-- ══ ACTION BUTTONS ══ --}}
-        <div class="grid grid-cols gap-4 mb-8">
-            <a href="{{ route('admin.progress', ['segment' => 'sme', 'type' => 'initiate']) }}"
-                class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
-                <div class="flex items-center space-x-4">
-                    <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:#fff1f2; border:1.5px solid #fecdd3;">
-                        <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
+            <div class="grid grid-cols gap-4 mb-8">
+                <a href="{{ route('admin.progress', ['segment' => 'sme', 'type' => 'initiate']) }}"
+                    class="group bg-white rounded-xl border border-slate-200 hover:border-red-300 hover:shadow-md transition-all duration-200 px-6 py-5 flex items-center justify-between">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style="background:#fff1f2; border:1.5px solid #fecdd3;">
+                            <svg class="w-5 h-5 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                            </svg>
+                        </div>
+                        <div>
+                            <p class="font-black text-slate-900 text-sm">Lihat Progress</p>
+                            <p class="text-xs text-slate-400 font-medium mt-0.5">Progress yang diupdate user</p>
+                        </div>
                     </div>
-                    <div>
-                        <p class="font-black text-slate-900 text-sm">Lihat Progress</p>
-                        <p class="text-xs text-slate-400 font-medium mt-0.5">Progress yang diupdate user</p>
-                    </div>
-                </div>
-                <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
-                </svg>
-            </a>
-        </div>
+                    <svg class="w-4 h-4 text-slate-300 group-hover:text-red-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </a>
+            </div>
 
             {{-- ══ VALIDATION ERRORS ══ --}}
             @if($errors->any())
@@ -95,6 +95,64 @@
                     </ul>
                 </div>
             @endif
+
+            {{-- ══ Gap DISPLAY ══ --}}
+            @if(isset($gaps->value))
+            <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden mb-8">
+                <div class="absolute top-0 left-0 right-0 h-1" style="background: linear-gradient(90deg, #dc2626, #ef4444);"></div>
+                <p class="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">Gap Saat Ini</p>
+                <p class="text-3xl font-black text-red-600">Rp {{ number_format((float) $gaps->value, 0, ',', '.') }}</p>
+            </div>
+            @endif
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
+                <div class="px-8 py-5 border-b border-slate-100">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                        <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Gap Initiate</h2>
+                    </div>
+                </div>
+                <div class="p-8">
+
+                    <form action="{{ route('admin.scalling.initiate.addGap') }}" method="POST">
+                        @csrf
+                        <input type="hidden" name="segment" value="sme">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
+                            {{-- Periode --}}
+                            <div>
+                                <label
+                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
+                                <input type="month" name="periode" required value="{{ date('Y-m') }}"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
+                            </div>
+
+                            {{-- Gap --}}
+                            <div>
+                                <label
+                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Estimasi
+                                    Nilai Bill Comp</label>
+                                <input type="text" name="value" value="{{ old('value', isset($gaps->value) ? rtrim(rtrim($gaps->value, '0'), '.') : '') }}"
+                                    placeholder="cth: 1000000"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors" required>
+                            </div>
+                        </div>
+
+                        <div class="flex justify-end space-x-3">
+                            <button type="reset"
+                                class="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-5 py-2.5 rounded-xl transition-all duration-200 uppercase tracking-wider">
+                                <span>Reset</span>
+                            </button>
+                            <button type="submit"
+                                class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-2.5 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200">
+                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                        d="M5 13l4 4L19 7" />
+                                </svg>
+                                <span>Simpan / Update</span>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
 
             {{-- ══ INPUT FORM ══ --}}
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-8">
