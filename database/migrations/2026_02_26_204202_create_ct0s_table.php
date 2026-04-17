@@ -17,6 +17,7 @@ return new class extends Migration
             $table->enum('status', ['active', 'inactive'])->default('active');
             $table->date('periode')->nullable();
             $table->string('region')->nullable();
+            $table->string('plan')->nullable();
             $table->string('commitment')->nullable();
             $table->string('real_ratio')->nullable();
             $table->timestamps();

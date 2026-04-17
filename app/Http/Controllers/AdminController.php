@@ -541,6 +541,7 @@ class AdminController extends Controller
         'status'     => 'required|in:active,inactive',
         'region'     => 'required|string',
         'periode'    => 'nullable|string',
+        'plan'       => 'nullable|numeric',
         'commitment' => 'nullable|numeric',
         'real_ratio' => 'nullable|numeric',
     ]);
@@ -554,6 +555,10 @@ class AdminController extends Controller
         ->where('periode', $periode)
         ->orderBy('updated_at', 'desc')
         ->first();
+
+    $plan = $request->filled('plan')
+        ? $request->plan
+        : ($existing->plan ?? null);
 
     $commitment = $request->filled('commitment')
         ? $request->commitment
@@ -573,6 +578,7 @@ class AdminController extends Controller
         'region'          => $request->region,
         'periode'         => $periode,
         'status'          => $request->status,
+        'plan'            => $plan,
         'commitment'      => $commitment,
         'real_ratio'      => $realRatio,
         'real_updated_at' => $realUpdatedAt,

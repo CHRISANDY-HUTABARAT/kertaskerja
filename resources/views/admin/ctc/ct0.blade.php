@@ -142,6 +142,14 @@
                                 </select>
                             </div>
 
+                            {{-- Dapros --}}
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Dapros (Rp)</label>
+                                <input type="number" name="plan" value="{{ old('plan') }}"
+                                    placeholder="cth: 95000000"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                            </div>
+
                             {{-- Komitmen --}}
                             <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (Rp)</label>
@@ -241,6 +249,7 @@
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Region</th>
+                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Dapros (Rp)</th>
                                 <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen (Rp)</th>
                                 <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi (Rp)</th>
                             </tr>
@@ -256,6 +265,13 @@
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-sm font-bold text-slate-800">{{ $item->region ?? '—' }}</td>
+                                <td class="px-6 py-4 text-center">
+                                    @if($item->plan !== null && $item->plan !== '')
+                                        <span class="text-sm font-black text-slate-800">{{ number_format((float)$item->plan, 2, ',', '.') }}</span>
+                                    @else
+                                        <span class="text-slate-300">—</span>
+                                    @endif
+                                </td>
                                 <td class="px-6 py-4 text-center">
                                     @if($item->commitment !== null && $item->commitment !== '')
                                         <span class="text-sm font-black text-slate-800">{{ number_format((float)$item->commitment, 2, ',', '.') }}</span>

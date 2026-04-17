@@ -8,7 +8,7 @@ class Ct0 extends Model
 {
     protected $fillable = [
     'user_id', 'status', 'periode',
-    'region', 'commitment', 'real_ratio',
+    'region', 'plan', 'commitment', 'real_ratio',
     'real_updated_at',
 ];
 
