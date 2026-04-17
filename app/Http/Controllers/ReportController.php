@@ -28,7 +28,7 @@ class ReportController extends Controller
             $filtered      = true;
             $filterBulan   = Carbon::now()->month;
             $filterTahun   = Carbon::now()->year;
-            $filterTanggal = null;
+            $filterTanggal = Carbon::now()->day;
         }
 
         $filterPeriode = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal) {
