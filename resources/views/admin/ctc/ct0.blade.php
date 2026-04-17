@@ -19,7 +19,7 @@
                         <div>
                             <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
                             <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
-                                <span class="text-red-600">Paid</span> CT0
+                                <span class="text-red-600">Paid Pra</span> CT0
                             </h1>
                             <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Kelola data Paid Pra CT0
                                 semua user</p>

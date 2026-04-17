@@ -168,11 +168,13 @@ class ReportController extends Controller
         $ct0Data = [];
         foreach ($ct0Regions as $region) {
             $row    = Ct0::where('region', $region)->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
+            $plan   = $row ? $toFloat($row->plan) : 0;
             $commit = $row ? $toFloat($row->commitment) : 0;
             $real   = $row ? $toFloat($row->real_ratio) : 0;
-            $ach    = $commit == 0 ? '-' : number_format(($real / $commit) * 100, 2, ',', '.') . '%';
+            $ach    = $plan == 0 ? '-' : number_format(($real / $plan) * 100, 2, ',', '.') . '%';
             $ct0Data[] = [
                 'label'  => $ct0RegionLabels[$region] ?? $region,
+                'plan'   => round($plan / 1000000, 2),
                 'commit' => round($commit / 1000000, 2),
                 'real'   => round($real / 1000000, 2),
                 'ach'    => $ach,
@@ -180,9 +182,9 @@ class ReportController extends Controller
             ];
         }
 
-        $ct0TotalCommit = array_sum(array_column($ct0Data, 'commit'));
-        $ct0TotalReal   = array_sum(array_column($ct0Data, 'real'));
-        $ct0Score = $ct0TotalCommit == 0 ? '-' : number_format(($ct0TotalReal / $ct0TotalCommit) * 100, 2, ',', '.') . '%';
+        $ct0TotalPlan = array_sum(array_column($ct0Data, 'plan'));
+        $ct0TotalReal = array_sum(array_column($ct0Data, 'real'));
+        $ct0Score = $ct0TotalPlan == 0 ? '-' : number_format(($ct0TotalReal / $ct0TotalPlan) * 100, 2, ',', '.') . '%';
 
         $ctcCt0Row       = Ctc::where('segment', 'CT0')->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
         $ctcCt0Real      = $ctcCt0Row ? $toFloat($ctcCt0Row->real_ratio) : 0;
@@ -654,7 +656,7 @@ class ReportController extends Controller
             'crData', 'crUpdatedAt',
             'utipCorrective',
             'newUtipPeriodes',
-            'ct0Data', 'ct0Score', 'ct0TotalCommit', 'ct0TotalReal',
+            'ct0Data', 'ct0Score', 'ct0TotalReal',
             'ctcCt0Real', 'ctcCt0UpdatedAt','ctcData', 'lossRateReal', 'lossRateAch',
             'b1Data', 'b1Score',
             'b2Data', 'b2Score',
