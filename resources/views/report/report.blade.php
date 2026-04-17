@@ -889,20 +889,23 @@
                                         <td colspan="10" class="border border-gray-400 px-2 py-1 uppercase bg-gray-50">New GTMA</td>
                                     </tr>
 
+                                    @php $ngtmaSubMap = ['gov' => 'a', 'private' => 'b', 'soe' => 'c', 'sme' => 'd']; @endphp
+
                                     @foreach($ngtmaSegments as $segKey => $seg)
                                     @php
-                                        $row    = $ngtmaData[$segKey];
-                                        $cRp    = $row['commit_rp'];
-                                        $rRp    = $row['real_rp'];
-                                        $achVal = $cRp > 0 ? ($rRp / $cRp) * 100 : null;
-                                        $achC   = scalingAchColor($achVal);
-                                        $scoreC = scalingAchColor($achVal);
+                                        $row      = $ngtmaData[$segKey];
+                                        $subLabel = $ngtmaSubMap[$segKey];
+                                        $cRp      = $row['commit_rp'];
+                                        $rRp      = $row['real_rp'];
+                                        $achVal   = $cRp > 0 ? ($rRp / $cRp) * 100 : null;
+                                        $achC     = scalingAchColor($achVal);
+                                        $scoreC   = scalingAchColor($achVal);
                                     @endphp
                                     <tr id="ngtma-row-{{ $segKey }}">
                                         @if($loop->first)
                                             <td rowspan="{{ count($ngtmaSegments) }}" class="border border-gray-400"></td>
                                         @endif
-                                        <td class="border border-gray-400 px-2 py-1 font-semibold">{{ $row['label'] }}</td>
+                                        <td class="border border-gray-400 px-2 py-1 font-semibold">{{ $subLabel }}&nbsp;&nbsp;{{ $row['label'] }}</td>
                                         <td class="border border-gray-400 px-2 py-1">On Hand</td>
                                         <td class="border border-gray-400 text-center">lop</td>
                                         <td class="border border-gray-400 px-2 text-right">{{ $row['commit_amount'] > 0 ? $row['commit_amount'] : '' }}</td>
