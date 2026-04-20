@@ -457,18 +457,32 @@
 
                                         <td class="border border-gray-400 px-2 py-1">{{ $row['label'] }}</td>
                                         <td class="border border-gray-400 text-center">lop</td>
-
-                                        <td class="border border-gray-400 px-2 text-right">
-                                            {{ $row['commit_amount'] > 0 ? $row['commit_amount'] : ($cRp > 0 ? '' : '') }}
+                                        <td class="border border-gray-400 px-2 text-right {{ $typeKey === 'initiate' ? 'font-bold' : '' }}">
+                                            <span style="{{ ($typeKey === 'initiate' && $row['commit_amount'] > 0)
+                                                ? 'background:#ff7f50; color:#fff; padding:2px 4px; border-radius:3px;'
+                                                : '' }}">
+                                                @if($typeKey === 'initiate')
+                                                {{ $row['commit_amount'] > 0 
+                                                    ? number_format($row['commit_amount'], fmod($row['commit_amount'], 1) == 0 ? 0 : 2, ',', '.') 
+                                                    : '' 
+                                                }}
+                                                @else
+                                                    {{ $row['commit_amount'] > 0 ? $row['commit_amount'] : ($cRp > 0 ? '' : '') }}
+                                                @endif
+                                            </span>
                                         </td>
-                                        <td class="border border-gray-400 px-2 text-right">
-                                            @if($typeKey === 'initiate')
-                                                {{ $row['use_data_gaps']
-                                                    ? number_format($cRp, fmod($cRp, 1) == 0 ? 0 : 2, ',', '.')
-                                                    : '0,00' }}
-                                            @elseif($row['commit_amount'] > 0)
-                                                {{ number_format($cRp, fmod($cRp, 1) == 0 ? 0 : 2, ',', '.') }}
-                                            @endif
+                                        <td class="border border-gray-400 px-2 text-right {{ $typeKey === 'initiate' ? 'font-bold' : '' }}">
+                                            <span style="{{ ($typeKey === 'initiate' && $row['commit_amount'] >= 0)
+                                                ? 'background:#ff7f50; color:#fff; padding:2px 4px; border-radius:3px;'
+                                                : '' }}">
+                                                @if($typeKey === 'initiate')
+                                                    {{ $row['use_data_gaps']
+                                                        ? number_format($cRp, fmod($cRp, 1) == 0 ? 0 : 2, ',', '.')
+                                                        : '0,00' }}
+                                                @elseif($row['commit_amount'] > 0)
+                                                    {{ number_format($cRp, fmod($cRp, 1) == 0 ? 0 : 2, ',', '.') }}
+                                                @endif
+                                            </span>
                                         </td>
                                         <td class="border border-gray-400 px-2 text-right">
                                             {{ $row['real_amount'] > 0 ? $row['real_amount'] : ($rRp > 0 ? '-' : '') }}

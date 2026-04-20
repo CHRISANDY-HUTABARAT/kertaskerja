@@ -491,7 +491,7 @@ class ReportController extends Controller
 
                         $hasDataGaps = (($dataGaps->get($seg['segment'])?->value ?? 0) > 0);
                         $useDataGaps = $hasDataGaps;
-                        $commitAmount = null;
+                        $commitAmount = (float) $importedRows->sum('est_nilai_bc') / 1000000;
                         $commitRp = (float) (
                             ($hasDataGaps
                                 ? $dataGaps->get($seg['segment'])->value
