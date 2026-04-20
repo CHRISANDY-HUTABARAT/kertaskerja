@@ -540,6 +540,26 @@ document.addEventListener('DOMContentLoaded', function () {
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    // ── SORT ROWS BY AM (kolom index 4) ──────────────────────────────────
+    (function sortByAM() {
+        const tbody = document.querySelector('tbody');
+        if (!tbody) return;
+        const rows = Array.from(tbody.querySelectorAll('tr[data-row-id]'));
+        rows.sort(function (a, b) {
+            const amA = (a.querySelectorAll('td')[4]?.textContent.trim() || '').toLowerCase();
+            const amB = (b.querySelectorAll('td')[4]?.textContent.trim() || '').toLowerCase();
+            return amA.localeCompare(amB, 'id');
+        });
+        rows.forEach(function (row) { tbody.appendChild(row); });
+
+        // Re-number kolom NO setelah sort
+        rows.forEach(function (row, idx) {
+            const noCell = row.querySelectorAll('td')[0];
+            if (noCell) noCell.textContent = idx + 1;
+        });
+    })();
+
+    // ── STICKY COLUMNS ───────────────────────────────────────────────────
     const stickyCount = 4;
     const table = document.querySelector('table');
     if (!table) return;

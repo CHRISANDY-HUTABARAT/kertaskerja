@@ -781,7 +781,10 @@ class ReportController extends Controller
             ->first();
 
         $ngtmaRows = $import
-            ? \App\Models\Ngtma::where('imports_log_id', $import->id)->get()
+            ? \App\Models\Ngtma::where('imports_log_id', $import->id)
+                ->orderBy('am', 'asc')
+                ->orderByRaw('CAST(no AS UNSIGNED) asc')
+                ->get()
             : collect();
 
         $funnelMap = collect();
