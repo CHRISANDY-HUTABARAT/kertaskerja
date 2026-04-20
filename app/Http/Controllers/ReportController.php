@@ -451,6 +451,7 @@ class ReportController extends Controller
                 $commitRp     = 0;
                 $realAmount   = 0;
                 $realRp       = 0;
+                $useDataGaps  = false;
 
                 if ($type === 'koreksi') {
                     // ── KOREKSI: ambil dari tabel Koreksi langsung ──
@@ -479,6 +480,8 @@ class ReportController extends Controller
 
                     // ── SPECIAL HANDLING FOR INITIATE: dapat query Gap data tanpa import ──
                     if ($type === 'initiate') {
+                        $dataRows = ScallingData::where('imports_log_id', $import?->id)->get();
+                        $importedRows = $dataRows->where('is_manual', true);
                         $dataGaps = Gap::where('periode', $scalingPeriodeDate)
                             ->orderBy('created_at', 'desc')
                             ->get()
@@ -486,8 +489,14 @@ class ReportController extends Controller
                             ->map->first();
                             // dd($dataGaps);
 
+                        $hasDataGaps = (($dataGaps->get($seg['segment'])?->value ?? 0) > 0);
+                        $useDataGaps = $hasDataGaps;
                         $commitAmount = null;
-                        $commitRp = (float) ($dataGaps->get($seg['segment'])?->value ?? 0) / 1000000;
+                        $commitRp = (float) (
+                            ($hasDataGaps
+                                ? $dataGaps->get($seg['segment'])->value
+                                : $importedRows->sum('est_nilai_bc'))
+                        ) / 1000000;
 
                         if ($import) {
                             $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
@@ -545,6 +554,7 @@ class ReportController extends Controller
                     'real_amount'   => $realAmount,
                     'real_rp'       => $realRp,
                     'updated_at'    => $funnelUpdatedAt,
+                    'use_data_gaps' => $useDataGaps,
                 ];
             }
         }
