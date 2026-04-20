@@ -53,6 +53,15 @@
                 </h2>
             </div>
             <div class="flex items-center space-x-3">
+                <div class="relative">
+                    <input type="text" id="searchInput" placeholder="Cari Project, ID LOP, AM, CC..."
+                        class="text-xs font-semibold text-slate-700 bg-white border-2 border-slate-200 hover:border-red-400 focus:border-red-400 focus:outline-none rounded-lg pl-8 pr-3 py-1.5 shadow-sm transition-colors w-64">
+                    <div class="pointer-events-none absolute inset-y-0 left-2 flex items-center">
+                        <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/>
+                        </svg>
+                    </div>
+                </div>
                 @if(count($periodOptions))
                 <form method="GET" class="flex items-center">
                     <div class="relative">
@@ -90,15 +99,15 @@
 
         @php $isReadOnly = false; @endphp
 
-        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-            <div class="overflow-x-auto">
+        <div class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-x-auto">
+            <div style="max-height: 95vh; overflow-y: auto;">
                 <table class="min-w-full divide-y divide-gray-200 text-xs">
-                    <thead>
+                    <thead class="sticky top-0 z-10">
                         <tr>
-                            <th rowspan="2" class="px-3 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">NO</th>
-                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">PROJECT</th>
-                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-emerald-50">ID LOP</th>
-                            <th rowspan="2" class="px-3 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">CC</th>
+                            <th rowspan="2" class="px-3 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50 sticky-col-header">NO</th>
+                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50 sticky-col-header">PROJECT</th>
+                            <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-emerald-50 sticky-col-header">ID LOP</th>
+                            <th rowspan="2" class="px-3 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50 sticky-col-header">CC</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">AM</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-emerald-50">Mitra</th>
                             <th rowspan="2" class="px-4 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest border-r border-slate-100 bg-slate-50">Est Bulan BC</th>
@@ -144,10 +153,10 @@
                             $checked     = fn($field) => $funnel && ($funnel->{$field} ?? false);
                         @endphp
                         <tr class="hover:bg-slate-50 transition-colors" data-row-id="{{ $row->id }}" data-cancelled="{{ $checked('cancel') ? 'true' : 'false' }}">
-                            <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center">{{ $row->no }}</td>
-                            <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100 font-medium">{{ $row->project }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-700 border-r border-slate-100 bg-emerald-50 font-bold">{{ $row->id_lop }}</td>
-                            <td class="px-3 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100">{{ $row->cc }}</td>
+                            <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center sticky-col">{{ $row->no }}</td>
+                            <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100 font-medium sticky-col">{{ $row->project }}</td>
+                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-700 border-r border-slate-100 bg-emerald-50 font-bold sticky-col">{{ $row->id_lop }}</td>
+                            <td class="px-3 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 sticky-col">{{ $row->cc }}</td>
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
                             <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 }}</td>
@@ -167,27 +176,27 @@
                             {{-- F2 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p0_p1" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p0_p1') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p2" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p2') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p3" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p3') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p4" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p4') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_offering" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_offering') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_p5" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_p5') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-pink-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-pink-600 rounded cursor-pointer" data-field="f2_proposal" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f2_proposal') ? 'checked' : '' }}>
@@ -195,11 +204,11 @@
                             {{-- F3 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_p6" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f3_p6') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_p7" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f3_p7') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-orange-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-orange-600 rounded cursor-pointer" data-field="f3_submit" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f3_submit') ? 'checked' : '' }}>
@@ -211,14 +220,14 @@
                             {{-- F5 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_sk_mitra" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f5_sk_mitra') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_ttd_kontrak" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f5_ttd_kontrak') ? 'checked' : '' }}>
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-green-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-green-600 rounded cursor-pointer" data-field="f5_p8" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('f5_p8') ? 'checked' : '' }}>
-                                
+
                             </td>
                             {{-- DELIVERY --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
@@ -226,11 +235,11 @@
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_baut_bast" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('delivery_baut_bast') ? 'checked' : '' }}>
-                                
+
                             </td>
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-emerald-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-emerald-600 rounded cursor-pointer" data-field="delivery_baso" data-data-type="{{ $type }}" data-ngtma-id="{{ $row->id }}" {{ $checked('delivery_baso') ? 'checked' : '' }}>
-                                
+
                             </td>
                             {{-- BILLING COMPLETE --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-indigo-50">
@@ -266,7 +275,7 @@
                         </tr>
                         @endforeach
                     </tbody>
-                    <tfoot>
+                    <tfoot class="sticky bottom-0 z-10">
                         <tr class="border-t-2 border-red-200 bg-slate-50">
                             <td colspan="7" class="px-4 py-3 text-right text-xs font-black text-slate-700 uppercase tracking-widest border-r border-slate-100">TOTAL:</td>
                             <td class="px-4 py-3 text-right font-black text-emerald-700 border-r border-slate-100 bg-emerald-50">
@@ -435,19 +444,17 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     // ── CASCADE BACKWARDS ──
-    // Hanya menyentuh .funnel-checkbox dan .billing-checkbox — cancel TIDAK masuk selector ini
     function cascadeBackwards(changedCb) {
         const row = changedCb.closest('tr');
         if (!row) return;
         const boxes = Array.from(row.querySelectorAll('.funnel-checkbox, .billing-checkbox'));
         const idx = boxes.indexOf(changedCb);
         if (idx === -1) return;
-        if (!boxes.slice(idx + 1).some(cb => cb.checked)) return;
         boxes.slice(0, idx).forEach(cb => {
-            // Guard eksplisit: field cancel tidak boleh disentuh
             if (cb.dataset.field === 'cancel') return;
             if (!cb.checked) {
                 cb.checked = true;
+                console.log('cascade:', cb.dataset.ngtmaId, cb.dataset.dataType, cb.dataset.field);
                 saveChange(cb.dataset.ngtmaId, cb.dataset.dataType, cb.dataset.field, true, null, cb.parentElement);
             }
         });
@@ -525,5 +532,72 @@ document.addEventListener('DOMContentLoaded', function () {
 });
 </script>
 @endif
+
+<style>
+.sticky-col-header { position:sticky; z-index:3; }
+.sticky-col { position:sticky; z-index:1; background:white; }
+</style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const stickyCount = 4;
+    const table = document.querySelector('table');
+    if (!table) return;
+
+    const firstRow = table.querySelector('tbody tr:first-child');
+    if (!firstRow) return;
+    const cells = firstRow.querySelectorAll('td');
+
+    let pos = 0;
+    for (let i = 0; i < stickyCount; i++) {
+        const width = cells[i].offsetWidth;
+
+        table.querySelectorAll('tbody tr td:nth-child(' + (i+1) + ')').forEach(td => {
+            td.style.left = pos + 'px';
+        });
+
+        table.querySelectorAll('thead tr th:nth-child(' + (i+1) + ')').forEach(th => {
+            th.style.left = pos + 'px';
+        });
+
+        pos += width;
+    }
+});
+</script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const searchInput = document.getElementById('searchInput');
+    if (!searchInput) return;
+
+    const SEARCH_COLS = [0, 1, 2, 3, 4];
+
+    searchInput.addEventListener('input', function () {
+        const keyword = this.value.toLowerCase().trim();
+        const rows = document.querySelectorAll('tbody tr');
+        let visibleCount = 0;
+
+        rows.forEach(function (row) {
+            const cells = row.querySelectorAll('td');
+            const match = SEARCH_COLS.some(function (idx) {
+                const cell = cells[idx];
+                return cell && cell.textContent.toLowerCase().includes(keyword);
+            });
+
+            row.style.display = match ? '' : 'none';
+            if (match) visibleCount++;
+        });
+
+        let emptyMsg = document.getElementById('searchEmptyMsg');
+        if (!emptyMsg) {
+            emptyMsg = document.createElement('tr');
+            emptyMsg.id = 'searchEmptyMsg';
+            emptyMsg.innerHTML = '<td colspan="30" class="text-center py-10 text-slate-400 font-bold text-xs uppercase tracking-widest">Tidak ada data yang cocok</td>';
+            document.querySelector('tbody').appendChild(emptyMsg);
+        }
+        emptyMsg.style.display = (visibleCount === 0 && keyword !== '') ? '' : 'none';
+    });
+});
+</script>
 
 @endsection

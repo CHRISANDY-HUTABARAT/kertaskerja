@@ -303,7 +303,7 @@
                         @foreach($dataRows as $row)
                         @php
                             $funnel      = $funnelMap[$row->id] ?? null;
-                            $denganMitra = strtolower(trim($row->mitra ?? ''));
+                            $denganMitra = $type === 'ngtma' ? true : strtolower(trim($row->mitra ?? ''));
                             $val         = fn($field) => $funnel && $funnel->{$field};
                             $check       = fn($checked) => $checked
                                 ? '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-green-500"><svg class="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/></svg></span>'

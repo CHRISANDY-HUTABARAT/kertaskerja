@@ -583,7 +583,7 @@ class ReportController extends Controller
                 $commitRp     = (float) $dataRows->sum('est_nilai_bc') / 1000000;
 
                 $dataIds  = $dataRows->pluck('id');
-                $funnels  = FunnelTracking::whereIn('data_id', $dataIds)
+                $funnels  = FunnelTracking::whereIn('ngtma_id', $dataIds)
                     ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
                         $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                         $q->where('updated_at', '<=', $cutoff);
@@ -592,7 +592,7 @@ class ReportController extends Controller
                 $realAmount = $funnels->where('delivery_billing_complete', true)->count();
                 $realRp     = (float) $funnels->sum('delivery_nilai_billcomp') / 1000000;
 
-                $latestFunnel = FunnelTracking::whereIn('data_id', $dataIds)
+                $latestFunnel = FunnelTracking::whereIn('ngtma_id', $dataIds)
                     ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
                         $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                         $q->where('updated_at', '<=', $cutoff);
