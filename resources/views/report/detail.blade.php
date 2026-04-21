@@ -310,7 +310,8 @@
                                 : '<span class="inline-flex items-center justify-center w-5 h-5 rounded-full bg-slate-100"><span class="w-1.5 h-1.5 rounded-full bg-slate-300"></span></span>';
                             $dash = '<span class="text-slate-300 font-bold text-sm">—</span>';
                         @endphp
-                        <tr class="hover:bg-slate-50 transition-colors">
+                        @php $isCancelled = $val('cancel'); @endphp
+                        <tr class="transition-colors {{ $isCancelled ? 'bg-red-50 opacity-60' : 'hover:bg-slate-50' }}">
                             <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center sticky-col">{{ $loop->iteration }}</td>
                             <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100 font-medium sticky-col">{{ $row->project }}</td>
                             <td class="px-4 py-2.5 whitespace-nowrap text-slate-700 border-r border-slate-100 bg-emerald-50 font-bold sticky-col">{{ $row->id_lop }}</td>
