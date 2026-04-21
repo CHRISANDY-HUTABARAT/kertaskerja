@@ -1,6 +1,6 @@
 @extends('layouts.app')
 
-@section('title', $segment)
+@section('title', 'Admin - NGTMA ' . $segmentLabel)
 
 @section('content')
     <div class="min-h-screen" style="background:#f1f5f9;">
