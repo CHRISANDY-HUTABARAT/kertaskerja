@@ -344,14 +344,6 @@
                                                             </tbody>
                                                         </table>
                                                     </div>
-                                                    @if($previewRows->count() > 5)
-                                                        <p
-                                                            class="text-[10px] font-bold text-slate-400 uppercase tracking-widest text-center py-3 border-t border-slate-100">
-                                                            Menampilkan {{ $data->scallingData()->count() }} baris
-                                                        </p>
-                                                    @endif
-                                                @else
-                                                    <p class="text-sm text-slate-400 text-center py-6">No data available</p>
                                                 @endif
                                             </div>
                                         </td>

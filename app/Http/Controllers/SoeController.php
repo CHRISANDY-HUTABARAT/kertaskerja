@@ -269,6 +269,7 @@ class SoeController extends Controller
             $data = ScallingData::create([
             'no'                      => $log->data()->count() + 1, // Auto-increment berdasarkan jumlah data yang sudah ada untuk log ini
             'imports_log_id'           => $log->id,
+            'is_manual'                => true,
             'project'                  => $request->project,
             'id_lop'                   => $request->id_lop,
             'cc'                       => $request->cc,
@@ -291,6 +292,7 @@ class SoeController extends Controller
 
             $data = ScallingData::create([
             'imports_log_id'           => $import->id,
+            'is_manual'                => true,
             'project'                  => $request->project,
             'id_lop'                   => $request->id_lop,
             'cc'                       => $request->cc,
