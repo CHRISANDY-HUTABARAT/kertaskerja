@@ -462,9 +462,9 @@
                                                 ? 'background:#ff7f50; color:#fff; padding:2px 4px; border-radius:3px;'
                                                 : '' }}">
                                                 @if($typeKey === 'initiate')
-                                                {{ $row['commit_amount'] > 0 
-                                                    ? number_format($row['commit_amount'], fmod($row['commit_amount'], 1) == 0 ? 0 : 2, ',', '.') 
-                                                    : '' 
+                                                {{ $row['commit_amount'] > 0
+                                                    ? number_format($row['commit_amount'], fmod($row['commit_amount'], 1) == 0 ? 0 : 2, ',', '.')
+                                                    : ''
                                                 }}
                                                 @else
                                                     {{ $row['commit_amount'] > 0 ? $row['commit_amount'] : ($cRp > 0 ? '' : '') }}
@@ -565,7 +565,7 @@
                                     </td>
                                     <td class="border border-gray-400"></td>
                                     <td class="border border-gray-400 px-2 text-right">
-                                        {{ !is_null($rRp) && $rRp > 0 ? number_format($rRp, fmod($rRp, 1) == 0 ? 0 : 2, ',', '.') : '' }}
+                                        {{ !is_null($rRp) ? number_format($rRp, fmod($rRp, 1) == 0 ? 0 : 2, ',', '.') : '' }}
                                     </td>
 
                                     <td class="border border-gray-400 text-right font-bold" style="{{ $tAchC['bg'] }}">
@@ -743,7 +743,9 @@
                                     <td class="border border-gray-400"></td>
                                     <td class="border border-gray-400 px-2 text-right">{{ $ctcData[$seg]['real'] > 0 ? number_format($ctcData[$seg]['real'], 0) : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 text-center">{{ $fairnessCtc }}</td>
+                                    @if($loop->first)
+                                        <td rowspan="3" class="border border-gray-400 text-center align-middle">{{ $fairnessCtc }}</td>
+                                    @endif
                                     <td colspan="2" class="border border-gray-400 text-right font-bold {{ $ctcData[$seg]['achColor'] }}">{{ $ctcData[$seg]['ach'] }}</td>
                                     <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $ctcData[$seg]['updated_at'] ?? '-' }}</td>
                                 </tr>
