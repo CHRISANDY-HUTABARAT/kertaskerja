@@ -1070,4 +1070,61 @@ public function progressKoreksiUpdate(Request $request, string $segment)
             ], 500);
         }
     }
+
+    public function progressScallingUpdateField(Request $request, string $segment, string $type)
+{
+    // Kolom yang boleh diedit — whitelist ketat agar tidak bisa dieksploitasi
+    $allowedFields = [
+        'project',
+        'id_lop',
+        'cc',
+        'am',
+        'mitra',
+        'plan_bulan_billcomp_2025',
+    ];
+
+    try {
+        $request->validate([
+            'data_id' => 'required|integer|exists:scalling_data,id',
+            'field'   => 'required|string|in:' . implode(',', $allowedFields),
+            'value'   => 'nullable|string|max:255',
+        ]);
+
+        $segmentDbMap = [
+            'gov'     => 'government',
+            'private' => 'private',
+            'soe'     => 'soe',
+            'sme'     => 'sme',
+        ];
+
+        abort_if(!isset($segmentDbMap[$segment]), 404);
+        $segmentDb = $segmentDbMap[$segment];
+
+        $scallingData = \App\Models\ScallingData::findOrFail($request->data_id);
+        $import       = $scallingData->scallingImport;
+
+        // Pastikan baris ini memang milik segment yang benar
+        abort_if(!$import || $import->segment !== $segmentDb, 403);
+
+        $scallingData->update([
+            $request->field => $request->value ?? '',
+        ]);
+
+        return response()->json(['success' => true]);
+
+    } catch (\Exception $e) {
+        \Log::error('progressScallingUpdateField error: ' . $e->getMessage(), [
+            'segment' => $segment,
+            'type'    => $type,
+            'data_id' => $request->data_id ?? null,
+            'field'   => $request->field   ?? null,
+            'value'   => $request->value   ?? null,
+        ]);
+
+        return response()->json([
+            'success' => false,
+            'message' => $e->getMessage(),
+        ], 500);
+    }
+}
 }

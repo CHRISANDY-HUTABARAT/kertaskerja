@@ -354,12 +354,197 @@
                         @endphp
                         <tr class="hover:bg-slate-50 transition-colors" data-row-id="{{ $row->id }}" data-cancelled="{{ $checked('cancel') ? 'true' : 'false' }}">
                             <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center sticky-col">{{ $loop->iteration }}</td>
-                            <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100 font-medium sticky-col">{{ $row->project }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-700 border-r border-slate-100 bg-emerald-50 font-bold sticky-col">{{ $row->id_lop }}</td>
-                            <td class="px-3 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 sticky-col">{{ $row->cc }}</td>
-                            <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
-                            <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 }}</td>
+                            {{-- PROJECT --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-white" id="field-cell-project-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display font-medium text-slate-600 cursor-pointer hover:text-blue-600 transition-colors text-xs leading-tight"
+                                        id="field-display-project-{{ $row->id }}"
+                                        onclick="startEditField('project', {{ $row->id }})"
+                                        title="Klik untuk edit Project">
+                                        {{ $row->project ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-project-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-project-{{ $row->id }}"
+                                            value="{{ $row->project }}"
+                                            placeholder="Nama project..."
+                                            class="w-40 px-2 py-1 border-2 border-blue-400 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100"
+                                            onkeydown="handleKeyField(event, 'project', {{ $row->id }})">
+                                        <button onclick="saveField('project', {{ $row->id }})"
+                                            class="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('project', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- ID LOP --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-emerald-50" id="field-cell-id_lop-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display font-bold text-slate-700 cursor-pointer hover:text-emerald-600 transition-colors text-xs whitespace-nowrap"
+                                        id="field-display-id_lop-{{ $row->id }}"
+                                        onclick="startEditField('id_lop', {{ $row->id }})"
+                                        title="Klik untuk edit ID LOP">
+                                        {{ $row->id_lop ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-id_lop-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-id_lop-{{ $row->id }}"
+                                            value="{{ $row->id_lop }}"
+                                            placeholder="ID LOP..."
+                                            class="w-32 px-2 py-1 border-2 border-emerald-400 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100"
+                                            onkeydown="handleKeyField(event, 'id_lop', {{ $row->id }})">
+                                        <button onclick="saveField('id_lop', {{ $row->id }})"
+                                            class="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('id_lop', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- CC --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-white" id="field-cell-cc-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display text-slate-600 cursor-pointer hover:text-blue-600 transition-colors text-xs whitespace-nowrap"
+                                        id="field-display-cc-{{ $row->id }}"
+                                        onclick="startEditField('cc', {{ $row->id }})"
+                                        title="Klik untuk edit CC">
+                                        {{ $row->cc ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-cc-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-cc-{{ $row->id }}"
+                                            value="{{ $row->cc }}"
+                                            placeholder="CC..."
+                                            class="w-24 px-2 py-1 border-2 border-blue-400 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100"
+                                            onkeydown="handleKeyField(event, 'cc', {{ $row->id }})">
+                                        <button onclick="saveField('cc', {{ $row->id }})"
+                                            class="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('cc', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- AM --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-white" id="field-cell-am-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display text-slate-600 cursor-pointer hover:text-blue-600 transition-colors text-xs"
+                                        id="field-display-am-{{ $row->id }}"
+                                        onclick="startEditField('am', {{ $row->id }})"
+                                        title="Klik untuk edit AM">
+                                        {{ $row->am ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-am-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-am-{{ $row->id }}"
+                                            value="{{ $row->am }}"
+                                            placeholder="Nama AM..."
+                                            class="w-32 px-2 py-1 border-2 border-blue-400 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100"
+                                            onkeydown="handleKeyField(event, 'am', {{ $row->id }})">
+                                        <button onclick="saveField('am', {{ $row->id }})"
+                                            class="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('am', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- MITRA --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-emerald-50 font-semibold" id="field-cell-mitra-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display text-slate-700 cursor-pointer hover:text-emerald-600 transition-colors text-xs"
+                                        id="field-display-mitra-{{ $row->id }}"
+                                        onclick="startEditField('mitra', {{ $row->id }})"
+                                        title="Klik untuk edit Mitra">
+                                        {{ $row->mitra ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-mitra-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-mitra-{{ $row->id }}"
+                                            value="{{ $row->mitra }}"
+                                            placeholder="Nama mitra..."
+                                            class="w-32 px-2 py-1 border-2 border-emerald-400 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100"
+                                            onkeydown="handleKeyField(event, 'mitra', {{ $row->id }})">
+                                        <button onclick="saveField('mitra', {{ $row->id }})"
+                                            class="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('mitra', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- EST BULAN BC --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-white text-center" id="field-cell-plan_bulan_billcomp_2025-{{ $row->id }}">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <div class="field-display text-slate-600 cursor-pointer hover:text-blue-600 transition-colors text-xs whitespace-nowrap"
+                                        id="field-display-plan_bulan_billcomp_2025-{{ $row->id }}"
+                                        onclick="startEditField('plan_bulan_billcomp_2025', {{ $row->id }})"
+                                        title="Klik untuk edit Est Bulan BC">
+                                        {{ $row->plan_bulan_billcomp_2025 ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-plan_bulan_billcomp_2025-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-plan_bulan_billcomp_2025-{{ $row->id }}"
+                                            value="{{ $row->plan_bulan_billcomp_2025 }}"
+                                            placeholder="Mis: Jan-25"
+                                            class="w-24 px-2 py-1 border-2 border-blue-400 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100"
+                                            onkeydown="handleKeyField(event, 'plan_bulan_billcomp_2025', {{ $row->id }})">
+                                        <button onclick="saveField('plan_bulan_billcomp_2025', {{ $row->id }})"
+                                            class="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('plan_bulan_billcomp_2025', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
                             {{-- EST NILAI BC — editable inline --}}
                             <td class="px-3 py-2 border-r border-slate-100 bg-amber-50/40" id="estnilai-cell-{{ $row->id }}" data-row-id="{{ $row->id }}">
                                 <div class="flex items-center justify-end space-x-1.5">
@@ -1201,6 +1386,75 @@ document.addEventListener('DOMContentLoaded', function () {
         footer.textContent = formatNumber(total);
     }
 }
+const UPDATE_FIELD_URL = '{{ route("admin.progress.scalling.update-field", ["segment" => $segment, "type" => $type]) }}';
+
+    window.startEditField = function (field, rowId) {
+        document.querySelectorAll('.field-edit').forEach(function (el) {
+            if (!el.classList.contains('hidden')) {
+                const parts = el.id.split('-');
+                const id  = parts[parts.length - 1];
+                const fld = parts.slice(2, parts.length - 1).join('_');
+                cancelEditField(fld, id);
+            }
+        });
+        document.getElementById('field-display-' + field + '-' + rowId).classList.add('hidden');
+        var edit = document.getElementById('field-edit-' + field + '-' + rowId);
+        edit.classList.remove('hidden');
+        edit.classList.add('flex');
+        document.getElementById('field-input-' + field + '-' + rowId).focus();
+        document.getElementById('field-input-' + field + '-' + rowId).select();
+    };
+
+    window.cancelEditField = function (field, rowId) {
+        var edit = document.getElementById('field-edit-' + field + '-' + rowId);
+        if (!edit) return;
+        edit.classList.add('hidden');
+        edit.classList.remove('flex');
+        document.getElementById('field-display-' + field + '-' + rowId).classList.remove('hidden');
+    };
+
+    window.handleKeyField = function (event, field, rowId) {
+        if (event.key === 'Enter')  { event.preventDefault(); saveField(field, rowId); }
+        else if (event.key === 'Escape') { cancelEditField(field, rowId); }
+    };
+
+    window.saveField = function (field, rowId) {
+        var input    = document.getElementById('field-input-' + field + '-' + rowId);
+        var newValue = input.value.trim();
+        var display  = document.getElementById('field-display-' + field + '-' + rowId);
+        var edit     = document.getElementById('field-edit-' + field + '-' + rowId);
+        var oldValue = display.textContent.trim();
+
+        display.innerHTML = '<span class="text-slate-400 text-xs animate-pulse">Menyimpan...</span>';
+        display.classList.remove('hidden');
+        edit.classList.add('hidden');
+        edit.classList.remove('flex');
+
+        fetch(UPDATE_FIELD_URL, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
+                'Accept': 'application/json'
+            },
+            body: JSON.stringify({ data_id: rowId, field: field, value: newValue })
+        })
+        .then(function (r) { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(function (data) {
+            if (!data.success) throw new Error(data.message || 'Gagal');
+            input.value = newValue;
+            display.textContent = newValue || '—';
+            var cell = document.getElementById('field-cell-' + field + '-' + rowId);
+            if (cell) { cell.style.background = '#d1fae5'; setTimeout(function () { cell.style.background = ''; }, 1200); }
+        })
+        .catch(function (err) {
+            input.value = (oldValue === '—') ? '' : oldValue;
+            display.textContent = oldValue;
+            var cell = document.getElementById('field-cell-' + field + '-' + rowId);
+            if (cell) { cell.style.background = '#fee2e2'; setTimeout(function () { cell.style.background = ''; }, 1500); }
+            alert('Gagal menyimpan: ' + err.message);
+        });
+    };
 });
 </script>
 @endif
