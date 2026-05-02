@@ -299,7 +299,8 @@ public function toggleRisingStarStatus($id)
 
     public function hsiTable(Request $request)
 {
-    $currentPeriode = Carbon::now()->format('Y-m') . '-01';
+    $selectedPeriode = $request->get('periode', Carbon::now()->format('Y-m'));
+    $currentPeriode = $selectedPeriode . '-01';
 
     $existing = Hsi::where('type', 'Sales HSI Non AM Non Telda')
         ->where('periode', $currentPeriode)
