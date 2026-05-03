@@ -32,14 +32,20 @@ class ReportController extends Controller
             $filterTanggal = Carbon::now()->day;
         }
 
-        $filterPeriode = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal) {
+        $isLastDayOfMonth = false;
+        if ($filtered && $filterTanggal && $filterBulan && $filterTahun) {
+            $daysInMonth      = Carbon::createFromDate($filterTahun, $filterBulan, 1)->daysInMonth;
+            $isLastDayOfMonth = ((int)$filterTanggal >= $daysInMonth);
+        }
+
+        $filterPeriode = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal, $isLastDayOfMonth) {
             if ($filtered && $filterBulan) {
                 $q->whereMonth('periode', $filterBulan);
             }
             if ($filtered && $filterTahun) {
                 $q->whereYear('periode', $filterTahun);
             }
-            if ($filtered && $filterTanggal && $filterBulan && $filterTahun) {
+            if ($filtered && $filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth) {
                 $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                 $q->where('created_at', '<=', $cutoff);
             }
@@ -139,10 +145,10 @@ class ReportController extends Controller
             ];
         }
 
-        $filterPeriodeCt0 = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal) {
+        $filterPeriodeCt0 = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal, $isLastDayOfMonth) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
             if ($filtered && $filterTahun) $q->whereYear('periode', $filterTahun);
-            if ($filtered && $filterTanggal && $filterBulan && $filterTahun) {
+            if ($filtered && $filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth) {
                 $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                 $q->where('created_at', '<=', $cutoff);
             }
@@ -216,10 +222,10 @@ class ReportController extends Controller
         $lossRateAch   = $lossRateReal;
         $lossRateUpdatedAt = '-';
 
-        $filterPeriodeRs = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal) {
+        $filterPeriodeRs = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal, $isLastDayOfMonth) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
             if ($filtered && $filterTahun) $q->whereYear('periode', $filterTahun);
-            if ($filtered && $filterTanggal && $filterBulan && $filterTahun) {
+            if ($filtered && $filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth) {
                 $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                 $q->where('created_at', '<=', $cutoff);
             }
@@ -347,10 +353,10 @@ class ReportController extends Controller
         $b4RpDisplay = number_format($b4RpMillion * 100, 2, ',', '');
         $b4UpdatedAt = collect($b4Data)->first(fn($d) => $d['updated_at'] !== '-')['updated_at'] ?? '-';
 
-        $filterPeriodePsak = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal) {
+        $filterPeriodePsak = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal, $isLastDayOfMonth) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
             if ($filtered && $filterTahun) $q->whereYear('periode', $filterTahun);
-            if ($filtered && $filterTanggal && $filterBulan && $filterTahun) {
+            if ($filtered && $filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth) {
                 $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                 $q->where('created_at', '<=', $cutoff);
             }
@@ -502,7 +508,7 @@ class ReportController extends Controller
                             $dataRows = ScallingData::where('imports_log_id', $import->id)->get();
                             $dataIds  = $dataRows->pluck('id');
                             $funnels  = FunnelTracking::whereIn('data_id', $dataIds)
-                                ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                                ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
                                     $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                                     $q->where('updated_at', '<=', $cutoff);
                                 })
@@ -519,7 +525,7 @@ class ReportController extends Controller
 
                         $dataIds  = $dataRows->pluck('id');
                         $funnels  = FunnelTracking::whereIn('data_id', $dataIds)
-                            ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                            ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
                                 $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                                 $q->where('updated_at', '<=', $cutoff);
                             })
@@ -541,7 +547,7 @@ class ReportController extends Controller
                         $updatedAt = $latestFunnel?->updated_at;
                     }
                     if ($updatedAt ?? null) {
-                        if (!$filtered || !$filterTanggal || $updatedAt->lte(Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay())) {
+                        if (!$filtered || !$filterTanggal || $isLastDayOfMonth || $updatedAt->lte(Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay())) {
                             $funnelUpdatedAt = $updatedAt->translatedFormat('d M Y H:i');
                         }
                     }
@@ -584,7 +590,7 @@ class ReportController extends Controller
 
                 $dataIds  = $dataRows->pluck('id');
                 $funnels  = FunnelTracking::whereIn('ngtma_id', $dataIds)
-                    ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                    ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
                         $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                         $q->where('updated_at', '<=', $cutoff);
                     })
@@ -593,7 +599,7 @@ class ReportController extends Controller
                 $realRp     = (float) $funnels->sum('delivery_nilai_billcomp') / 1000000;
 
                 $latestFunnel = FunnelTracking::whereIn('ngtma_id', $dataIds)
-                    ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                    ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
                         $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
                         $q->where('updated_at', '<=', $cutoff);
                     })
@@ -621,8 +627,9 @@ class ReportController extends Controller
         $hsiAgencyRow = Hsi::where('type', 'Sales HSI Non AM Non Telda')
             ->whereYear('periode', $scalingTahun)
             ->whereMonth('periode', $scalingBulan)
-            ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
-                $q->where('created_at', '<=', Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay());
+            ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                $q->where('updated_at', '<=', $cutoff);
             })
             ->orderBy('created_at', 'desc')
             ->first();
@@ -650,8 +657,9 @@ class ReportController extends Controller
             $record = Telda::where('region', $regionKey)
                 ->whereYear('periode', $scalingTahun)
                 ->whereMonth('periode', $scalingBulan)
-                ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
-                    $q->where('created_at', '<=', Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay());
+                ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                    $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                    $q->where('updated_at', '<=', $cutoff);
                 })
                 ->orderBy('created_at', 'desc')
                 ->first();
@@ -667,8 +675,9 @@ class ReportController extends Controller
         $upsellingRow = Hsi::where('type', 'Next Level HSI')
             ->whereYear('periode', $scalingTahun)
             ->whereMonth('periode', $scalingBulan)
-            ->when($filterTanggal && $filterBulan && $filterTahun, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
-                $q->where('created_at', '<=', Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay());
+            ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                $q->where('updated_at', '<=', $cutoff);
             })
             ->orderBy('created_at', 'desc')
             ->first();
