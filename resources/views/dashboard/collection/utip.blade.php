@@ -231,7 +231,6 @@
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tanggal Input</th>
                                 <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
                                 <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Prospek</th>
-                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen</th>
                                 <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi </th>
                             </tr>
                         </thead>
@@ -247,9 +246,6 @@
                                     </td>
                                     <td class="px-6 py-4 text-center font-black text-slate-700">
                                         {{ $activity->plan !== null ? 'Rp'.number_format($activity->plan, 0, ',', '.') : '—' }}
-                                    </td>
-                                    <td class="px-6 py-4 text-center font-black text-slate-700">
-                                        {{ $activity->commitment !== null ? 'Rp'.number_format($activity->commitment, 0, ',', '.') : '—' }}
                                     </td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
                                         {{ $activity->real_ratio !== null ? 'Rp'.number_format($activity->real_ratio, 0, ',', '.') : '—' }}

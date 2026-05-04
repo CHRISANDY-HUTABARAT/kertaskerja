@@ -96,15 +96,16 @@ class ReportController extends Controller
 
         // UTIP Corrective — ambil record terbaru dalam periode filter
         $utipCorRow = Collection::where('type', 'UTIP Corrective')
-            ->tap($filterPeriode)
-            ->orderBy('created_at', 'desc')
-            ->first();
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+        $utipCorPlan = $utipCorRow ? $toFloat($utipCorRow->plan) : 0;
 
         $utipCorrective = [
-            'label'    => 'UTIP Corrective',
-            'planRp'   => round($utipCorRow ? $toFloat($utipCorRow->plan) / 1000000 : 0, 2),
-            'commitRp' => round($utipCorRow ? $toFloat($utipCorRow->commitment) / 1000000 : 0, 2),
-            'realRp'   => round($utipCorRow ? $toFloat($utipCorRow->real_ratio) / 1000000 : 0, 2),
+            'label'      => 'UTIP Corrective',
+            'planRp'     => round($utipCorPlan / 1000000, 2),
+            'commitRp'   => round($utipCorPlan / 1000000, 2),   // ← was: $utipCorRow->commitment, now: 100% plan
+            'realRp'     => round($utipCorRow ? $toFloat($utipCorRow->real_ratio) / 1000000 : 0, 2),
             'updated_at' => $utipCorRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
@@ -119,7 +120,7 @@ class ReportController extends Controller
             ['bulan' => 2,  'tahun' => 2026, 'label' => 'New UTIP Feb 2026', 'type' => 'New UTIP Feb 2026'],
             ['bulan' => 3,  'tahun' => 2026, 'label' => 'New UTIP Mar 2026', 'type' => 'New UTIP Mar 2026'],
             ['bulan' => 4,  'tahun' => 2026, 'label' => 'New UTIP Apr 2026', 'type' => 'New UTIP Apr 2026'],
-            ['bulan' => 5,  'tahun' => 2026, 'label' => 'New UTIP May 2026', 'type' => 'New UTIP May 2026'],
+            ['bulan' => 5,  'tahun' => 2026, 'label' => 'New UTIP Mei 2026', 'type' => 'New UTIP Mei 2026'],
             ['bulan' => 6,  'tahun' => 2026, 'label' => 'New UTIP Jun 2026', 'type' => 'New UTIP Jun 2026'],
             ['bulan' => 7,  'tahun' => 2026, 'label' => 'New UTIP Jul 2026', 'type' => 'New UTIP Jul 2026'],
             ['bulan' => 8,  'tahun' => 2026, 'label' => 'New UTIP Aug 2026', 'type' => 'New UTIP Aug 2026'],
@@ -131,16 +132,34 @@ class ReportController extends Controller
 
         // New UTIP — exact match by type, ambil record terbaru
         $newUtipPeriodes = [];
+        $filterDate = Carbon::createFromDate($filterTahun, $filterBulan, 1);
+
         foreach ($periodes as $p) {
             $row = Collection::where('type', $p['type'])
                 ->orderBy('created_at', 'desc')
                 ->first();
 
+            $planRaw = $row ? $toFloat($row->plan) : 0;
+            $realRp  = round($row ? $toFloat($row->real_ratio) / 1000000 : 0, 2);
+
+            $rowDate    = Carbon::createFromDate($p['tahun'], $p['bulan'], 1);
+            $monthsDiff = (($p['tahun'] - $filterTahun) * 12) + ($p['bulan'] - $filterBulan);
+
+            if ($monthsDiff > 0) {
+                $commitMultiplier = 0;
+            } elseif ($monthsDiff === 0) {
+                $commitMultiplier = 0.30;
+            } elseif ($monthsDiff === -1) {
+                $commitMultiplier = 0.60;
+            } else {
+                $commitMultiplier = 1.00;
+            }
+
             $newUtipPeriodes[] = [
                 'label'      => $p['label'],
-                'planRp'     => round($row ? $toFloat($row->plan) / 1000000 : 0, 2),
-                'commitRp'   => round($row ? $toFloat($row->commitment) / 1000000 : 0, 2),
-                'realRp'     => round($row ? $toFloat($row->real_ratio) / 1000000 : 0, 2),
+                'planRp'     => round($planRaw / 1000000, 2),
+                'commitRp'   => round(($planRaw * $commitMultiplier) / 1000000, 2),  // ← was: $row->commitment
+                'realRp'     => $realRp,
                 'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }

@@ -150,12 +150,6 @@
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                             </div>
                             <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Komitmen (Rp)</label>
-                                <input type="number" step="0.01" name="commitment" placeholder="cth: 975000"
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                            </div>
-                            <div>
                                 <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (Rp)
                                     </label>
                                 <input type="number" step="0.01" name="real_ratio" placeholder="cth: 955000"
@@ -197,7 +191,6 @@
                                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Prospek</th>
-                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Komitmen</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
@@ -219,9 +212,6 @@
                                         </td>
                                         <td class="px-6 py-4 text-center font-black text-slate-600 text-sm">
                                             {{ $item->plan !== null ? 'Rp'.number_format($item->plan, 0, ',', '.') : '—' }}
-                                        </td>
-                                        <td class="px-6 py-4 text-center font-black text-slate-700 text-sm">
-                                            {{ $item->commitment !== null ? 'Rp'.number_format($item->commitment, 0, ',', '.') : '—' }}
                                         </td>
                                         <td class="px-6 py-4 text-center font-black text-red-600 text-sm">
                                             {{ $item->real_ratio !== null ? 'Rp'.number_format($item->real_ratio, 0, ',', '.') : '—' }}
@@ -358,9 +348,6 @@
                                     Data Prospek</th>
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Komitmen</th>
-                                <th
-                                    class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Realisasi</th>
                             </tr>
                         </thead>
@@ -395,9 +382,6 @@
                                     </td>
                                     <td class="px-6 py-4 text-sm text-center font-black text-slate-700">
                                         {{ $item->plan !== null ? 'Rp'.number_format($item->plan, 0, ',', '.') : '—' }}
-                                    </td>
-                                    <td class="px-6 py-4 text-center font-black text-slate-700">
-                                        {{ $item->commitment !== null ? 'Rp'.number_format($item->commitment, 0, ',', '.') : '—' }}
                                     </td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
                                         {{ $item->real_ratio !== null ? 'Rp'.number_format($item->real_ratio, 0, ',', '.') : '—' }}
