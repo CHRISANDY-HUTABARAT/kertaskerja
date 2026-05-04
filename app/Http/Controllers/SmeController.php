@@ -83,8 +83,22 @@ class SmeController extends Controller
         ->where('periode', $currentPeriodeDate)
         ->latest()
         ->first();
-            // dd($latestImport);
 
+        if (!$latestImport) {
+            $latestImport = ScallingImport::with(['data' => function($query) {
+                $query->orderBy('am', 'asc')
+                    ->orderByRaw('CAST(no AS UNSIGNED) asc');
+            }, 'data.funnel.todayProgress'])
+            ->where('type', 'on-hand')
+            ->where('segment', 'sme')
+            ->where('periode', '<', $currentPeriodeDate)
+            ->orderBy('periode', 'desc')
+            ->first();
+
+            if ($latestImport) {
+                $currentPeriode = Carbon::parse($latestImport->periode)->format('Y-m');
+            }
+        }
         // Get admin note
 
         return view('dashboard.sme.lop-on-hand', compact('latestImport', 'currentPeriode', 'periodOptions'));
@@ -164,6 +178,22 @@ class SmeController extends Controller
         ->latest()
         ->first();
 
+        if (!$latestImport) {
+            $latestImport = ScallingImport::with(['data' => function($query) {
+                $query->orderBy('am', 'asc')
+                    ->orderByRaw('CAST(no AS UNSIGNED) asc');
+            }, 'data.funnel.todayProgress'])
+            ->where('type', 'qualified')
+            ->where('segment', 'sme')
+            ->where('periode', '<', $currentPeriodeDate)
+            ->orderBy('periode', 'desc')
+            ->first();
+
+            if ($latestImport) {
+                $currentPeriode = Carbon::parse($latestImport->periode)->format('Y-m');
+            }
+        }
+
         // Get admin note
 
         return view('dashboard.sme.lop-qualified', compact('latestImport', 'currentPeriode', 'periodOptions'));
@@ -182,16 +212,6 @@ class SmeController extends Controller
             ->unique()
             ->values();
 
-        $rows = ScallingData::with(['funnel.todayProgress'])
-            ->whereHas('scallingImport', function ($query) use ($currentPeriodeDate) {
-                $query->where('type', 'initiate')
-                    ->where('segment', 'sme')
-                    ->where('periode', $currentPeriodeDate);
-            })
-            ->orderBy('am', 'asc')
-            ->get()
-            ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
-
         $latestImport = ScallingImport::with(['data' => function($query) {
             $query->orderBy('am', 'asc')
                 ->orderByRaw('CAST(no AS UNSIGNED) asc');
@@ -201,6 +221,29 @@ class SmeController extends Controller
         ->where('periode', $currentPeriodeDate)
         ->latest()
         ->first();
+
+        if (!$latestImport) {
+            $latestImport = ScallingImport::with(['data' => function($query) {
+                $query->orderBy('am', 'asc')
+                    ->orderByRaw('CAST(no AS UNSIGNED) asc');
+            }, 'data.funnel.todayProgress'])
+            ->where('type', 'initiate')
+            ->where('segment', 'sme')
+            ->where('periode', '<', $currentPeriodeDate)
+            ->orderBy('periode', 'desc')
+            ->first();
+
+            if ($latestImport) {
+                $currentPeriode = Carbon::parse($latestImport->periode)->format('Y-m');
+                $currentPeriodeDate = $latestImport->periode;
+            }
+        }
+
+        $rows = collect();
+        if ($latestImport) {
+            $rows = $latestImport->data
+                ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
+        }
 
         // Hitung total langsung dari $rows yang sudah difilter
         $totalEstNilai = $rows->sum(fn($item) => floatval($item->est_nilai_bc ?? 0));

@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ScallingImport;
 use App\Models\ScallingData;
-
+use Carbon\Carbon;
 
 class PrivateController extends Controller
 {
@@ -84,6 +84,22 @@ class PrivateController extends Controller
         ->where('periode', $currentPeriodeDate)
         ->latest()
         ->first();
+
+        if (!$latestImport) {
+            $latestImport = ScallingImport::with(['data' => function($query) {
+                $query->orderBy('am', 'asc')
+                    ->orderByRaw('CAST(no AS UNSIGNED) asc');
+            }, 'data.funnel.todayProgress'])
+            ->where('type', 'on-hand')
+            ->where('segment', 'private')
+            ->where('periode', '<', $currentPeriodeDate)
+            ->orderBy('periode', 'desc')
+            ->first();
+
+            if ($latestImport) {
+                $currentPeriode = Carbon::parse($latestImport->periode)->format('Y-m');
+            }
+        }
 
         // Get admin note
 
@@ -164,6 +180,22 @@ class PrivateController extends Controller
         ->latest()
         ->first();
 
+        if (!$latestImport) {
+            $latestImport = ScallingImport::with(['data' => function($query) {
+                $query->orderBy('am', 'asc')
+                    ->orderByRaw('CAST(no AS UNSIGNED) asc');
+            }, 'data.funnel.todayProgress'])
+            ->where('type', 'qualified')
+            ->where('segment', 'private')
+            ->where('periode', '<', $currentPeriodeDate)
+            ->orderBy('periode', 'desc')
+            ->first();
+
+            if ($latestImport) {
+                $currentPeriode = Carbon::parse($latestImport->periode)->format('Y-m');
+            }
+        }
+
         // Get admin note
 
         return view('dashboard.private.lop-qualified', compact('latestImport', 'currentPeriode', 'periodOptions'));
@@ -183,16 +215,6 @@ class PrivateController extends Controller
             ->unique()
             ->values();
 
-        $rows = ScallingData::with(['funnel.todayProgress'])
-            ->whereHas('scallingImport', function ($query) use ($currentPeriodeDate) {
-                $query->where('type', 'initiate')
-                    ->where('segment', 'private')
-                    ->where('periode', $currentPeriodeDate);
-            })
-            ->orderBy('am', 'asc')
-            ->get()
-            ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
-
         $latestImport = ScallingImport::with(['data' => function($query) {
             $query->orderBy('am', 'asc')
                 ->orderByRaw('CAST(no AS UNSIGNED) asc');
@@ -202,6 +224,29 @@ class PrivateController extends Controller
         ->where('periode', $currentPeriodeDate)
         ->latest()
         ->first();
+
+        if (!$latestImport) {
+            $latestImport = ScallingImport::with(['data' => function($query) {
+                $query->orderBy('am', 'asc')
+                    ->orderByRaw('CAST(no AS UNSIGNED) asc');
+            }, 'data.funnel.todayProgress'])
+            ->where('type', 'initiate')
+            ->where('segment', 'private')
+            ->where('periode', '<', $currentPeriodeDate)
+            ->orderBy('periode', 'desc')
+            ->first();
+
+            if ($latestImport) {
+                $currentPeriode = Carbon::parse($latestImport->periode)->format('Y-m');
+                $currentPeriodeDate = $latestImport->periode;
+            }
+        }
+
+        $rows = collect();
+        if ($latestImport) {
+            $rows = $latestImport->data
+                ->filter(fn($item) => strtoupper(trim($item->no ?? '')) !== 'TOTAL');
+        }
 
         // Hitung total langsung dari $rows yang sudah difilter
         $totalEstNilai = $rows->sum(fn($item) => floatval($item->est_nilai_bc ?? 0));
