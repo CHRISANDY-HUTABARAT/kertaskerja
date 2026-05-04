@@ -400,7 +400,7 @@
                                 <th rowspan="2" class="border border-gray-300 px-2 py-2 w-14 text-center">Fairness</th>
                                 <th rowspan="2" class="border border-gray-300 px-2 py-2 w-14 text-center">Ach</th>
                                 <th rowspan="2" class="border border-gray-300 px-2 py-2 w-14 text-center">Score</th>
-                                <th rowspan="2" class="border border-gray-300 px-2 py-2 w-28 text-center no-print">Last Update</th>
+                                <th rowspan="2" class="border border-gray-300 px-2 py-2 w-32 text-center no-print">Last Update</th>
                             </tr>
                             <tr class="text-center">
                                 <th class="border border-gray-300 px-2 py-1">Amount</th>
