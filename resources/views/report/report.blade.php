@@ -665,10 +665,10 @@
                                 <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">d&nbsp;&nbsp;UTIP</td>
                                 <td class="border border-gray-400 px-2 py-1">{{ $utipCorrective['label'] }}</td>
                                 <td class="border border-gray-400 text-center">Rp</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['planRp'] > 0 ? number_format($utipCorrective['planRp'],   fmod($utipCorrective['planRp'],   1)==0 ? 0 : 2, ',', '.') : '' }}</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['commitRp'] > 0 ? number_format($utipCorrective['commitRp'], fmod($utipCorrective['commitRp'], 1)==0 ? 0 : 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['planRp'] > 0 ? number_format($utipCorrective['planRp'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['commitRp'] > 0 ? number_format($utipCorrective['commitRp'], 2, ',', '.') : '' }}</td>
                                 <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['realRp'] > 0 ? number_format($utipCorrective['realRp'],   fmod($utipCorrective['realRp'],   1)==0 ? 0 : 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['realRp'] > 0 ? number_format($utipCorrective['realRp'], 2, ',', '.') : '' }}</td>
                                 <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-center align-middle">{{ $fairnessUTIP }}</td>
                                 <td class="border border-gray-400 text-right font-bold {{ $colorAchCorrective }}">{{ $achCorrective }}</td>
                                 <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-right font-bold align-middle {{ $colorScoreUTIP }}">{{ $scoreUTIP }}</td>
@@ -683,10 +683,10 @@
                                 <tr>
                                     <td class="border border-gray-400 px-2 py-1">{{ $utip['label'] }}</td>
                                     <td class="border border-gray-400 text-center">Rp</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $utip['planRp'] > 0 ? number_format($utip['planRp'],   fmod($utip['planRp'],   1)==0 ? 0 : 2, ',', '.') : '' }}</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $utip['commitRp'] > 0 ? number_format($utip['commitRp'], fmod($utip['commitRp'], 1)==0 ? 0 : 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $utip['planRp'] > 0 ? number_format($utip['planRp'], 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $utip['commitRp'] > 0 ? number_format($utip['commitRp'], 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $utip['realRp'] > 0 ? number_format($utip['realRp'],   fmod($utip['realRp'],   1)==0 ? 0 : 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $utip['realRp'] > 0 ? number_format($utip['realRp'], 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400 text-right font-bold {{ $colorAchU }}">{{ $achU }}</td>
                                     <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utip['updated_at'] ?? '-' }}</td>
                                 </tr>
