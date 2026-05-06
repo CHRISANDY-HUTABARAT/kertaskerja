@@ -194,16 +194,17 @@ class ReportController extends Controller
         $ct0Data = [];
         foreach ($ct0Regions as $region) {
             $row    = Ct0::where('region', $region)->tap($filterPeriodeCt0)->orderBy('created_at', 'desc')->first();
-            $plan   = $row ? $toFloat($row->plan) : 0;
-            $commit = $row ? $toFloat($row->commitment) : 0;
-            $real   = $row ? $toFloat($row->real_ratio) : 0;
-            $ach    = $plan == 0 ? '-' : number_format(($real / $plan) * 100, 2, ',', '.') . '%';
+            $plan   = $row ? $toFloat($row->plan)       : null;
+            $commit = $row ? $toFloat($row->commitment) : null;
+            $real   = $row ? $toFloat($row->real_ratio) : null;
+            $ach    = is_null($plan) || $plan == 0 ? '-' : number_format(($real / $plan) * 100, 2, ',', '.') . '%';
+
             $ct0Data[] = [
-                'label'  => $ct0RegionLabels[$region] ?? $region,
-                'plan'   => round($plan / 1000000, 2),
-                'commit' => round($commit / 1000000, 2),
-                'real'   => round($real / 1000000, 2),
-                'ach'    => $ach,
+                'label'      => $ct0RegionLabels[$region] ?? $region,
+                'plan'       => !is_null($plan)   ? round($plan   / 1000000, 2) : null,
+                'commit'     => !is_null($commit) ? round($commit / 1000000, 2) : null,
+                'real'       => !is_null($real)   ? round($real   / 1000000, 2) : null,
+                'ach'        => $ach,
                 'updated_at' => $row?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }

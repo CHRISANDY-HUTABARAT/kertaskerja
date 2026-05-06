@@ -707,10 +707,10 @@
                                     @endif
                                     <td class="border border-gray-400 px-2 py-1">{{ $region['label'] }}</td>
                                     <td class="border border-gray-400 text-center">Rp</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $region['plan'] > 0 ? number_format($region['plan'], fmod($region['plan'], 1)==0 ? 0 : 2, ',', '.') : '' }}</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $region['commit'] > 0 ? number_format($region['commit'], fmod($region['commit'], 1)==0 ? 0 : 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ !is_null($region['plan'])   ? number_format($region['plan'],   fmod($region['plan'],   1)==0 ? 0 : 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ !is_null($region['commit']) ? number_format($region['commit'], fmod($region['commit'], 1)==0 ? 0 : 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $region['real'] > 0 ? number_format($region['real'],   fmod($region['real'],   1)==0 ? 0 : 2, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ !is_null($region['real'])   ? number_format($region['real'],   fmod($region['real'],   1)==0 ? 0 : 2, ',', '.') : '' }}</td>
                                     @if($ri === 0)
                                         <td rowspan="{{ $ct0RowCount }}" class="border border-gray-400 text-center align-middle">{{ $fairnessCt0 }}</td>
                                     @endif
