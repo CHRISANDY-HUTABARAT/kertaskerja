@@ -145,11 +145,11 @@ class ReportController extends Controller
             $rowDate    = Carbon::createFromDate($p['tahun'], $p['bulan'], 1);
             $monthsDiff = (($p['tahun'] - $filterTahun) * 12) + ($p['bulan'] - $filterBulan);
 
-            if ($monthsDiff > 0) {
+            if ($monthsDiff >= 0) {
                 $commitMultiplier = 0;
-            } elseif ($monthsDiff === 0) {
-                $commitMultiplier = 0.30;
             } elseif ($monthsDiff === -1) {
+                $commitMultiplier = 0.30;
+            } elseif ($monthsDiff === -2) {
                 $commitMultiplier = 0.60;
             } else {
                 $commitMultiplier = 1.00;
