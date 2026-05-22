@@ -153,14 +153,237 @@
                             $checked     = fn($field) => $funnel && ($funnel->{$field} ?? false);
                         @endphp
                         <tr class="hover:bg-slate-50 transition-colors" data-row-id="{{ $row->id }}" data-cancelled="{{ $checked('cancel') ? 'true' : 'false' }}">
+                            {{-- NO --}}
                             <td class="px-3 py-2.5 whitespace-nowrap font-bold text-slate-700 border-r border-slate-100 text-center sticky-col">{{ $row->no }}</td>
-                            <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100 font-medium sticky-col">{{ $row->project }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-700 border-r border-slate-100 bg-emerald-50 font-bold sticky-col">{{ $row->id_lop }}</td>
-                            <td class="px-3 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 sticky-col">{{ $row->cc }}</td>
-                            <td class="px-4 py-2.5 text-slate-600 border-r border-slate-100">{{ $row->am }}</td>
-                            <td class="px-4 py-2.5 text-slate-700 border-r border-slate-100 bg-emerald-50 font-semibold">{{ $row->mitra }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap text-slate-600 border-r border-slate-100 text-center">{{ $row->plan_bulan_billcomp_2025 }}</td>
-                            <td class="px-4 py-2.5 whitespace-nowrap font-black text-right text-slate-800 border-r border-slate-100">{{ number_format($row->est_nilai_bc, 0, ',', '.') }}</td>
+
+                            {{-- PROJECT --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-white sticky-col" id="field-cell-project-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display font-medium text-slate-600 cursor-pointer hover:text-blue-600 transition-colors text-xs leading-tight"
+                                        id="field-display-project-{{ $row->id }}"
+                                        onclick="startEditField('project', {{ $row->id }})"
+                                        title="Klik untuk edit Project">
+                                        {{ $row->project ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-project-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-project-{{ $row->id }}"
+                                            value="{{ $row->project }}"
+                                            placeholder="Nama project..."
+                                            class="w-40 px-2 py-1 border-2 border-blue-400 rounded-lg text-xs font-medium text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100"
+                                            onkeydown="handleKeyField(event, 'project', {{ $row->id }})">
+                                        <button onclick="saveField('project', {{ $row->id }})"
+                                            class="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('project', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- ID LOP --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-emerald-50 sticky-col" id="field-cell-id_lop-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display font-bold text-slate-700 cursor-pointer hover:text-emerald-600 transition-colors text-xs whitespace-nowrap"
+                                        id="field-display-id_lop-{{ $row->id }}"
+                                        onclick="startEditField('id_lop', {{ $row->id }})"
+                                        title="Klik untuk edit ID LOP">
+                                        {{ $row->id_lop ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-id_lop-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-id_lop-{{ $row->id }}"
+                                            value="{{ $row->id_lop }}"
+                                            placeholder="ID LOP..."
+                                            class="w-32 px-2 py-1 border-2 border-emerald-400 rounded-lg text-xs font-bold text-slate-800 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100"
+                                            onkeydown="handleKeyField(event, 'id_lop', {{ $row->id }})">
+                                        <button onclick="saveField('id_lop', {{ $row->id }})"
+                                            class="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('id_lop', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- CC --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-white sticky-col" id="field-cell-cc-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display text-slate-600 cursor-pointer hover:text-blue-600 transition-colors text-xs whitespace-nowrap"
+                                        id="field-display-cc-{{ $row->id }}"
+                                        onclick="startEditField('cc', {{ $row->id }})"
+                                        title="Klik untuk edit CC">
+                                        {{ $row->cc ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-cc-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-cc-{{ $row->id }}"
+                                            value="{{ $row->cc }}"
+                                            placeholder="CC..."
+                                            class="w-24 px-2 py-1 border-2 border-blue-400 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100"
+                                            onkeydown="handleKeyField(event, 'cc', {{ $row->id }})">
+                                        <button onclick="saveField('cc', {{ $row->id }})"
+                                            class="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('cc', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- AM --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-white" id="field-cell-am-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display text-slate-600 cursor-pointer hover:text-blue-600 transition-colors text-xs"
+                                        id="field-display-am-{{ $row->id }}"
+                                        onclick="startEditField('am', {{ $row->id }})"
+                                        title="Klik untuk edit AM">
+                                        {{ $row->am ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-am-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-am-{{ $row->id }}"
+                                            value="{{ $row->am }}"
+                                            placeholder="Nama AM..."
+                                            class="w-32 px-2 py-1 border-2 border-blue-400 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100"
+                                            onkeydown="handleKeyField(event, 'am', {{ $row->id }})">
+                                        <button onclick="saveField('am', {{ $row->id }})"
+                                            class="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('am', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- MITRA --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-emerald-50 font-semibold" id="field-cell-mitra-{{ $row->id }}">
+                                <div class="flex items-center space-x-1">
+                                    <div class="field-display text-slate-700 cursor-pointer hover:text-emerald-600 transition-colors text-xs"
+                                        id="field-display-mitra-{{ $row->id }}"
+                                        onclick="startEditField('mitra', {{ $row->id }})"
+                                        title="Klik untuk edit Mitra">
+                                        {{ $row->mitra ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-mitra-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-mitra-{{ $row->id }}"
+                                            value="{{ $row->mitra }}"
+                                            placeholder="Nama mitra..."
+                                            class="w-32 px-2 py-1 border-2 border-emerald-400 rounded-lg text-xs font-semibold text-slate-800 focus:outline-none focus:border-emerald-600 focus:ring-1 focus:ring-emerald-100"
+                                            onkeydown="handleKeyField(event, 'mitra', {{ $row->id }})">
+                                        <button onclick="saveField('mitra', {{ $row->id }})"
+                                            class="p-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('mitra', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- EST BULAN BC --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-white text-center" id="field-cell-plan_bulan_billcomp_2025-{{ $row->id }}">
+                                <div class="flex items-center justify-center space-x-1">
+                                    <div class="field-display text-slate-600 cursor-pointer hover:text-blue-600 transition-colors text-xs whitespace-nowrap"
+                                        id="field-display-plan_bulan_billcomp_2025-{{ $row->id }}"
+                                        onclick="startEditField('plan_bulan_billcomp_2025', {{ $row->id }})"
+                                        title="Klik untuk edit Est Bulan BC">
+                                        {{ $row->plan_bulan_billcomp_2025 ?: '—' }}
+                                    </div>
+                                    <div class="field-edit hidden items-center space-x-1" id="field-edit-plan_bulan_billcomp_2025-{{ $row->id }}">
+                                        <input type="text"
+                                            id="field-input-plan_bulan_billcomp_2025-{{ $row->id }}"
+                                            value="{{ $row->plan_bulan_billcomp_2025 }}"
+                                            placeholder="Mis: Jan-25"
+                                            class="w-24 px-2 py-1 border-2 border-blue-400 rounded-lg text-xs text-slate-800 focus:outline-none focus:border-blue-600 focus:ring-1 focus:ring-blue-100"
+                                            onkeydown="handleKeyField(event, 'plan_bulan_billcomp_2025', {{ $row->id }})">
+                                        <button onclick="saveField('plan_bulan_billcomp_2025', {{ $row->id }})"
+                                            class="p-1 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditField('plan_bulan_billcomp_2025', {{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
+
+                            {{-- EST NILAI BC — editable inline --}}
+                            <td class="px-3 py-2 border-r border-slate-100 bg-amber-50/40" id="estnilai-cell-{{ $row->id }}" data-row-id="{{ $row->id }}">
+                                <div class="flex items-center justify-end space-x-1.5">
+                                    <div class="estnilai-display font-black tabular-nums cursor-pointer transition-colors text-right
+                                        {{ $row->est_nilai_bc ? 'text-slate-800 hover:text-amber-600' : 'text-slate-300 hover:text-slate-400' }}"
+                                        id="estnilai-display-{{ $row->id }}"
+                                        onclick="startEditEstNilai({{ $row->id }})"
+                                        title="Klik untuk edit estimasi nilai BC">
+                                        @if($row->est_nilai_bc)
+                                            {{ number_format($row->est_nilai_bc, 0, ',', '.') }}
+                                        @else
+                                            <span class="text-xs font-medium text-slate-300">— isi</span>
+                                        @endif
+                                    </div>
+                                    <div class="estnilai-edit hidden items-center space-x-1" id="estnilai-edit-{{ $row->id }}">
+                                        <input type="number" min="0" step="1"
+                                            id="estnilai-input-{{ $row->id }}"
+                                            value="{{ $row->est_nilai_bc > 0 ? $row->est_nilai_bc : '' }}"
+                                            placeholder="0"
+                                            class="w-40 px-2 py-1 border-2 border-amber-400 rounded-lg text-xs font-black text-slate-800 text-right focus:outline-none focus:border-amber-600 focus:ring-1 focus:ring-amber-100 tabular-nums"
+                                            onkeydown="handleKeyEstNilai(event, {{ $row->id }})">
+                                        <button onclick="saveEstNilai({{ $row->id }})"
+                                            class="p-1 bg-amber-600 hover:bg-amber-700 text-white rounded-md transition-colors flex-shrink-0" title="Simpan">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7"/>
+                                            </svg>
+                                        </button>
+                                        <button onclick="cancelEditEstNilai({{ $row->id }})"
+                                            class="p-1 bg-slate-200 hover:bg-slate-300 text-slate-600 rounded-md transition-colors flex-shrink-0" title="Batal">
+                                            <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M6 18L18 6M6 6l12 12"/>
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
+                            </td>
                             {{-- F0 --}}
                             <td class="px-2 py-2.5 text-center border-r border-slate-100 bg-blue-50">
                                 <input type="checkbox" class="funnel-checkbox w-4 h-4 text-blue-600 rounded cursor-pointer"
@@ -322,13 +545,14 @@
 
 {{-- ══ SCRIPTS ══ --}}
 @if($import)
-
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const csrfToken = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
     if (!csrfToken) return;
 
-    const updateUrl = '{{ route("admin.ngtma.progress.funnel.update", ["segment" => $segment]) }}';
+    const updateUrl      = '{{ route("admin.ngtma.progress.funnel.update", ["segment" => $segment]) }}';
+    const updateEstUrl   = '{{ route("admin.ngtma.progress.update-est-nilai", ["segment" => $segment]) }}';
+    const updateFieldUrl = '{{ route("admin.ngtma.progress.update-field", ["segment" => $segment]) }}';
 
     function formatNumber(num) {
         if (!num) return '-';
@@ -438,7 +662,6 @@ document.addEventListener('DOMContentLoaded', function () {
             if (row && row.dataset.cancelled === 'true') { this.checked = !this.checked; return; }
             this.parentElement.classList.add('bg-yellow-100');
             saveChange(this.dataset.ngtmaId, this.dataset.dataType, this.dataset.field, this.checked, this.dataset.estNilai || '0', this.parentElement);
-            // Cascade backward dari billing juga (tanpa cancel)
             if (this.checked) cascadeBackwards(this);
         });
     });
@@ -454,13 +677,12 @@ document.addEventListener('DOMContentLoaded', function () {
             if (cb.dataset.field === 'cancel') return;
             if (!cb.checked) {
                 cb.checked = true;
-                console.log('cascade:', cb.dataset.ngtmaId, cb.dataset.dataType, cb.dataset.field);
                 saveChange(cb.dataset.ngtmaId, cb.dataset.dataType, cb.dataset.field, true, null, cb.parentElement);
             }
         });
     }
 
-    // ── SAVE CHANGE ──
+    // ── SAVE CHANGE (funnel/billing) ──
     function saveChange(rowId, dataType, field, value, estNilaiBc, container) {
         const payload = { data_type: dataType, ngtma_id: rowId, field, value };
         if (field === 'delivery_billing_complete') payload.est_nilai_bc = estNilaiBc || '0';
@@ -492,7 +714,6 @@ document.addEventListener('DOMContentLoaded', function () {
                     if (tc) tc.querySelector('span').textContent = data.total;
                 }
 
-                // auto_fields: JANGAN pernah menyentuh field 'cancel'
                 if (data.auto_fields && data.auto_fields.length) {
                     const fields    = Array.isArray(data.auto_fields) ? data.auto_fields : [data.auto_fields];
                     const targetVal = data.auto_value === true || data.auto_value === 'true';
@@ -500,7 +721,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     const fi        = row?.querySelector('input[data-ngtma-id]');
                     if (fi) {
                         fields.forEach(fld => {
-                            if (fld === 'cancel') return; // ← KUNCI: cancel tidak boleh disentuh auto_fields
+                            if (fld === 'cancel') return;
                             const sib = document.querySelector(
                                 `.funnel-checkbox[data-field="${fld}"][data-ngtma-id="${fi.dataset.ngtmaId}"][data-data-type="${fi.dataset.dataType}"]`
                             );
@@ -529,6 +750,211 @@ document.addEventListener('DOMContentLoaded', function () {
             alert('Error: ' + err.message);
         });
     }
+
+    // ══════════════════════════════════════════════
+    // EDIT EST NILAI BC
+    // ══════════════════════════════════════════════
+    const estNilaiMap = {};
+    document.querySelectorAll('[id^="estnilai-display-"]').forEach(function (display) {
+        const rowId = display.id.replace('estnilai-display-', '');
+        const text  = display.textContent.trim();
+        if (text && text !== '— isi' && text !== '—') {
+            const cleanValue = parseFloat(text.replace(/\./g, ''));
+            estNilaiMap[rowId] = isNaN(cleanValue) ? 0 : cleanValue;
+        } else {
+            estNilaiMap[rowId] = 0;
+        }
+    });
+
+    window.startEditEstNilai = function (rowId) {
+        const display = document.getElementById('estnilai-display-' + rowId);
+        const edit    = document.getElementById('estnilai-edit-'    + rowId);
+        display.classList.add('hidden');
+        edit.classList.remove('hidden');
+        edit.classList.add('flex');
+        const input = document.getElementById('estnilai-input-' + rowId);
+        input.focus();
+        input.select();
+    };
+
+    window.cancelEditEstNilai = function (rowId) {
+        document.getElementById('estnilai-edit-'    + rowId).classList.add('hidden');
+        document.getElementById('estnilai-edit-'    + rowId).classList.remove('flex');
+        document.getElementById('estnilai-display-' + rowId).classList.remove('hidden');
+    };
+
+    window.handleKeyEstNilai = function (event, rowId) {
+        if (event.key === 'Enter')   { event.preventDefault(); saveEstNilai(rowId); }
+        else if (event.key === 'Escape') { cancelEditEstNilai(rowId); }
+    };
+
+    window.saveEstNilai = function (rowId) {
+        const input    = document.getElementById('estnilai-input-'   + rowId);
+        const display  = document.getElementById('estnilai-display-' + rowId);
+        const edit     = document.getElementById('estnilai-edit-'    + rowId);
+        const rawValue = input.value.trim();
+        const newValue = rawValue === '' ? 0 : parseFloat(rawValue);
+
+        if (isNaN(newValue) || newValue < 0) {
+            input.classList.add('border-red-500');
+            input.focus();
+            setTimeout(() => input.classList.remove('border-red-500'), 1500);
+            return;
+        }
+
+        display.innerHTML = '<span class="text-slate-400 text-xs font-bold animate-pulse">Menyimpan...</span>';
+        display.classList.remove('hidden');
+        edit.classList.add('hidden');
+        edit.classList.remove('flex');
+
+        fetch(updateEstUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: JSON.stringify({ data_id: rowId, est_nilai_bc: newValue })
+        })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(data => {
+            if (!data.success) throw new Error(data.message || 'Gagal');
+
+            input.value = newValue > 0 ? newValue : '';
+            display.innerHTML = newValue > 0
+                ? formatNumber(newValue)
+                : '<span class="text-xs font-medium text-slate-300">— isi</span>';
+            display.className = 'estnilai-display font-black tabular-nums cursor-pointer transition-colors text-right ' +
+                (newValue > 0 ? 'text-slate-800 hover:text-amber-600' : 'text-slate-300 hover:text-slate-400');
+            display.setAttribute('onclick', 'startEditEstNilai(' + rowId + ')');
+
+            estNilaiMap[rowId] = newValue;
+
+            // Update data-est-nilai di billing checkbox agar total recalc benar
+            const billingCb = document.querySelector('.billing-checkbox[data-ngtma-id="' + rowId + '"]');
+            if (billingCb) {
+                billingCb.dataset.estNilai = newValue;
+
+                // Jika billing complete sudah tercentang, update nilai di server & UI
+                if (billingCb.checked) {
+                    const nilaiCell = document.querySelector('tr[data-row-id="' + rowId + '"] .nilai-billcomp-cell');
+                    if (nilaiCell) {
+                        nilaiCell.innerHTML = newValue > 0
+                            ? '<span class="font-black text-slate-800">' + formatNumber(newValue) + '</span>'
+                            : '<span class="text-slate-300">—</span>';
+                    }
+                    fetch(updateUrl, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+                        body: JSON.stringify({
+                            data_type: '{{ $type }}',
+                            ngtma_id:  rowId,
+                            field:     'delivery_billing_complete',
+                            value:     true,
+                            est_nilai_bc: newValue
+                        })
+                    })
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.total) {
+                            const tc = document.getElementById('total-nilai-billcomp');
+                            if (tc) tc.querySelector('span').textContent = d.total;
+                        }
+                    })
+                    .catch(err => console.error('Error updating delivery value:', err));
+                }
+            }
+
+            updateEstNilaiTotal();
+
+            const cell = document.getElementById('estnilai-cell-' + rowId);
+            cell.style.background = '#fef2f2';
+            setTimeout(() => { cell.style.background = ''; }, 1200);
+        })
+        .catch(err => {
+            display.innerHTML = (estNilaiMap[rowId] || 0) > 0
+                ? formatNumber(estNilaiMap[rowId])
+                : '<span class="text-xs font-medium text-slate-300">— isi</span>';
+            display.className = 'estnilai-display font-black tabular-nums cursor-pointer transition-colors text-right ' +
+                ((estNilaiMap[rowId] || 0) > 0 ? 'text-slate-800 hover:text-amber-600' : 'text-slate-300 hover:text-slate-400');
+            display.setAttribute('onclick', 'startEditEstNilai(' + rowId + ')');
+            const cell = document.getElementById('estnilai-cell-' + rowId);
+            cell.style.background = '#fee2e2';
+            setTimeout(() => { cell.style.background = ''; }, 1500);
+            alert('Gagal menyimpan: ' + err.message);
+        });
+    };
+
+    function updateEstNilaiTotal() {
+        let total = 0;
+        for (const rowId in estNilaiMap) total += estNilaiMap[rowId];
+        const footer = document.querySelector('tfoot td.bg-emerald-50');
+        if (footer) footer.textContent = formatNumber(total);
+    }
+
+    // ══════════════════════════════════════════════
+    // EDIT FIELD (project, id_lop, cc, am, mitra, plan_bulan_billcomp_2025)
+    // ══════════════════════════════════════════════
+    window.startEditField = function (field, rowId) {
+        // Tutup semua edit yang terbuka
+        document.querySelectorAll('.field-edit').forEach(function (el) {
+            if (!el.classList.contains('hidden')) {
+                const parts = el.id.split('-');
+                const id    = parts[parts.length - 1];
+                const fld   = parts.slice(2, parts.length - 1).join('_');
+                cancelEditField(fld, id);
+            }
+        });
+        document.getElementById('field-display-' + field + '-' + rowId).classList.add('hidden');
+        const edit = document.getElementById('field-edit-' + field + '-' + rowId);
+        edit.classList.remove('hidden');
+        edit.classList.add('flex');
+        document.getElementById('field-input-' + field + '-' + rowId).focus();
+        document.getElementById('field-input-' + field + '-' + rowId).select();
+    };
+
+    window.cancelEditField = function (field, rowId) {
+        const edit = document.getElementById('field-edit-' + field + '-' + rowId);
+        if (!edit) return;
+        edit.classList.add('hidden');
+        edit.classList.remove('flex');
+        document.getElementById('field-display-' + field + '-' + rowId).classList.remove('hidden');
+    };
+
+    window.handleKeyField = function (event, field, rowId) {
+        if (event.key === 'Enter')       { event.preventDefault(); saveField(field, rowId); }
+        else if (event.key === 'Escape') { cancelEditField(field, rowId); }
+    };
+
+    window.saveField = function (field, rowId) {
+        const input    = document.getElementById('field-input-'   + field + '-' + rowId);
+        const display  = document.getElementById('field-display-' + field + '-' + rowId);
+        const edit     = document.getElementById('field-edit-'    + field + '-' + rowId);
+        const newValue = input.value.trim();
+        const oldValue = display.textContent.trim();
+
+        display.innerHTML = '<span class="text-slate-400 text-xs animate-pulse">Menyimpan...</span>';
+        display.classList.remove('hidden');
+        edit.classList.add('hidden');
+        edit.classList.remove('flex');
+
+        fetch(updateFieldUrl, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': csrfToken, 'Accept': 'application/json' },
+            body: JSON.stringify({ data_id: rowId, field: field, value: newValue })
+        })
+        .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+        .then(data => {
+            if (!data.success) throw new Error(data.message || 'Gagal');
+            input.value          = newValue;
+            display.textContent  = newValue || '—';
+            const cell = document.getElementById('field-cell-' + field + '-' + rowId);
+            if (cell) { cell.style.background = '#d1fae5'; setTimeout(() => { cell.style.background = ''; }, 1200); }
+        })
+        .catch(err => {
+            input.value         = (oldValue === '—') ? '' : oldValue;
+            display.textContent = oldValue;
+            const cell = document.getElementById('field-cell-' + field + '-' + rowId);
+            if (cell) { cell.style.background = '#fee2e2'; setTimeout(() => { cell.style.background = ''; }, 1500); }
+            alert('Gagal menyimpan: ' + err.message);
+        });
+    };
 });
 </script>
 @endif

@@ -493,4 +493,74 @@ class NgtmaController extends Controller
             'auto_value'     => $request->field === 'delivery_billing_complete' ? $value : null,
         ]);
     }
+
+    public function updateEstNilai(Request $request, string $segment)
+    {
+        try {
+            $request->validate([
+                'data_id'      => 'required|integer|exists:ngtmas,id',
+                'est_nilai_bc' => 'required|numeric|min:0',
+            ]);
+
+            $segmentDbMap = [
+                'gov'     => 'government',
+                'private' => 'private',
+                'soe'     => 'soe',
+                'sme'     => 'sme',
+            ];
+            abort_if(!isset($segmentDbMap[$segment]), 404);
+            $segmentDb = $segmentDbMap[$segment];
+
+            $ngtma  = \App\Models\Ngtma::findOrFail($request->data_id);
+            $import = $ngtma->scallingImport;
+            abort_if(!$import || $import->segment !== $segmentDb, 403);
+
+            $ngtma->update(['est_nilai_bc' => $request->est_nilai_bc]);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('ngtma updateEstNilai error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    public function updateField(Request $request, string $segment)
+    {
+        $allowedFields = [
+            'project',
+            'id_lop',
+            'cc',
+            'am',
+            'mitra',
+            'plan_bulan_billcomp_2025',
+        ];
+
+        try {
+            $request->validate([
+                'data_id' => 'required|integer|exists:ngtmas,id',
+                'field'   => 'required|string|in:' . implode(',', $allowedFields),
+                'value'   => 'nullable|string|max:255',
+            ]);
+
+            $segmentDbMap = [
+                'gov'     => 'government',
+                'private' => 'private',
+                'soe'     => 'soe',
+                'sme'     => 'sme',
+            ];
+            abort_if(!isset($segmentDbMap[$segment]), 404);
+            $segmentDb = $segmentDbMap[$segment];
+
+            $ngtma  = \App\Models\Ngtma::findOrFail($request->data_id);
+            $import = $ngtma->scallingImport;
+            abort_if(!$import || $import->segment !== $segmentDb, 403);
+
+            $ngtma->update([$request->field => $request->value ?? '']);
+
+            return response()->json(['success' => true]);
+        } catch (\Exception $e) {
+            \Log::error('ngtma updateField error: ' . $e->getMessage());
+            return response()->json(['success' => false, 'message' => $e->getMessage()], 500);
+        }
+    }
 }

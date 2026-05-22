@@ -112,6 +112,10 @@ Route::middleware('auth')->group(function () {
                 ->name('store');
             Route::patch('/toggle-status/{id}', [NgtmaController::class, 'toggleStatus'])
                 ->name('toggle-status');
+            Route::post('/{segment}/progress/update-est-nilai', [NgtmaController::class, 'updateEstNilai'])
+                ->name('progress.update-est-nilai');
+            Route::post('/{segment}/progress/update-field', [NgtmaController::class, 'updateField'])
+                ->name('progress.update-field');
         });
 
         // Scalling routes
