@@ -661,7 +661,7 @@
                                 </tr>
                             @endforeach
 
-                            <tr>
+                            <tr id="utip-row-corrective">
                                 <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">d&nbsp;&nbsp;UTIP</td>
                                 <td class="border border-gray-400 px-2 py-1">{{ $utipCorrective['label'] }}</td>
                                 <td class="border border-gray-400 text-center">Rp</td>
@@ -679,8 +679,9 @@
                                 @php
                                     $achU      = $utip['commitRp'] == 0 ? '-' : number_format(($utip['realRp'] / $utip['commitRp']) * 100, 2, ',', '.') . '%' ;
                                     $colorAchU = getColorClass($achU, $fairnessUTIP);
+                                    $utipSlug  = strtolower(str_replace(' ', '-', $utip['label']));
                                 @endphp
-                                <tr>
+                                <tr id="utip-row-{{ $utipSlug }}">
                                     <td class="border border-gray-400 px-2 py-1">{{ $utip['label'] }}</td>
                                     <td class="border border-gray-400 text-center">Rp</td>
                                     <td class="border border-gray-400 px-2 text-right">{{ $utip['planRp'] > 0 ? number_format($utip['planRp'], 2, ',', '.') : '' }}</td>
@@ -1096,6 +1097,11 @@
         { id:'scaling-row-sme-qualified',    href:'{{ $scalingDetailRoutes['sme']['qualified'] }}' },
         { id:'scaling-row-sme-initiate',     href:'{{ $scalingDetailRoutes['sme']['initiate'] }}' },
         { id:'scaling-row-sme-koreksi',      href:'{{ $scalingDetailRoutes['sme']['koreksi'] }}' },
+        { id:'utip-row-corrective', href:'{{ $utipDetailRoutes['corrective'] }}' },
+            @foreach($newUtipPeriodes as $utip)
+            @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
+            { id:'utip-row-{{ $utipSlug }}', href:'{{ $utipDetailRoutes[$utipSlug] ?? '' }}' },
+            @endforeach
         { id:'ngtma-row-gov',     href:'{{ $ngtmaDetailRoutes['gov'] }}' },
         { id:'ngtma-row-private', href:'{{ $ngtmaDetailRoutes['private'] }}' },
         { id:'ngtma-row-soe',     href:'{{ $ngtmaDetailRoutes['soe'] }}' },

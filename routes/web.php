@@ -28,6 +28,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/report/detail/{segment}/{type}', [ReportController::class, 'detail'])
     ->name('report.detail')
     ->middleware('auth');
+    Route::get('/report/utip-detail', [ReportController::class, 'utipDetail'])->name('report.utip.detail');
 
     // Home redirect
     // Route::get('/', function () {

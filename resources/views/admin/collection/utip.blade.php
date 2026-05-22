@@ -145,14 +145,33 @@
                             </div>
                             <div>
                                 <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Data Prospek (Rp)</label>
-                                <input type="number" step="0.01" name="plan" placeholder="cth: 1000000"
+                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Kondisi</label>
+                                <select name="kondisi" required
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
+                                    <option value="" disabled selected>Pilih Kondisi</option>
+                                    <option value="Sudah BC, Potensi Flag">1 Sudah BC, Potensi Flag</option>
+                                    <option value="Sudah BC, Over Payment">2 Sudah BC, Over Payment</option>
+                                    <option value="Sudah BC, Rekon Kontrak & Tunggakan">3 Sudah BC, Rekon Kontrak & Tunggakan</option>
+                                    <option value="Sudah BC, Deposit">4 Sudah BC, Deposit</option>
+                                    <option value="Sudah BC, Pembayaran Kurang">5 Sudah BC, Pembayaran Kurang</option>
+                                    <option value="Belum BC, Late Input">6 Belum BC, Late Input</option>
+                                    <option value="Belum teridentifikasi">7 Belum teridentifikasi</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label
+                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Total Populasi</label>
+                                <input type="number" step="1" name="plan" placeholder="cth: 1500"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                             </div>
                             <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Realisasi (Rp)
-                                    </label>
-                                <input type="number" step="0.01" name="real_ratio" placeholder="cth: 955000"
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Flag sd Hari Ini</label>
+                                <input type="number" step="1" name="real_ratio" placeholder="cth: 800"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Outlook Full Month</label>
+                                <input type="number" step="1" name="ol_fm" placeholder="cth: 200"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                             </div>
                         </div>
@@ -189,11 +208,13 @@
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-100">
                                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
-                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Data Prospek</th>
-                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Realisasi</th>
-                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
+<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Kondisi</th>
+<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Populasi</th>
+<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Flag sd HI</th>
+<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">OL FM</th>
+<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -210,11 +231,17 @@
                                                 {{ $item->periode ? \Carbon\Carbon::parse($item->periode)->translatedFormat('F Y') : '—' }}
                                             </span>
                                         </td>
+                                        <td class="px-6 py-4 text-center text-xs font-semibold text-slate-600">
+                                            {{ $item->kondisi ?? '—' }}
+                                        </td>
                                         <td class="px-6 py-4 text-center font-black text-slate-600 text-sm">
-                                            {{ $item->plan !== null ? 'Rp'.number_format($item->plan, 0, ',', '.') : '—' }}
+                                            {{ $item->plan !== null ? number_format($item->plan, 0, ',', '.') : '—' }}
                                         </td>
                                         <td class="px-6 py-4 text-center font-black text-red-600 text-sm">
-                                            {{ $item->real_ratio !== null ? 'Rp'.number_format($item->real_ratio, 0, ',', '.') : '—' }}
+                                            {{ $item->real_ratio !== null ? number_format($item->real_ratio, 0, ',', '.') : '—' }}
+                                        </td>
+                                        <td class="px-6 py-4 text-center font-black text-slate-700 text-sm">
+                                            {{ $item->ol_fm !== null ? number_format($item->ol_fm, 0, ',', '.') : '—' }}
                                         </td>
                                         <td class="px-6 py-4 text-center">
                                             @if($isActive)
@@ -340,15 +367,16 @@
                                 <th
                                     class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Periode</th>
-                                <th
-                                    class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
                                     Tipe</th>
-                                <th
-                                    class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Data Prospek</th>
-                                <th
-                                    class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
-                                    Realisasi</th>
+                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Kondisi</th>
+                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Total Populasi</th>
+                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    Flag sd HI</th>
+                                <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                                    OL FM</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100">
@@ -380,11 +408,17 @@
                                     <td class="px-6 py-4 text-center text-xs font-bold text-slate-600">
                                         {{ $item->type ?? '—' }}
                                     </td>
+                                    <td class="px-6 py-4 text-center text-xs font-semibold text-slate-600">
+                                        {{ $item->kondisi ?? '—' }}
+                                    </td>
                                     <td class="px-6 py-4 text-sm text-center font-black text-slate-700">
-                                        {{ $item->plan !== null ? 'Rp'.number_format($item->plan, 0, ',', '.') : '—' }}
+                                        {{ $item->plan !== null ? number_format($item->plan, 0, ',', '.') : '—' }}
                                     </td>
                                     <td class="px-6 py-4 text-center font-black text-red-600">
-                                        {{ $item->real_ratio !== null ? 'Rp'.number_format($item->real_ratio, 0, ',', '.') : '—' }}
+                                        {{ $item->real_ratio !== null ? number_format($item->real_ratio, 0, ',', '.') : '—' }}
+                                    </td>
+                                    <td class="px-6 py-4 text-center font-black text-slate-700">
+                                        {{ $item->ol_fm !== null ? number_format($item->ol_fm, 0, ',', '.') : '—' }}
                                     </td>
                                    @php $isActive = ($item->status ?? 'active') === 'active'; @endphp
 

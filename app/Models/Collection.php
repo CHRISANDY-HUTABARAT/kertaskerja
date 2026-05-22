@@ -12,8 +12,8 @@ class Collection extends Model
      * @var array<int, string>
      */
     protected $fillable = [
-    'user_id', 'type', 'status', 'segment',
-    'periode', 'plan', 'commitment', 'real_ratio', 'is_latest',
+    'user_id', 'type', 'status', 'segment', 'kondisi',
+    'periode', 'plan', 'ol_fm', 'commitment', 'real_ratio', 'is_latest',
     'real_updated_at',
 ];
 

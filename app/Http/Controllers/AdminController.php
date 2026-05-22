@@ -377,54 +377,47 @@ class AdminController extends Controller
             'status'     => 'required|in:active,inactive',
             'periode'    => 'required|date_format:Y-m',
             'type'       => 'required|string',
-            'plan'       => 'nullable|string',
+            'kondisi'    => 'required|string',
+            'plan'       => 'nullable|numeric',
+            'ol_fm'      => 'nullable|numeric',
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
 
         $periodeDate = $request->periode . '-01';
 
-        // ← Scope per type + periode
-        $plan = $request->filled('plan')
-            ? $request->plan
-            : Collection::where('type', $request->type)
-                ->where('periode', $periodeDate)
-                ->where('is_latest', true)
-                ->value('plan');
-
-        $commitment = $request->filled('commitment')
-            ? $request->commitment
-            : Collection::where('type', $request->type)
-                ->where('periode', $periodeDate)
-                ->where('is_latest', true)
-                ->value('commitment');
-
-        $lastRealRow = Collection::where('type', $request->type)
+        $existing = Collection::where('type', $request->type)
             ->where('periode', $periodeDate)
-            ->where('is_latest', true)
+            ->where('kondisi', $request->kondisi)
+            ->orderBy('created_at', 'desc')
             ->first();
 
-        $realRatio     = $request->filled('real_ratio') ? $request->real_ratio : ($lastRealRow->real_ratio ?? null);
-        $realUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
+        $plan      = $request->filled('plan')      ? $request->plan      : ($existing->plan      ?? null);
+        $ol_fm     = $request->filled('ol_fm')     ? $request->ol_fm     : ($existing->ol_fm     ?? null);
+        $commitment= $request->filled('commitment')? $request->commitment : ($existing->commitment?? null);
 
-        DB::transaction(function () use ($request, $periodeDate, $plan, $commitment, $realRatio, $realUpdatedAt) {
-            // ← Scope is_latest per type + periode
-            Collection::where('type', $request->type)
-                ->where('periode', $periodeDate)
-                ->update(['is_latest' => false]);
+        $realRatio     = $request->filled('real_ratio') ? $request->real_ratio    : ($existing->real_ratio     ?? null);
+        $realUpdatedAt = $request->filled('real_ratio') ? now()                   : ($existing->real_updated_at ?? null);
 
-            Collection::create([
-                'user_id'         => Auth::id(),
-                'type'            => $request->type,
-                'periode'         => $periodeDate,
-                'status'          => $request->status,
-                'is_latest'       => true,
-                'plan'            => $plan,
-                'commitment'      => $commitment,
-                'real_ratio'      => $realRatio,
-                'real_updated_at' => $realUpdatedAt,
-            ]);
-        });
+        // Hapus is_latest record lama kondisi yang sama saja
+        Collection::where('type', $request->type)
+            ->where('periode', $periodeDate)
+            ->where('kondisi', $request->kondisi)
+            ->update(['is_latest' => false]);
+
+        Collection::create([
+            'user_id'         => Auth::id(),
+            'type'            => $request->type,
+            'kondisi'         => $request->kondisi,
+            'periode'         => $periodeDate,
+            'status'          => $request->status,
+            'is_latest'       => true,
+            'plan'            => $plan,
+            'ol_fm'           => $ol_fm,
+            'commitment'      => $commitment,
+            'real_ratio'      => $realRatio,
+            'real_updated_at' => $realUpdatedAt,
+        ]);
 
         return back()->with('success', 'Data berhasil disimpan');
     }
