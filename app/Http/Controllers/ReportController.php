@@ -96,7 +96,12 @@ class ReportController extends Controller
 
         // UTIP Corrective — ambil record terbaru dalam periode filter
         $utipCorRows = Collection::where('type', 'UTIP Corrective')
-            ->where('is_latest', true)
+            ->whereIn('id', function($q) {
+                $q->selectRaw('MAX(id)')
+                ->from('collections')
+                ->where('type', 'UTIP Corrective')
+                ->groupBy('kondisi', 'periode');
+            })
             ->get();
 
         $utipCorPlan = $utipCorRows->sum(fn($r) => $toFloat($r->plan));
@@ -138,7 +143,12 @@ class ReportController extends Controller
 
         foreach ($periodes as $p) {
             $rows = Collection::where('type', $p['type'])
-                ->where('is_latest', true)
+                ->whereIn('id', function($q) use ($p) {
+                    $q->selectRaw('MAX(id)')
+                    ->from('collections')
+                    ->where('type', $p['type'])
+                    ->groupBy('kondisi', 'periode');
+                })
                 ->get();
 
             $planRaw = $rows->sum(fn($r) => $toFloat($r->plan));
@@ -1187,10 +1197,16 @@ public function utipDetail(Request $request)
 
     // Ambil 1 record terbaru per kondisi (is_latest = true)
     $rows = \App\Models\Collection::where('type', $typeLabel)
-        ->where('periode', $periodeDate)
-        ->where('is_latest', true)
-        ->orderBy('kondisi')
-        ->get();
+    ->where('periode', $periodeDate)
+    ->whereIn('id', function($q) use ($typeLabel, $periodeDate) {
+        $q->selectRaw('MAX(id)')
+          ->from('collections')
+          ->where('type', $typeLabel)
+          ->where('periode', $periodeDate)
+          ->groupBy('kondisi');
+    })
+    ->orderBy('kondisi')
+    ->get();
 
     return view('report.utip_detail', compact(
         'typeLabel', 'periodeLabel', 'rows'

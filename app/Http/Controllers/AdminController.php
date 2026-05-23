@@ -320,9 +320,9 @@ class AdminController extends Controller
 
     public function utipTable(Request $request)
     {
+        // Ambil submit_token terbaru
         $query = Collection::with('user')
             ->where('type', 'like', '%UTIP%')
-            ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
             ->orderBy('created_at', 'desc');
 
         // if ($request->filled('user'))  $query->where('user_id', $request->user);
@@ -371,56 +371,103 @@ class AdminController extends Controller
         ));
     }
 
-    public function utipStore(Request $request)
-    {
-        $request->validate([
-            'status'     => 'required|in:active,inactive',
-            'periode'    => 'required|date_format:Y-m',
-            'type'       => 'required|string',
-            'kondisi'    => 'required|string',
-            'plan'       => 'nullable|numeric',
-            'ol_fm'      => 'nullable|numeric',
-            'commitment' => 'nullable|string',
-            'real_ratio' => 'nullable|string',
-        ]);
+public function utipStore(Request $request)
+{
+    $request->validate([
+        'status'  => 'required|in:active,inactive',
+        'periode' => 'required|date_format:Y-m',
+        'type'    => 'required|string',
+        'file'    => 'required|file|max:10240',
 
-        $periodeDate = $request->periode . '-01';
+        // kondisi 1-7 wajib ada nilainya (plan minimal)
+        'kondisi'   => 'required|array|size:7',
+        'kondisi.*' => 'required|string',
+        'plan'      => 'required|array|size:7',
+        'plan.*'    => 'nullable|numeric',
+        'real_ratio'=> 'required|array|size:7',
+        'real_ratio.*' => 'nullable|numeric',
+        'ol_fm'     => 'required|array|size:7',
+        'ol_fm.*'   => 'nullable|numeric',
+    ]);
 
+    $periodeDate = $request->periode . '-01';
+
+    // Cek apakah ini update atau input baru
+    $isUpdate = Collection::where('type', $request->type)
+        ->where('periode', $periodeDate)
+        ->where('is_latest', true)
+        ->exists();
+
+    // Kalau input baru, semua plan wajib diisi
+    if (!$isUpdate) {
+        $allFilled = collect($request->plan)->filter(fn($v) => $v !== null && $v !== '')->count() === 7;
+        if (!$allFilled) {
+            return back()->withErrors(['plan' => 'Input baru wajib mengisi semua Total Populasi untuk 7 kondisi.'])->withInput();
+        }
+    }
+
+    // Upload file
+    $submitToken = \Illuminate\Support\Str::uuid()->toString();
+    $filePath = null;
+    $fileName = null;
+    if ($request->hasFile('file')) {
+        $file     = $request->file('file');
+        $fileName = $file->getClientOriginalName();
+        $filePath = $file->store('utip_files', 'public');
+    }
+
+    // Simpan per kondisi
+    foreach ($request->kondisi as $idx => $kondisiName) {
         $existing = Collection::where('type', $request->type)
             ->where('periode', $periodeDate)
-            ->where('kondisi', $request->kondisi)
+            ->where('kondisi', $kondisiName)
             ->orderBy('created_at', 'desc')
             ->first();
 
-        $plan      = $request->filled('plan')      ? $request->plan      : ($existing->plan      ?? null);
-        $ol_fm     = $request->filled('ol_fm')     ? $request->ol_fm     : ($existing->ol_fm     ?? null);
-        $commitment= $request->filled('commitment')? $request->commitment : ($existing->commitment?? null);
+        $plan      = ($request->plan[$idx] !== null && $request->plan[$idx] !== '')
+                        ? $request->plan[$idx]
+                        : ($existing->plan ?? null);
+        $realRatio = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '')
+                        ? $request->real_ratio[$idx]
+                        : ($existing->real_ratio ?? null);
+        $olFm      = ($request->ol_fm[$idx] !== null && $request->ol_fm[$idx] !== '')
+                        ? $request->ol_fm[$idx]
+                        : ($existing->ol_fm ?? null);
 
-        $realRatio     = $request->filled('real_ratio') ? $request->real_ratio    : ($existing->real_ratio     ?? null);
-        $realUpdatedAt = $request->filled('real_ratio') ? now()                   : ($existing->real_updated_at ?? null);
+        $realUpdatedAt = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '')
+                        ? now()
+                        : ($existing->real_updated_at ?? null);
 
-        // Hapus is_latest record lama kondisi yang sama saja
-        Collection::where('type', $request->type)
-            ->where('periode', $periodeDate)
-            ->where('kondisi', $request->kondisi)
-            ->update(['is_latest' => false]);
+        // Skip kondisi yang tidak diisi sama sekali
+        $planVal = ($request->plan[$idx] !== null && $request->plan[$idx] !== '') ? $request->plan[$idx] : null;
+        $realVal = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '') ? $request->real_ratio[$idx] : null;
+        $olFmVal = ($request->ol_fm[$idx] !== null && $request->ol_fm[$idx] !== '') ? $request->ol_fm[$idx] : null;
 
+        // Kalau semua kosong, skip — tidak perlu simpan
+        if (is_null($planVal) && is_null($realVal) && is_null($olFmVal)) {
+            continue;
+        }
+
+        // Tidak set is_latest lama, langsung insert saja
         Collection::create([
             'user_id'         => Auth::id(),
             'type'            => $request->type,
-            'kondisi'         => $request->kondisi,
+            'kondisi'         => $kondisiName,
             'periode'         => $periodeDate,
             'status'          => $request->status,
             'is_latest'       => true,
-            'plan'            => $plan,
-            'ol_fm'           => $ol_fm,
-            'commitment'      => $commitment,
-            'real_ratio'      => $realRatio,
-            'real_updated_at' => $realUpdatedAt,
+            'plan'            => $planVal ?? ($existing->plan ?? null),
+            'ol_fm'           => $olFmVal ?? ($existing->ol_fm ?? null),
+            'real_ratio'      => $realVal ?? ($existing->real_ratio ?? null),
+            'real_updated_at' => !is_null($realVal) ? now() : ($existing->real_updated_at ?? null),
+            'file_path'       => $filePath,
+            'file_name'       => $fileName,
+            'submit_token'    => $submitToken,
         ]);
-
-        return back()->with('success', 'Data berhasil disimpan');
     }
+
+    return back()->with('success', 'Data UTIP berhasil disimpan');
+}
 
     public function ctcTable(Request $request)
     {

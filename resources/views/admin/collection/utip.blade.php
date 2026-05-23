@@ -83,114 +83,134 @@
                         <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">Input Data Collection UTIP</h2>
                     </div>
 
-                    <form action="{{ route('admin.utip.store') }}" method="POST">
-                        @csrf
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 mb-6">
-                            <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">User</label>
+                    <form action="{{ route('admin.utip.store') }}" method="POST" enctype="multipart/form-data">
+    @csrf
 
-                                {{-- Tampilkan nama user login --}}
-                                <input type="text" value="{{ auth()->user()->name }}"
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 bg-slate-100"
-                                    readonly>
+    {{-- Error --}}
+    @if($errors->any())
+        <div class="mb-4 bg-red-50 border border-red-200 text-red-700 px-5 py-3 rounded-xl text-sm font-semibold">
+            <ul class="list-disc list-inside space-y-1">
+                @foreach($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
 
-                                {{-- Hidden input untuk kirim user_id --}}
-                                <input type="hidden" name="user_id" value="{{ auth()->id() }}">
-                            </div>
+    {{-- BARIS 1: User, Periode, Status, Tipe --}}
+    <div class="grid grid-cols-4 gap-5 mb-5">
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">User</label>
+            <input type="text" value="{{ auth()->user()->name }}"
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 bg-slate-100"
+                readonly>
+            <input type="hidden" name="user_id" value="{{ auth()->id() }}">
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
+            <input type="month" name="periode" required value="{{ date('Y-m') }}"
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-white">
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Status</label>
+            <select name="status" required
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 bg-white">
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Tipe</label>
+            <select name="type" required
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 bg-white">
+                <option value="UTIP Corrective">UTIP Corrective</option>
+                <option value="New UTIP Jul 2025">New UTIP Jul 2025</option>
+                <option value="New UTIP Aug 2025">New UTIP Aug 2025</option>
+                <option value="New UTIP Sep 2025">New UTIP Sep 2025</option>
+                <option value="New UTIP Okt 2025">New UTIP Okt 2025</option>
+                <option value="New UTIP Nov 2025">New UTIP Nov 2025</option>
+                <option value="New UTIP Des 2025">New UTIP Des 2025</option>
+                <option value="New UTIP Jan 2026">New UTIP Jan 2026</option>
+                <option value="New UTIP Feb 2026">New UTIP Feb 2026</option>
+                <option value="New UTIP Mar 2026">New UTIP Mar 2026</option>
+                <option value="New UTIP Apr 2026">New UTIP Apr 2026</option>
+                <option value="New UTIP Mei 2026">New UTIP Mei 2026</option>
+                <option value="New UTIP Jun 2026">New UTIP Jun 2026</option>
+                <option value="New UTIP Jul 2026">New UTIP Jul 2026</option>
+                <option value="New UTIP Aug 2026">New UTIP Aug 2026</option>
+                <option value="New UTIP Sep 2026">New UTIP Sep 2026</option>
+                <option value="New UTIP Okt 2026">New UTIP Okt 2026</option>
+                <option value="New UTIP Nov 2026">New UTIP Nov 2026</option>
+                <option value="New UTIP Des 2026">New UTIP Des 2026</option>
+            </select>
+        </div>
+    </div>
 
-                            <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Periode</label>
-                                <input type="month" name="periode" required value="{{ date('Y-m') }}"
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                                @error('periode')
-                                    <p class="mt-1 text-xs text-red-500">{{ $message }}</p>
-                                @enderror
-                            </div>
-                            <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Status</label>
-                                <select name="status" required
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                                    <option value="active">Active</option>
-                                    <option value="inactive">Inactive</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Tipe</label>
-                                <select name="type" required
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                                    <option value="UTIP Corrective">UTIP Corrective</option>
-                                    <option value="New UTIP Jul 2025">New UTIP Jul 2025</option>
-                                    <option value="New UTIP Aug 2025">New UTIP Aug 2025</option>
-                                    <option value="New UTIP Sep 2025">New UTIP Sep 2025</option>
-                                    <option value="New UTIP Okt 2025">New UTIP Okt 2025</option>
-                                    <option value="New UTIP Nov 2025">New UTIP Nov 2025</option>
-                                    <option value="New UTIP Des 2025">New UTIP Des 2025</option>
-                                    <option value="New UTIP Jan 2026">New UTIP Jan 2026</option>
-                                    <option value="New UTIP Feb 2026">New UTIP Feb 2026</option>
-                                    <option value="New UTIP Mar 2026">New UTIP Mar 2026</option>
-                                    <option value="New UTIP Apr 2026">New UTIP Apr 2026</option>
-                                    <option value="New UTIP Mei 2026">New UTIP Mei 2026</option>
-                                    <option value="New UTIP Jun 2026">New UTIP Jun 2026</option>
-                                    <option value="New UTIP Jul 2026">New UTIP Jul 2026</option>
-                                    <option value="New UTIP Aug 2026">New UTIP Aug 2026</option>
-                                    <option value="New UTIP Sep 2026">New UTIP Sep 2026</option>
-                                    <option value="New UTIP Okt 2026">New UTIP Okt 2026</option>
-                                    <option value="New UTIP Nov 2026">New UTIP Nov 2026</option>
-                                    <option value="New UTIP Des 2026">New UTIP Des 2026</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Kondisi</label>
-                                <select name="kondisi" required
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors bg-white">
-                                    <option value="" disabled selected>Pilih Kondisi</option>
-                                    <option value="Sudah BC, Potensi Flag">1 Sudah BC, Potensi Flag</option>
-                                    <option value="Sudah BC, Over Payment">2 Sudah BC, Over Payment</option>
-                                    <option value="Sudah BC, Rekon Kontrak & Tunggakan">3 Sudah BC, Rekon Kontrak & Tunggakan</option>
-                                    <option value="Sudah BC, Deposit">4 Sudah BC, Deposit</option>
-                                    <option value="Sudah BC, Pembayaran Kurang">5 Sudah BC, Pembayaran Kurang</option>
-                                    <option value="Belum BC, Late Input">6 Belum BC, Late Input</option>
-                                    <option value="Belum teridentifikasi">7 Belum teridentifikasi</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label
-                                    class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Total Populasi</label>
-                                <input type="number" step="1" name="plan" placeholder="cth: 1500"
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Flag sd Hari Ini</label>
-                                <input type="number" step="1" name="real_ratio" placeholder="cth: 800"
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                            </div>
-                            <div>
-                                <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Outlook Full Month</label>
-                                <input type="number" step="1" name="ol_fm" placeholder="cth: 200"
-                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
-                            </div>
-                        </div>
+    {{-- BARIS KONDISI: header --}}
+    <div class="grid grid-cols-4 gap-5 mb-2">
+        <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Kondisi</div>
+        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-right">Total Populasi</div>
+        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-right">Flag sd HI</div>
+        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-right">OL FM</div>
+    </div>
 
-                        <div class="flex justify-end space-x-3">
-                            <button type="reset"
-                                class="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-5 py-2.5 rounded-lg transition-all duration-200 uppercase tracking-wider">
-                                <span>Reset</span>
-                            </button>
-                            <button type="submit"
-                                class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-2.5 rounded-lg transition-all duration-200 uppercase tracking-wider">
-                                <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                        d="M5 13l4 4L19 7" />
-                                </svg>
-                                <span>Simpan Data</span>
-                            </button>
-                        </div>
-                    </form>
+    @php
+    $kondisiList = [
+        'Sudah BC, Potensi Flag',
+        'Sudah BC, Over Payment',
+        'Sudah BC, Rekon Kontrak & Tunggakan',
+        'Sudah BC, Deposit',
+        'Sudah BC, Pembayaran Kurang',
+        'Belum BC, Late Input',
+        'Belum teridentifikasi',
+    ];
+    @endphp
+
+    @foreach($kondisiList as $idx => $kondisiName)
+    <div class="grid grid-cols-4 gap-5 mb-3 items-center">
+        <input type="hidden" name="kondisi[{{ $idx }}]" value="{{ $kondisiName }}">
+        <div class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 bg-slate-100 flex items-center space-x-2.5">
+            <span class="text-sm font-black text-slate-400">{{ $idx + 1 }}</span>
+            <span class="text-sm font-semibold text-slate-800">{{ $kondisiName }}</span>
+        </div>
+        <div>
+            <input type="number" step="1" name="plan[{{ $idx }}]"
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
+        </div>
+        <div>
+            <input type="number" step="1" name="real_ratio[{{ $idx }}]"
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
+        </div>
+        <div>
+            <input type="number" step="1" name="ol_fm[{{ $idx }}]"
+                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
+        </div>
+    </div>
+    @endforeach
+
+    {{-- Upload File --}}
+    <div class="mt-5 pt-5 border-t border-slate-100">
+        <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Upload File <span class="text-red-500">*</span></label>
+        <input type="file" name="file" required
+            class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:border-red-400 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white hover:file:bg-red-600">
+        <p class="text-xs text-slate-400 mt-1">Wajib upload file setiap input data.</p>
+    </div>
+
+    {{-- Tombol --}}
+    <div class="flex justify-end space-x-3 mt-6">
+        <button type="reset"
+            class="flex items-center space-x-2 bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold text-xs px-5 py-2.5 rounded-lg transition-all uppercase tracking-wider">
+            <span>Reset</span>
+        </button>
+        <button type="submit"
+            class="flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-2.5 rounded-lg transition-all uppercase tracking-wider">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
+            </svg>
+            <span>Simpan Data</span>
+        </button>
+    </div>
+</form>
                 </div>
             </div>
 

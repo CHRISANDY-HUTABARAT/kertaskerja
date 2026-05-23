@@ -15,6 +15,9 @@ class Collection extends Model
     'user_id', 'type', 'status', 'segment', 'kondisi',
     'periode', 'plan', 'ol_fm', 'commitment', 'real_ratio', 'is_latest',
     'real_updated_at',
+    'file_path',
+    'file_name',
+    'submit_token',
 ];
 
     /**

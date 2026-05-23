@@ -118,6 +118,10 @@ $rowMap = $rows->keyBy('kondisi');
                     $populasi = $row ? (float) ($row->plan ?? 0) : null;
                     $flagHi   = $row ? (float) ($row->real_ratio ?? 0) : null;
                     $olFm     = $row ? (float) ($row->ol_fm ?? 0) : null;
+                    // Cek apakah field memang diisi (termasuk nilai 0) atau memang null
+                    $populasiSet = $row && $row->plan !== null;
+                    $flagHiSet   = $row && $row->real_ratio !== null;
+                    $olFmSet     = $row && $row->ol_fm !== null;
                     $sisa     = (!is_null($populasi) && !is_null($olFm)) ? $populasi - $olFm : null;
                     $ach      = (!is_null($populasi) && $populasi > 0 && !is_null($flagHi))
                                 ? ($flagHi / $populasi) * 100 : null;
@@ -134,13 +138,13 @@ $rowMap = $rows->keyBy('kondisi');
                         <span class="text-xs font-bold text-slate-700">{{ $kondisiName }}</span>
                     </td>
                     <td class="px-4 py-3 text-right font-black text-slate-800 border-r border-slate-100 tabular-nums text-sm">
-                        {{ !is_null($populasi) && $populasi > 0 ? number_format($populasi, 0, ',', '.') : '—' }}
+                        {{ $populasiSet ? number_format($populasi, 0, ',', '.') : '—' }}
                     </td>
                     <td class="px-4 py-3 text-right font-black text-red-600 border-r border-slate-100 tabular-nums text-sm">
-                        {{ !is_null($flagHi) && $flagHi > 0 ? number_format($flagHi, 0, ',', '.') : '—' }}
+                        {{ $flagHiSet ? number_format($flagHi, 0, ',', '.') : '—' }}
                     </td>
                     <td class="px-4 py-3 text-right font-semibold text-slate-600 border-r border-slate-100 tabular-nums text-sm">
-                        {{ !is_null($olFm) && $olFm > 0 ? number_format($olFm, 0, ',', '.') : '—' }}
+                        {{ $olFmSet ? number_format($olFm, 0, ',', '.') : '—' }}
                     </td>
                     <td class="px-4 py-3 text-right border-r border-slate-100 {{ $achBg }}">
                         <span class="font-black text-sm {{ $achColor }}">
