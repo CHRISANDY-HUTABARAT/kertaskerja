@@ -150,8 +150,8 @@
     <div class="grid grid-cols-4 gap-5 mb-2">
         <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Kondisi</div>
         <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">Total Populasi</div>
-        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">Flag sd HI</div>
-        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">OL FM</div>
+        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">Flag sd Hari Ini</div>
+        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">Outlook Full Month</div>
     </div>
 
     @php
