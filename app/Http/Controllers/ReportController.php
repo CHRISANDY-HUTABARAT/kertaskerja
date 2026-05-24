@@ -110,9 +110,9 @@ class ReportController extends Controller
 
         $utipCorrective = [
             'label'      => 'UTIP Corrective',
-            'planRp'     => round($utipCorPlan / 1000000, 2),
-            'commitRp'   => round($utipCorPlan / 1000000, 2),
-            'realRp'     => round($utipCorReal / 1000000, 2),
+            'planRp'     => $utipCorRows->isEmpty() ? null : round($utipCorPlan / 1000000, 2),
+            'commitRp'   => $utipCorRows->isEmpty() ? null : round($utipCorPlan / 1000000, 2),
+            'realRp'     => $utipCorRows->isEmpty() ? null : round($utipCorReal / 1000000, 2),
             'updated_at' => $utipCorUpdated?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
@@ -170,9 +170,9 @@ class ReportController extends Controller
 
             $newUtipPeriodes[] = [
                 'label'      => $p['label'],
-                'planRp'     => round($planRaw / 1000000, 2),
-                'commitRp'   => round(($planRaw * $commitMultiplier) / 1000000, 2),  // ← was: $row->commitment
-                'realRp'     => $realRp,
+                'planRp'     => $rows->isEmpty() ? null : round($planRaw / 1000000, 2),
+                'commitRp'   => $rows->isEmpty() ? null : round(($planRaw * $commitMultiplier) / 1000000, 2),
+                'realRp'     => $rows->isEmpty() ? null : $realRp,
                 'updated_at' => $rowUpdated?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }

@@ -392,19 +392,10 @@ public function utipStore(Request $request)
 
     $periodeDate = $request->periode . '-01';
 
-    // Cek apakah ini update atau input baru
     $isUpdate = Collection::where('type', $request->type)
         ->where('periode', $periodeDate)
         ->where('is_latest', true)
         ->exists();
-
-    // Kalau input baru, semua plan wajib diisi
-    if (!$isUpdate) {
-        $allFilled = collect($request->plan)->filter(fn($v) => $v !== null && $v !== '')->count() === 7;
-        if (!$allFilled) {
-            return back()->withErrors(['plan' => 'Input baru wajib mengisi semua Total Populasi untuk 7 kondisi.'])->withInput();
-        }
-    }
 
     // Upload file
     $submitToken = \Illuminate\Support\Str::uuid()->toString();
@@ -448,7 +439,6 @@ public function utipStore(Request $request)
             continue;
         }
 
-        // Tidak set is_latest lama, langsung insert saja
         Collection::create([
             'user_id'         => Auth::id(),
             'type'            => $request->type,
@@ -928,7 +918,7 @@ public function utipStore(Request $request)
         ]);
 
         Ctc::create([
-            'user_id'    => Auth::id(),          // otomatis user login
+            'user_id'    => Auth::id(),
             'status'     => $request->status,
             'segment'    => $request->segment,
             'commitment' => $request->commitment,

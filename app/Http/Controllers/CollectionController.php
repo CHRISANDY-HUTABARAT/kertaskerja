@@ -340,7 +340,6 @@ class CollectionController extends Controller
     {
         $currentDate = Carbon::now();
 
-        // ← Tambahkan filter whereYear + whereMonth periode
         $utips = Collection::where('type', 'like', '%UTIP%')
             ->where('is_latest', true)
             ->where('status', 'active')
@@ -357,7 +356,7 @@ class CollectionController extends Controller
             ->toArray();
 
         $query = Collection::where('type', 'like', '%UTIP%')
-            ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
+            ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('tipe'))  $query->where('type', $request->tipe);
@@ -373,7 +372,6 @@ class CollectionController extends Controller
 
         $activities = $query->paginate(10)->withQueryString();
 
-        // ← fix: tahun dari periode
         $tahuns = Collection::where('type', 'like', '%UTIP%')
             ->selectRaw('YEAR(periode) as tahun')
             ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
@@ -386,7 +384,6 @@ class CollectionController extends Controller
         $selectedTahun = $request->tahun;
         $selectedCari  = $request->cari;
 
-        // ← hapus $hasMonthlyCommitment dari compact
         return view('dashboard.collection.utip', compact(
             'activities', 'utips', 'lockedTypes',
             'tahuns', 'tipes', 'selectedTipe', 'selectedBulan', 'selectedTahun', 'selectedCari'
@@ -396,39 +393,78 @@ class CollectionController extends Controller
     public function storeUtipRealisasi(Request $request)
     {
         $request->validate([
-            'ratio_aktual' => 'required|numeric',
+            'status'       => 'required|in:active,inactive',
+            'periode'      => 'required|date_format:Y-m',
             'type'         => 'required|string',
+            'file'         => 'required|file|max:10240',
+            'kondisi'      => 'required|array|size:7',
+            'kondisi.*'    => 'required|string',
+            'plan'         => 'required|array|size:7',
+            'plan.*'       => 'nullable|numeric',
+            'real_ratio'   => 'required|array|size:7',
+            'real_ratio.*' => 'nullable|numeric',
+            'ol_fm'        => 'required|array|size:7',
+            'ol_fm.*'      => 'nullable|numeric',
         ]);
 
+        $periodeDate = $request->periode . '-01';
+
+        $isUpdate = Collection::where('type', $request->type)
+            ->where('periode', $periodeDate)
+            ->where('is_latest', true)
+            ->exists();
+
+        // Cek status locked
         $latest = Collection::where('type', $request->type)
             ->where('is_latest', true)
             ->first();
 
-        abort_if(!$latest, 422, 'Tipe UTIP ini belum memiliki data aktif.');
-
-        // ← Tambahkan pengecekan status
-        if ($latest->status === 'inactive') {
+        if ($latest && $latest->status === 'inactive') {
             return back()->with('error', 'Tipe UTIP ini sudah dinonaktifkan. Realisasi tidak dapat disimpan.');
         }
 
-        DB::transaction(function () use ($request, $latest) {
-            Collection::where('type', $request->type)
-                ->where('periode', $latest->periode)
-                ->update(['is_latest' => false]);
+        $submitToken = \Illuminate\Support\Str::uuid()->toString();
+        $filePath = null;
+        $fileName = null;
+        if ($request->hasFile('file')) {
+            $file     = $request->file('file');
+            $fileName = $file->getClientOriginalName();
+            $filePath = $file->store('utip_files', 'public');
+        }
+
+        foreach ($request->kondisi as $idx => $kondisiName) {
+            $existing = Collection::where('type', $request->type)
+                ->where('periode', $periodeDate)
+                ->where('kondisi', $kondisiName)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $planVal   = ($request->plan[$idx] !== null && $request->plan[$idx] !== '') ? $request->plan[$idx] : null;
+            $realVal   = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '') ? $request->real_ratio[$idx] : null;
+            $olFmVal   = ($request->ol_fm[$idx] !== null && $request->ol_fm[$idx] !== '') ? $request->ol_fm[$idx] : null;
+
+            if (is_null($planVal) && is_null($realVal) && is_null($olFmVal)) {
+                continue;
+            }
 
             Collection::create([
                 'user_id'         => Auth::id(),
                 'type'            => $request->type,
-                'periode'         => $latest->periode,
+                'kondisi'         => $kondisiName,
+                'periode'         => $periodeDate,
+                'status'          => $request->status,
                 'is_latest'       => true,
-                'plan'            => $latest->plan,
-                'commitment'      => $latest->commitment,
-                'real_ratio'      => $request->ratio_aktual,
-                'real_updated_at' => now(),
+                'plan'            => $planVal ?? ($existing->plan ?? null),
+                'ol_fm'           => $olFmVal ?? ($existing->ol_fm ?? null),
+                'real_ratio'      => $realVal ?? ($existing->real_ratio ?? null),
+                'real_updated_at' => !is_null($realVal) ? now() : ($existing->real_updated_at ?? null),
+                'file_path'       => $filePath,
+                'file_name'       => $fileName,
+                'submit_token'    => $submitToken,
             ]);
-        });
+        }
 
-        return redirect()->back()->with('success', 'UTIP Realisasi berhasil disimpan');
+        return back()->with('success', 'Data UTIP berhasil disimpan');
     }
 
     /**
