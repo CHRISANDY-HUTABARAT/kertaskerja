@@ -149,9 +149,9 @@
     {{-- BARIS KONDISI: header --}}
     <div class="grid grid-cols-4 gap-5 mb-2">
         <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Kondisi</div>
-        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-right">Total Populasi</div>
-        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-right">Flag sd HI</div>
-        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-right">OL FM</div>
+        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">Total Populasi</div>
+        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">Flag sd HI</div>
+        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">OL FM</div>
     </div>
 
     @php
@@ -228,13 +228,13 @@
                             <thead>
                                 <tr class="bg-slate-50 border-b border-slate-100">
                                     <th class="px-6 py-3 text-left text-[10px] font-black text-slate-400 uppercase tracking-widest">Tipe</th>
-<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
-<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Kondisi</th>
-<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Populasi</th>
-<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Flag sd HI</th>
-<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">OL FM</th>
-<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-<th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Periode</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Kondisi</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Total Populasi</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Flag sd HI</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">OL FM</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
+                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">

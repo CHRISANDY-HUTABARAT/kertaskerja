@@ -995,6 +995,24 @@
     #export-progress-bar { height:100%;background:#ef4444;border-radius:99px;transition:width 0.3s;width:0%; }
     .export-spinner { width:36px;height:36px;border:4px solid rgba(255,255,255,0.3);border-top-color:white;border-radius:50%;animation:espin 0.8s linear infinite; }
     @keyframes espin { to { transform:rotate(360deg); } }
+    .utip-detail-dropdown { position:relative; display:inline-block; }
+    .utip-detail-menu {
+        display:none; position:absolute; right:0; top:100%;
+        background:white; border:1px solid #e2e8f0; border-radius:8px;
+        box-shadow:0 4px 12px rgba(0,0,0,0.12); min-width:160px;
+        z-index:9999; overflow:hidden; margin-top:4px;
+    }
+    .utip-detail-menu.open { display:block; }
+    .utip-detail-menu a, .utip-detail-menu button {
+        display:flex; align-items:center; gap:8px;
+        width:100%; padding:8px 14px; font-size:11px; font-weight:700;
+        text-transform:uppercase; letter-spacing:0.05em;
+        color:#334155; background:none; border:none; cursor:pointer;
+        text-decoration:none; white-space:nowrap;
+    }
+    .utip-detail-menu a:hover, .utip-detail-menu button:hover {
+        background:#f8fafc; color:#dc2626;
+    }
     #export-root {
         position:fixed;left:-99999px;top:0;z-index:-1;background:white;
         font-family:'Inter','Noto Sans',Arial,sans-serif!important;
@@ -1097,40 +1115,123 @@
         { id:'scaling-row-sme-qualified',    href:'{{ $scalingDetailRoutes['sme']['qualified'] }}' },
         { id:'scaling-row-sme-initiate',     href:'{{ $scalingDetailRoutes['sme']['initiate'] }}' },
         { id:'scaling-row-sme-koreksi',      href:'{{ $scalingDetailRoutes['sme']['koreksi'] }}' },
-        { id:'utip-row-corrective', href:'{{ $utipDetailRoutes['corrective'] }}' },
-            @foreach($newUtipPeriodes as $utip)
-            @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
-            { id:'utip-row-{{ $utipSlug }}', href:'{{ $utipDetailRoutes[$utipSlug] ?? '' }}' },
-            @endforeach
+        { id:'utip-row-corrective', href:'{{ $utipDetailRoutes['corrective'] }}', download:'{{ $utipDownloadRoutes['corrective'] }}', hasFile:{{ $utipHasFile['corrective'] ? 'true' : 'false' }} },
+        @foreach($newUtipPeriodes as $utip)
+        @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
+        { id:'utip-row-{{ $utipSlug }}', href:'{{ $utipDetailRoutes[$utipSlug] ?? '' }}', download:'{{ $utipDownloadRoutes[$utipSlug] ?? '' }}', hasFile:{{ ($utipHasFile[$utipSlug] ?? false) ? 'true' : 'false' }} },
+        @endforeach
         { id:'ngtma-row-gov',     href:'{{ $ngtmaDetailRoutes['gov'] }}' },
         { id:'ngtma-row-private', href:'{{ $ngtmaDetailRoutes['private'] }}' },
         { id:'ngtma-row-soe',     href:'{{ $ngtmaDetailRoutes['soe'] }}' },
         { id:'ngtma-row-sme',     href:'{{ $ngtmaDetailRoutes['sme'] }}' },
     ];
 
-    function renderDetailButtons() {
-        var container = document.getElementById('scaling-detail-btns');
-        if (!container) return;
-        var wrapper = container.closest('.overflow-x-auto');
-        if (!wrapper) return;
-        var table = wrapper.querySelector('table');
-        if (!table) return;
-        container.innerHTML = '';
-        container.style.pointerEvents = 'none';
-        var tableRight = table.offsetWidth + 6;
-        var containerTopInScroll = table.offsetTop + table.offsetHeight;
-        detailRoutes.forEach(function(g) {
-            var tr = document.getElementById(g.id);
-            if (!tr) return;
-            var btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight/2) - 10 - containerTopInScroll;
-            var btn = document.createElement('a');
-            btn.href = g.href; btn.textContent = 'detail';
-            btn.style.cssText = 'position:absolute;left:'+(tableRight+6)+'px;top:'+btnTop+'px;display:inline-flex;align-items:center;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;text-decoration:none;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);pointer-events:all;z-index:50;';
-            btn.onmouseenter=function(){this.style.background='#dc2626';};
-            btn.onmouseleave=function(){this.style.background='#1e293b';};
-            container.appendChild(btn);
-        });
+    var utipRowIds = [
+    'utip-row-corrective',
+    @foreach($newUtipPeriodes as $utip)
+    @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
+    'utip-row-{{ $utipSlug }}',
+    @endforeach
+];
+
+function renderDetailButtons() {
+    var container = document.getElementById('scaling-detail-btns');
+    if (!container) return;
+    var wrapper = container.closest('.overflow-x-auto');
+    if (!wrapper) return;
+    var table = wrapper.querySelector('table');
+    if (!table) return;
+    container.innerHTML = '';
+    container.style.pointerEvents = 'none';
+    var tableRect  = table.getBoundingClientRect();
+    var wrapRect   = wrapper.getBoundingClientRect();
+    var tableRight = table.offsetWidth + 6;
+    var containerTopInScroll = table.offsetTop + table.offsetHeight;
+
+    detailRoutes.forEach(function(g) {
+        var tr = document.getElementById(g.id);
+        if (!tr) return;
+        var btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
+        var isUtip = utipRowIds.indexOf(g.id) !== -1;
+
+        if (isUtip) {
+            var wrap = document.createElement('div');
+            wrap.style.cssText = 'position:absolute;left:'+(tableRight+6)+'px;top:'+btnTop+'px;pointer-events:all;z-index:50;';
+
+            var btn = document.createElement('button');
+            btn.innerHTML = 'detail ▾';
+            btn.style.cssText = 'display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);border:none;cursor:pointer;';
+
+            var menu = document.createElement('div');
+            menu.style.cssText = 'display:none;position:fixed;background:white;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:155px;z-index:99999;overflow:hidden;';
+
+            var itemStyle = 'display:flex;align-items:center;gap:8px;padding:8px 13px;font-size:10px;font-weight:700;color:#334155;text-decoration:none;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;cursor:pointer;';
+
+            var linkDetail = document.createElement('a');
+            linkDetail.href = g.href;
+            linkDetail.innerHTML = 'Lihat Detail';
+            linkDetail.style.cssText = itemStyle;
+            linkDetail.onmouseover = function(){ this.style.background='#f8fafc'; this.style.color='#dc2626'; };
+            linkDetail.onmouseout  = function(){ this.style.background=''; this.style.color='#334155'; };
+
+            var linkDownload = document.createElement('a');
+                if (g.hasFile) {
+                    linkDownload.href = g.download + '&t=' + Date.now();
+                    linkDownload.innerHTML = 'Download File';
+                    linkDownload.style.cssText = itemStyle;
+                    linkDownload.onmouseover = function(){ this.style.background='#f8fafc'; this.style.color='#dc2626'; };
+                    linkDownload.onmouseout  = function(){ this.style.background=''; this.style.color='#334155'; };
+                } else {
+                    linkDownload.innerHTML = 'Download File';
+                    linkDownload.style.cssText = itemStyle + 'color:#94a3b8;cursor:not-allowed;pointer-events:none;';
+                    linkDownload.title = 'Belum ada file yang diupload';
+                }
+
+            menu.appendChild(linkDetail);
+            menu.appendChild(linkDownload);
+
+            btn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    var isOpen = menu.style.display === 'block';
+    document.querySelectorAll('.utip-floating-menu').forEach(function(m){ m.style.display='none'; });
+    document.querySelectorAll('.utip-dd-active').forEach(function(b){ b.style.background='#1e293b'; b.classList.remove('utip-dd-active'); });
+    if (!isOpen) {
+        // Posisikan menu pakai fixed — melekat di bawah tombol, melebar ke kiri
+        var rect = btn.getBoundingClientRect();
+        menu.style.display = 'block';
+        var menuWidth = menu.offsetWidth || 155;
+        menu.style.top  = (rect.bottom + 4) + 'px';
+        menu.style.left = (rect.right - menuWidth) + 'px';
+        btn.style.background = '#dc2626';
+        btn.classList.add('utip-dd-active');
     }
+});
+
+            menu.classList.add('utip-floating-menu');
+            wrap.appendChild(btn);
+            document.body.appendChild(menu);
+            container.appendChild(wrap);
+
+        } else {
+            var btnA = document.createElement('a');
+            btnA.href = g.href;
+            btnA.textContent = 'detail';
+            btnA.style.cssText = 'position:absolute;left:'+(tableRight+6)+'px;top:'+btnTop+'px;display:inline-flex;align-items:center;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;text-decoration:none;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);pointer-events:all;z-index:50;';
+            btnA.onmouseenter = function(){ this.style.background='#dc2626'; };
+            btnA.onmouseleave = function(){ this.style.background='#1e293b'; };
+            container.appendChild(btnA);
+        }
+    });
+}
+
+// Tutup menu kalau klik di luar
+document.addEventListener('click', function() {
+    document.querySelectorAll('.utip-floating-menu').forEach(function(m){ m.style.display='none'; });
+    // Reset warna tombol
+    document.querySelectorAll('[data-utip-btn]').forEach(function(b){ b.style.background='#1e293b'; });
+});
+
+
     function init(){ setTimeout(renderDetailButtons, 80); }
     if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
     window.addEventListener('resize', renderDetailButtons);
@@ -1552,5 +1653,26 @@
     updateTanggalOptions();
 })();
 </script>
-
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('click', function (e) {
+        var toggle = e.target.closest('.utip-dd-toggle');
+        if (toggle) {
+            e.stopPropagation();
+            var menu = toggle.nextElementSibling;
+            var isOpen = menu.style.display === 'block';
+            // Tutup semua
+            document.querySelectorAll('.utip-dd-menu').forEach(function(m) {
+                m.style.display = 'none';
+            });
+            menu.style.display = isOpen ? 'none' : 'block';
+            return;
+        }
+        // Klik di luar, tutup semua
+        document.querySelectorAll('.utip-dd-menu').forEach(function(m) {
+            m.style.display = 'none';
+        });
+    });
+});
+</script>
 @endsection

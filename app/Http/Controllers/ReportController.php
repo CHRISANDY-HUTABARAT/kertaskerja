@@ -727,12 +727,28 @@ class ReportController extends Controller
                 'periode' => $scalingPeriodeYm,
             ]),
         ];
+        $utipDownloadRoutes = [
+            'corrective' => route('report.utip.download', [
+                'type'    => 'UTIP Corrective',
+                'periode' => $scalingPeriodeYm,
+            ]),
+        ];
+        $utipHasFile = [
+            'corrective' => \App\Models\Collection::where('type', 'UTIP Corrective')
+                ->whereNotNull('file_path')->exists(),
+        ];
         foreach ($periodes as $p) {
             $slug = strtolower(str_replace(' ', '-', $p['type']));
             $utipDetailRoutes[$slug] = route('report.utip.detail', [
                 'type'    => $p['type'],
                 'periode' => $scalingPeriodeYm,
             ]);
+            $utipDownloadRoutes[$slug] = route('report.utip.download', [
+                'type'    => $p['type'],
+                'periode' => $scalingPeriodeYm,
+            ]);
+            $utipHasFile[$slug] = \App\Models\Collection::where('type', $p['type'])
+                ->whereNotNull('file_path')->exists();
         }
 
         return view('report.report', compact(
@@ -743,6 +759,8 @@ class ReportController extends Controller
             'utipCorrective',
             'newUtipPeriodes',
             'utipDetailRoutes',
+            'utipDownloadRoutes',
+            'utipHasFile',
             'ct0Data', 'ct0Score', 'ct0TotalReal',
             'ctcCt0Real', 'ctcCt0UpdatedAt','ctcData', 'lossRateReal', 'lossRateAch',
             'b1Data', 'b1Score',
@@ -1211,6 +1229,31 @@ public function utipDetail(Request $request)
     return view('report.utip_detail', compact(
         'typeLabel', 'periodeLabel', 'rows'
     ));
+}
+public function utipDownload(Request $request)
+{
+    $typeLabel = $request->input('type', '');
+    $periodeYm = $request->input('periode', Carbon::now()->format('Y-m'));
+
+    [$y, $m] = explode('-', $periodeYm);
+    $periodeDate = Carbon::createFromDate((int)$y, (int)$m, 1)->format('Y-m-d');
+
+    $record = \App\Models\Collection::where('type', $typeLabel)
+    ->whereNotNull('file_path')
+    ->orderBy('created_at', 'desc')
+    ->first();
+
+    if (!$record || !$record->file_path) {
+        abort(404, 'File tidak ditemukan.');
+    }
+
+    $fullPath = storage_path('app/public/' . $record->file_path);
+
+    if (!file_exists($fullPath)) {
+        abort(404, 'File tidak ditemukan di server.');
+    }
+
+    return response()->download($fullPath, $record->file_name ?? basename($record->file_path));
 }
 
 }

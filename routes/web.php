@@ -29,6 +29,7 @@ Route::middleware('auth')->group(function () {
     ->name('report.detail')
     ->middleware('auth');
     Route::get('/report/utip-detail', [ReportController::class, 'utipDetail'])->name('report.utip.detail');
+    Route::get('/report/utip-download', [ReportController::class, 'utipDownload'])->name('report.utip.download');
 
     // Home redirect
     // Route::get('/', function () {
