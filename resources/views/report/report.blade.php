@@ -588,7 +588,7 @@
                                 $upC      = scalingAchColor($upAchVal);
                             @endphp
                             <tr>
-                                <td class="border border-gray-400 px-2 py-1 font-semibold">g&nbsp;&nbsp;Upselling HSI</td>
+                                <td class="border border-gray-400 px-2 py-1 font-semibold">h&nbsp;&nbsp;Upselling HSI</td>
                                 <td class="border border-gray-400 px-2 py-1">Next Level HSI</td>
                                 <td class="border border-gray-400 text-center">Rp</td>
                                 <td class="border border-gray-400"></td>
@@ -610,7 +610,7 @@
                                 <td colspan="10" class="border border-gray-400 px-2 py-1 uppercase bg-gray-50">Collection</td>
                             </tr>
 
-                            @php $sectionRowspan = 1 + 1 + 4 + $utipRowspan; @endphp
+                            @php $sectionRowspan = 1 + 1 + 4 + $utipRowspan + $arRowspan; @endphp
 
                             <tr>
                                 <td rowspan="{{ $sectionRowspan }}" class="border border-gray-400"></td>
@@ -690,6 +690,26 @@
                                     <td class="border border-gray-400 px-2 text-right">{{ $utip['realRp'] !== null ? number_format($utip['realRp'], 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400 text-right font-bold {{ $colorAchU }}">{{ $achU }}</td>
                                     <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utip['updated_at'] ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+
+                            @foreach($arRows as $ai => $ar)
+                                <tr id="ar-row-{{ $ar['slug'] }}">
+                                    @if($ai === 0)
+                                        <td rowspan="{{ $arRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">e&nbsp;&nbsp;AR</td>
+                                    @endif
+                                    <td class="border border-gray-400 px-2 py-1">{{ $ar['label'] }}</td>
+                                    <td class="border border-gray-400 text-center">Rp</td>
+                                    <td class="border border-gray-400 px-2 text-right"></td>
+                                    <td class="border border-gray-400 px-2 text-right"></td>
+                                    <td class="border border-gray-400"></td>
+                                    <td class="border border-gray-400 px-2 text-right">{{ $ar['realRp'] !== null ? number_format($ar['realRp'], 2, ',', '.') : '' }}</td>
+                                    @if($ai === 0)
+                                        <td rowspan="{{ $arRowspan }}" class="border border-gray-400 text-center align-middle">{{ $fairnessAR }}</td>
+                                        <td rowspan="{{ $arRowspan }}" class="border border-gray-400 text-right font-bold">{{ $ar['ach'] }}</td>
+                                        <td rowspan="{{ $arRowspan }}" class="border border-gray-400 text-right font-bold">-</td>
+                                    @endif
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $ar['updated_at'] ?? '-' }}</td>
                                 </tr>
                             @endforeach
 
@@ -1120,6 +1140,10 @@
         @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
         { id:'utip-row-{{ $utipSlug }}', href:'{{ $utipDetailRoutes[$utipSlug] ?? '' }}', download:'{{ $utipDownloadRoutes[$utipSlug] ?? '' }}', hasFile:{{ ($utipHasFile[$utipSlug] ?? false) ? 'true' : 'false' }} },
         @endforeach
+        { id:'ar-row-dgs', download:'{{ $arDownloadRoutes['dgs'] }}', hasFile:{{ $arHasFile['dgs'] ? 'true' : 'false' }} },
+        { id:'ar-row-dbs', download:'{{ $arDownloadRoutes['dbs'] }}', hasFile:{{ $arHasFile['dbs'] ? 'true' : 'false' }} },
+        { id:'ar-row-dss', download:'{{ $arDownloadRoutes['dss'] }}', hasFile:{{ $arHasFile['dss'] ? 'true' : 'false' }} },
+        { id:'ar-row-rbs', download:'{{ $arDownloadRoutes['rbs'] }}', hasFile:{{ $arHasFile['rbs'] ? 'true' : 'false' }} },
         { id:'ngtma-row-gov',     href:'{{ $ngtmaDetailRoutes['gov'] }}' },
         { id:'ngtma-row-private', href:'{{ $ngtmaDetailRoutes['private'] }}' },
         { id:'ngtma-row-soe',     href:'{{ $ngtmaDetailRoutes['soe'] }}' },
@@ -1132,6 +1156,10 @@
     @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
     'utip-row-{{ $utipSlug }}',
     @endforeach
+    'ar-row-dgs',
+    'ar-row-dbs',
+    'ar-row-dss',
+    'ar-row-rbs',
 ];
 
 function renderDetailButtons() {
@@ -1152,14 +1180,17 @@ function renderDetailButtons() {
         var tr = document.getElementById(g.id);
         if (!tr) return;
         var btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
-        var isUtip = utipRowIds.indexOf(g.id) !== -1;
+        var hasDownload = typeof g.download === 'string' && g.download.length > 0;
+        var hasDetail   = typeof g.href === 'string' && g.href.length > 0;
+        var isUtip      = utipRowIds.indexOf(g.id) !== -1 || hasDownload;
 
         if (isUtip) {
             var wrap = document.createElement('div');
             wrap.style.cssText = 'position:absolute;left:'+(tableRight+6)+'px;top:'+btnTop+'px;pointer-events:all;z-index:50;';
 
             var btn = document.createElement('button');
-            btn.innerHTML = 'detail ▾';
+            btn.dataset.utipBtn = '1';
+            btn.innerHTML = hasDownload && !hasDetail ? 'download' : 'detail ▾';
             btn.style.cssText = 'display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);border:none;cursor:pointer;';
 
             var menu = document.createElement('div');
@@ -1167,14 +1198,18 @@ function renderDetailButtons() {
 
             var itemStyle = 'display:flex;align-items:center;gap:8px;padding:8px 13px;font-size:10px;font-weight:700;color:#334155;text-decoration:none;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;cursor:pointer;';
 
-            var linkDetail = document.createElement('a');
-            linkDetail.href = g.href;
-            linkDetail.innerHTML = 'Lihat Detail';
-            linkDetail.style.cssText = itemStyle;
-            linkDetail.onmouseover = function(){ this.style.background='#f8fafc'; this.style.color='#dc2626'; };
-            linkDetail.onmouseout  = function(){ this.style.background=''; this.style.color='#334155'; };
+            if (hasDetail) {
+                var linkDetail = document.createElement('a');
+                linkDetail.href = g.href;
+                linkDetail.innerHTML = 'Lihat Detail';
+                linkDetail.style.cssText = itemStyle;
+                linkDetail.onmouseover = function(){ this.style.background='#f8fafc'; this.style.color='#dc2626'; };
+                linkDetail.onmouseout  = function(){ this.style.background=''; this.style.color='#334155'; };
+                menu.appendChild(linkDetail);
+            }
 
-            var linkDownload = document.createElement('a');
+            if (hasDownload) {
+                var linkDownload = document.createElement('a');
                 if (g.hasFile) {
                     linkDownload.href = g.download + '&t=' + Date.now();
                     linkDownload.innerHTML = 'Download File';
@@ -1186,9 +1221,8 @@ function renderDetailButtons() {
                     linkDownload.style.cssText = itemStyle + 'color:#94a3b8;cursor:not-allowed;pointer-events:none;';
                     linkDownload.title = 'Belum ada file yang diupload';
                 }
-
-            menu.appendChild(linkDetail);
-            menu.appendChild(linkDownload);
+                menu.appendChild(linkDownload);
+            }
 
             btn.addEventListener('click', function(e) {
     e.stopPropagation();

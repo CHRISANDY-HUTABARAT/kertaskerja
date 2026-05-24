@@ -371,93 +371,220 @@ class AdminController extends Controller
         ));
     }
 
-public function utipStore(Request $request)
-{
-    $request->validate([
-        'status'  => 'required|in:active,inactive',
-        'periode' => 'required|date_format:Y-m',
-        'type'    => 'required|string',
-        'file'    => 'required|file|max:10240',
+    public function utipStore(Request $request)
+    {
+        $request->validate([
+            'status'  => 'required|in:active,inactive',
+            'periode' => 'required|date_format:Y-m',
+            'type'    => 'required|string',
+            'file'    => 'required|file|max:10240',
 
-        // kondisi 1-7 wajib ada nilainya (plan minimal)
-        'kondisi'   => 'required|array|size:7',
-        'kondisi.*' => 'required|string',
-        'plan'      => 'required|array|size:7',
-        'plan.*'    => 'nullable|numeric',
-        'real_ratio'=> 'required|array|size:7',
-        'real_ratio.*' => 'nullable|numeric',
-        'ol_fm'     => 'required|array|size:7',
-        'ol_fm.*'   => 'nullable|numeric',
-    ]);
+            // kondisi 1-7 wajib ada nilainya (plan minimal)
+            'kondisi'   => 'required|array|size:7',
+            'kondisi.*' => 'required|string',
+            'plan'      => 'required|array|size:7',
+            'plan.*'    => 'nullable|numeric',
+            'real_ratio'=> 'required|array|size:7',
+            'real_ratio.*' => 'nullable|numeric',
+            'ol_fm'     => 'required|array|size:7',
+            'ol_fm.*'   => 'nullable|numeric',
+        ]);
 
-    $periodeDate = $request->periode . '-01';
+        $periodeDate = $request->periode . '-01';
 
-    $isUpdate = Collection::where('type', $request->type)
-        ->where('periode', $periodeDate)
-        ->where('is_latest', true)
-        ->exists();
-
-    // Upload file
-    $submitToken = \Illuminate\Support\Str::uuid()->toString();
-    $filePath = null;
-    $fileName = null;
-    if ($request->hasFile('file')) {
-        $file     = $request->file('file');
-        $fileName = $file->getClientOriginalName();
-        $filePath = $file->store('utip_files', 'public');
-    }
-
-    // Simpan per kondisi
-    foreach ($request->kondisi as $idx => $kondisiName) {
-        $existing = Collection::where('type', $request->type)
+        $isUpdate = Collection::where('type', $request->type)
             ->where('periode', $periodeDate)
-            ->where('kondisi', $kondisiName)
-            ->orderBy('created_at', 'desc')
-            ->first();
+            ->where('is_latest', true)
+            ->exists();
 
-        $plan      = ($request->plan[$idx] !== null && $request->plan[$idx] !== '')
-                        ? $request->plan[$idx]
-                        : ($existing->plan ?? null);
-        $realRatio = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '')
-                        ? $request->real_ratio[$idx]
-                        : ($existing->real_ratio ?? null);
-        $olFm      = ($request->ol_fm[$idx] !== null && $request->ol_fm[$idx] !== '')
-                        ? $request->ol_fm[$idx]
-                        : ($existing->ol_fm ?? null);
-
-        $realUpdatedAt = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '')
-                        ? now()
-                        : ($existing->real_updated_at ?? null);
-
-        // Skip kondisi yang tidak diisi sama sekali
-        $planVal = ($request->plan[$idx] !== null && $request->plan[$idx] !== '') ? $request->plan[$idx] : null;
-        $realVal = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '') ? $request->real_ratio[$idx] : null;
-        $olFmVal = ($request->ol_fm[$idx] !== null && $request->ol_fm[$idx] !== '') ? $request->ol_fm[$idx] : null;
-
-        // Kalau semua kosong, skip — tidak perlu simpan
-        if (is_null($planVal) && is_null($realVal) && is_null($olFmVal)) {
-            continue;
+        // Upload file
+        $submitToken = \Illuminate\Support\Str::uuid()->toString();
+        $filePath = null;
+        $fileName = null;
+        if ($request->hasFile('file')) {
+            $file     = $request->file('file');
+            $fileName = $file->getClientOriginalName();
+            $filePath = $file->store('utip_files', 'public');
         }
 
-        Collection::create([
-            'user_id'         => Auth::id(),
-            'type'            => $request->type,
-            'kondisi'         => $kondisiName,
-            'periode'         => $periodeDate,
-            'status'          => $request->status,
-            'is_latest'       => true,
-            'plan'            => $planVal ?? ($existing->plan ?? null),
-            'ol_fm'           => $olFmVal ?? ($existing->ol_fm ?? null),
-            'real_ratio'      => $realVal ?? ($existing->real_ratio ?? null),
-            'real_updated_at' => !is_null($realVal) ? now() : ($existing->real_updated_at ?? null),
-            'file_path'       => $filePath,
-            'file_name'       => $fileName,
-            'submit_token'    => $submitToken,
-        ]);
+        // Simpan per kondisi
+        foreach ($request->kondisi as $idx => $kondisiName) {
+            $existing = Collection::where('type', $request->type)
+                ->where('periode', $periodeDate)
+                ->where('kondisi', $kondisiName)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $plan      = ($request->plan[$idx] !== null && $request->plan[$idx] !== '')
+                            ? $request->plan[$idx]
+                            : ($existing->plan ?? null);
+            $realRatio = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '')
+                            ? $request->real_ratio[$idx]
+                            : ($existing->real_ratio ?? null);
+            $olFm      = ($request->ol_fm[$idx] !== null && $request->ol_fm[$idx] !== '')
+                            ? $request->ol_fm[$idx]
+                            : ($existing->ol_fm ?? null);
+
+            $realUpdatedAt = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '')
+                            ? now()
+                            : ($existing->real_updated_at ?? null);
+
+            // Skip kondisi yang tidak diisi sama sekali
+            $planVal = ($request->plan[$idx] !== null && $request->plan[$idx] !== '') ? $request->plan[$idx] : null;
+            $realVal = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '') ? $request->real_ratio[$idx] : null;
+            $olFmVal = ($request->ol_fm[$idx] !== null && $request->ol_fm[$idx] !== '') ? $request->ol_fm[$idx] : null;
+
+            // Kalau semua kosong, skip — tidak perlu simpan
+            if (is_null($planVal) && is_null($realVal) && is_null($olFmVal)) {
+                continue;
+            }
+
+            Collection::create([
+                'user_id'         => Auth::id(),
+                'type'            => $request->type,
+                'kondisi'         => $kondisiName,
+                'periode'         => $periodeDate,
+                'status'          => $request->status,
+                'is_latest'       => true,
+                'plan'            => $planVal ?? ($existing->plan ?? null),
+                'ol_fm'           => $olFmVal ?? ($existing->ol_fm ?? null),
+                'real_ratio'      => $realVal ?? ($existing->real_ratio ?? null),
+                'real_updated_at' => !is_null($realVal) ? now() : ($existing->real_updated_at ?? null),
+                'file_path'       => $filePath,
+                'file_name'       => $fileName,
+                'submit_token'    => $submitToken,
+            ]);
+        }
+
+        return back()->with('success', 'Data UTIP berhasil disimpan');
     }
 
-    return back()->with('success', 'Data UTIP berhasil disimpan');
-}
+    public function arTable(Request $request)
+    {
+        // Ambil submit_token terbaru
+        $query = Collection::with('user')
+            ->where('type', 'like', '%ar%')
+            ->orderBy('created_at', 'desc');
+
+        // if ($request->filled('user'))  $query->where('user_id', $request->user);
+        if ($request->filled('tipe'))  $query->where('type', $request->tipe);
+        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan); // ← fix: periode bukan created_at
+        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);  // ← fix: periode bukan created_at
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('type', 'like', '%'.$request->cari.'%')
+                ->orWhere('real_ratio', 'like', '%'.$request->cari.'%')
+                ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $collections = $query->paginate(20)->withQueryString();
+
+        // ← 1 record terbaru per type (is_latest), diurutkan Corrective duluan
+        $ringkasanAll = Collection::where('type', 'like', '%ar%')
+            ->where('is_latest', true)
+            ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
+            ->orderBy('type')
+            ->get();
+
+        // ← fix: tahun dari periode bukan created_at
+        $tahuns = Collection::where('type', 'like', '%ar%')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $tipes = Collection::where('type', 'like', '%ar%')
+            ->select('segment')
+            ->distinct()
+            ->orderBy('segment')->pluck('segment');
+
+        $users = Collection::with('user')
+            ->where('type', 'like', '%ar%')->get()
+            ->pluck('user')->filter()->unique('id')->values();
+
+        $selectedTipe  = $request->tipe;
+        $selectedBulan = $request->bulan;
+        $selectedTahun = $request->tahun;
+        $selectedCari  = $request->cari;
+
+        return view('admin.collection.ar', compact(
+            'collections', 'ringkasanAll', 'users', 'tahuns', 'tipes',
+            'selectedTipe', 'selectedBulan', 'selectedTahun', 'selectedCari'
+        ));
+    }
+
+    public function arStore(Request $request)
+    {
+        $request->validate([
+            'status'  => 'required|in:active,inactive',
+            'periode' => 'required|date_format:Y-m',
+            'segment' => 'required|string',
+            'file'    => 'required|file|max:10240',
+
+            // kondisi 1-7 wajib ada nilainya (plan minimal)
+            'kondisi'   => 'required|array|size:8',
+            'kondisi.*' => 'required|string',
+            'real_ratio'=> 'required|array|size:8',
+            'real_ratio.*' => 'nullable|numeric',
+        ]);
+
+        $periodeDate = $request->periode . '-01';
+
+        $isUpdate = Collection::where('type', $request->segment)
+            ->where('periode', $periodeDate)
+            ->where('is_latest', true)
+            ->exists();
+
+        // Upload file
+        $submitToken = \Illuminate\Support\Str::uuid()->toString();
+        $filePath = null;
+        $fileName = null;
+        if ($request->hasFile('file')) {
+            $file     = $request->file('file');
+            $fileName = $file->getClientOriginalName();
+            $filePath = $file->store('ar_files', 'public');
+        }
+
+        // Simpan per kondisi
+        foreach ($request->kondisi as $idx => $kondisiName) {
+            $existing = Collection::where('type', $request->segment)
+                ->where('periode', $periodeDate)
+                ->where('kondisi', $kondisiName)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $realRatio = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '')
+                            ? $request->real_ratio[$idx]
+                            : ($existing->real_ratio ?? null);
+            $realUpdatedAt = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '')
+                            ? now()
+                            : ($existing->real_updated_at ?? null);
+
+            // Skip kondisi yang tidak diisi sama sekali
+            $realVal = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '') ? $request->real_ratio[$idx] : null;
+
+            // Kalau semua kosong, skip — tidak perlu simpan
+            if (is_null($realVal)) {
+                continue;
+            }
+
+            Collection::create([
+                'user_id'         => Auth::id(),
+                'type'            => $request->type,
+                'segment'         => $request->segment,
+                'kondisi'         => $kondisiName,
+                'periode'         => $periodeDate,
+                'status'          => $request->status,
+                'is_latest'       => true,
+                'real_ratio'      => $realVal ?? ($existing->real_ratio ?? null),
+                'real_updated_at' => !is_null($realVal) ? now() : ($existing->real_updated_at ?? null),
+                'file_path'       => $filePath,
+                'file_name'       => $fileName,
+                'submit_token'    => $submitToken,
+            ]);
+        }
+
+        return back()->with('success', 'Data AR berhasil disimpan');
+    }
 
     public function ctcTable(Request $request)
     {

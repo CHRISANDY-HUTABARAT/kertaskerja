@@ -116,6 +116,35 @@ class ReportController extends Controller
             'updated_at' => $utipCorUpdated?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
+        $arSegments = ['DGS', 'DBS', 'DSS', 'RBS'];
+        $arRows = [];
+        foreach ($arSegments as $segment) {
+            $rows = Collection::where('type', 'ar')
+                ->where('segment', $segment)
+                ->whereIn('id', function ($q) use ($segment) {
+                    $q->selectRaw('MAX(id)')
+                        ->from('collections')
+                        ->where('type', 'ar')
+                        ->where('segment', $segment)
+                        ->groupBy('kondisi', 'periode');
+                })
+                ->tap($filterPeriode)
+                ->get();
+
+            $realRp = $rows->isEmpty() ? null : round($rows->sum(fn($r) => $toFloat($r->real_ratio)) / 1000000, 2);
+            $rowUpdated = $rows->whereNotNull('real_updated_at')->sortByDesc('real_updated_at')->first();
+
+            $arRows[] = [
+                'label'      => 'AR ' . $segment,
+                'slug'       => strtolower($segment),
+                'realRp'     => $realRp,
+                'updated_at' => $rowUpdated?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                'ach'        => '-',
+            ];
+        }
+        $arRowspan   = count($arRows);
+        $fairnessAR  = '0-100';
+
         $periodes = [
             ['bulan' => 7,  'tahun' => 2025, 'label' => 'New UTIP Jul 2025', 'type' => 'New UTIP Jul 2025'],
             ['bulan' => 8,  'tahun' => 2025, 'label' => 'New UTIP Aug 2025', 'type' => 'New UTIP Aug 2025'],
@@ -751,6 +780,21 @@ class ReportController extends Controller
                 ->whereNotNull('file_path')->exists();
         }
 
+        $arDownloadRoutes = [];
+        $arHasFile = [];
+        foreach ($arSegments as $segment) {
+            $slug = strtolower($segment);
+            $arDownloadRoutes[$slug] = route('report.ar.download', [
+                'segment' => $segment,
+                'periode' => $scalingPeriodeYm,
+            ]);
+            $arHasFile[$slug] = \App\Models\Collection::where('type', 'ar')
+                ->where('segment', $segment)
+                ->where('periode', $scalingPeriodeDate)
+                ->whereNotNull('file_path')
+                ->exists();
+        }
+
         return view('report.report', compact(
             'filtered', 'filterBulan', 'filterTahun', 'filterTanggal',
             'c3mrKomitmen', 'c3mrRealisasi', 'c3mrUpdatedAt',
@@ -761,6 +805,8 @@ class ReportController extends Controller
             'utipDetailRoutes',
             'utipDownloadRoutes',
             'utipHasFile',
+            'arDownloadRoutes',
+            'arHasFile',
             'ct0Data', 'ct0Score', 'ct0TotalReal',
             'ctcCt0Real', 'ctcCt0UpdatedAt','ctcData', 'lossRateReal', 'lossRateAch',
             'b1Data', 'b1Score',
@@ -770,6 +816,7 @@ class ReportController extends Controller
             'psakData',
             'scallingSegments', 'scallingTypes', 'scallingData',
             'ngtmaSegments', 'ngtmaData', 'ngtmaDetailRoutes',
+            'arRows', 'arRowspan', 'fairnessAR',
             'hsiData', 'teldaData', 'teldaRegions', 'upsellingData',
             'scalingPeriodeYm', 'lossRateUpdatedAt'
         ));
@@ -1242,6 +1289,34 @@ public function utipDownload(Request $request)
     ->whereNotNull('file_path')
     ->orderBy('created_at', 'desc')
     ->first();
+
+    if (!$record || !$record->file_path) {
+        abort(404, 'File tidak ditemukan.');
+    }
+
+    $fullPath = storage_path('app/public/' . $record->file_path);
+
+    if (!file_exists($fullPath)) {
+        abort(404, 'File tidak ditemukan di server.');
+    }
+
+    return response()->download($fullPath, $record->file_name ?? basename($record->file_path));
+}
+
+public function arDownload(Request $request)
+{
+    $segment   = $request->input('segment', '');
+    $periodeYm = $request->input('periode', Carbon::now()->format('Y-m'));
+
+    [$y, $m] = explode('-', $periodeYm);
+    $periodeDate = Carbon::createFromDate((int)$y, (int)$m, 1)->format('Y-m-d');
+
+    $record = \App\Models\Collection::where('type', 'ar')
+        ->where('segment', $segment)
+        ->where('periode', $periodeDate)
+        ->whereNotNull('file_path')
+        ->orderBy('created_at', 'desc')
+        ->first();
 
     if (!$record || !$record->file_path) {
         abort(404, 'File tidak ditemukan.');

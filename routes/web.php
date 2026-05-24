@@ -30,6 +30,7 @@ Route::middleware('auth')->group(function () {
     ->middleware('auth');
     Route::get('/report/utip-detail', [ReportController::class, 'utipDetail'])->name('report.utip.detail');
     Route::get('/report/utip-download', [ReportController::class, 'utipDownload'])->name('report.utip.download');
+    Route::get('/report/ar-download', [ReportController::class, 'arDownload'])->name('report.ar.download');
 
     // Home redirect
     // Route::get('/', function () {
@@ -59,6 +60,10 @@ Route::middleware('auth')->group(function () {
         // UTIP routes
         Route::get('/utip', [AdminController::class, 'utipTable'])->name('admin.utip');
         Route::post('/utip', [AdminController::class, 'utipStore'])->name('admin.utip.store');
+
+        // AR routes
+        Route::get('/ar', [AdminController::class, 'arTable'])->name('admin.ar');
+        Route::post('/ar', [AdminController::class, 'arStore'])->name('admin.ar.store');
 
         // CTC routes
         Route::get('/ctc', [AdminController::class, 'ctcTable'])->name('admin.ctc');
@@ -335,6 +340,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/collection/billing', [CollectionController::class, 'storeBillingRealisasi'])->name('collection.billing.storeRealisasi');
         Route::get('/collection/utip', [CollectionController::class, 'utip'])->name('collection.utip');
         Route::post('/collection/utip', [CollectionController::class, 'storeUtipRealisasi'])->name('collection.utip.storeRealisasi');
+        Route::get('/collection/ar', [CollectionController::class, 'ar'])->name('collection.ar');
+        Route::post('/collection/ar', [CollectionController::class, 'storeArRealisasi'])->name('collection.ar.storeRealisasi');
         Route::get('/collection/cr', [CollectionController::class, 'cr'])->name('collection.cr');
         Route::post('/collection/cr', [CollectionController::class, 'storeCrRealisasi'])->name('collection.cr.storeRealisasi');
     });

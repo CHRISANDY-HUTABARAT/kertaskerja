@@ -356,7 +356,6 @@ class CollectionController extends Controller
             ->toArray();
 
         $query = Collection::where('type', 'like', '%UTIP%')
-            ->where('user_id', Auth::id())
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('tipe'))  $query->where('type', $request->tipe);
@@ -465,6 +464,128 @@ class CollectionController extends Controller
         }
 
         return back()->with('success', 'Data UTIP berhasil disimpan');
+    }
+
+    public function ar(Request $request)
+    {
+        $currentDate = Carbon::now();
+
+        $ars = Collection::where('type', 'like', '%ar%')
+            ->where('is_latest', true)
+            ->where('status', 'active')
+            ->whereYear('periode', $currentDate->year)
+            ->whereMonth('periode', $currentDate->month)
+            ->orderBy('type')
+            ->get();
+
+        $lockedTypes = Collection::where('type', 'like', '%ar%')
+            ->where('is_latest', true)
+            ->where('status', 'inactive')
+            ->pluck('type')
+            ->toArray();
+
+        $query = Collection::where('type', 'like', '%ar%')
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('tipe'))  $query->where('type', $request->tipe);
+        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan); // ← fix: periode
+        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);  // ← fix: periode
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('type', 'like', '%'.$request->cari.'%')
+                ->orWhere('real_ratio', 'like', '%'.$request->cari.'%')
+                ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $activities = $query->paginate(10)->withQueryString();
+
+        $tahuns = Collection::where('type', 'like', '%ar%')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $tipes = Collection::where('type', 'like', '%ar%')
+            ->distinct()->orderBy('type')->pluck('type');
+
+        $selectedTipe  = $request->tipe;
+        $selectedBulan = $request->bulan;
+        $selectedTahun = $request->tahun;
+        $selectedCari  = $request->cari;
+
+        return view('dashboard.collection.ar', compact(
+            'activities', 'ars', 'lockedTypes',
+            'tahuns', 'tipes', 'selectedTipe', 'selectedBulan', 'selectedTahun', 'selectedCari'
+        ));
+    }
+
+    public function storeArRealisasi(Request $request)
+    {
+        $request->validate([
+            'status'       => 'required|in:active,inactive',
+            'periode'      => 'required|date_format:Y-m',
+            'type'         => 'required|string',
+            'file'         => 'required|file|max:10240',
+            'kondisi'      => 'required|array|size:8',
+            'kondisi.*'    => 'required|string',
+            'real_ratio'   => 'required|array|size:8',
+            'real_ratio.*' => 'nullable|numeric',
+        ]);
+
+        $periodeDate = $request->periode . '-01';
+
+        $isUpdate = Collection::where('type', $request->type)
+            ->where('periode', $periodeDate)
+            ->where('is_latest', true)
+            ->exists();
+
+        // Cek status locked
+        $latest = Collection::where('type', $request->type)
+            ->where('is_latest', true)
+            ->first();
+
+        if ($latest && $latest->status === 'inactive') {
+            return back()->with('error', 'Tipe AR ini sudah dinonaktifkan. Realisasi tidak dapat disimpan.');
+        }
+
+        $submitToken = \Illuminate\Support\Str::uuid()->toString();
+        $filePath = null;
+        $fileName = null;
+        if ($request->hasFile('file')) {
+            $file     = $request->file('file');
+            $fileName = $file->getClientOriginalName();
+            $filePath = $file->store('ar_files', 'public');
+        }
+
+        foreach ($request->kondisi as $idx => $kondisiName) {
+            $existing = Collection::where('type', $request->type)
+                ->where('periode', $periodeDate)
+                ->where('kondisi', $kondisiName)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            $realVal   = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '') ? $request->real_ratio[$idx] : null;
+
+            if (is_null($realVal)) {
+                continue;
+            }
+
+            Collection::create([
+                'user_id'         => Auth::id(),
+                'type'            => $request->type,
+                'segment'         => $request->segment,
+                'kondisi'         => $kondisiName,
+                'periode'         => $periodeDate,
+                'status'          => $request->status,
+                'is_latest'       => true,
+                'real_ratio'      => $realVal ?? ($existing->real_ratio ?? null),
+                'real_updated_at' => !is_null($realVal) ? now() : ($existing->real_updated_at ?? null),
+                'file_path'       => $filePath,
+                'file_name'       => $fileName,
+                'submit_token'    => $submitToken,
+            ]);
+        }
+
+        return back()->with('success', 'Data AR berhasil disimpan');
     }
 
     /**
