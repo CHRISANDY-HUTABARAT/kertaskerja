@@ -132,8 +132,10 @@
                     </div>
 
                     <div class="grid grid-cols-4 gap-5 mb-2">
-                        <div class="col-span-1 text-xs font-black text-slate-500 uppercase tracking-widest">Kondisi</div>
-                        <div class="col-span-3 text-xs font-black text-slate-500 uppercase tracking-widest text-left">Saldo HI</div>
+                        <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Kondisi</div>
+                        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">Saldo HI</div>
+                        <div class="text-xs font-black text-slate-500 uppercase tracking-widest">Kondisi</div>
+                        <div class="text-xs font-black text-slate-500 uppercase tracking-widest text-left">Saldo HI</div>
                     </div>
 
                     @php
@@ -149,18 +151,31 @@
                     ];
                     @endphp
 
-                    @foreach($kondisiList as $idx => $kondisiName)
-                    <div class="grid grid-cols-4 gap-5 mb-3 items-center">
-                        <input type="hidden" name="kondisi[{{ $idx }}]" value="{{ $kondisiName }}">
-                        <div class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 bg-slate-100 flex items-center space-x-2.5">
-                            <span class="text-sm font-black text-slate-400">{{ $idx + 1 }}</span>
-                            <span class="text-sm font-semibold text-slate-800">{{ $kondisiName }}</span>
+                    @foreach(range(0, 3) as $rowIndex)
+                        @php
+                            $leftIndex = $rowIndex;
+                            $rightIndex = $rowIndex + 4;
+                        @endphp
+                        <div class="grid grid-cols-4 gap-5 mb-3 items-center">
+                            <div class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 bg-slate-100 flex items-center space-x-2.5">
+                                <input type="hidden" name="kondisi[{{ $leftIndex }}]" value="{{ $kondisiList[$leftIndex] }}">
+                                <span class="text-sm font-black text-slate-400">{{ $leftIndex + 1 }}</span>
+                                <span class="text-sm font-semibold text-slate-800">{{ $kondisiList[$leftIndex] }}</span>
+                            </div>
+                            <div>
+                                <input type="number" step="1" name="real_ratio[{{ $leftIndex }}]"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
+                            </div>
+                            <div class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 bg-slate-100 flex items-center space-x-2.5">
+                                <input type="hidden" name="kondisi[{{ $rightIndex }}]" value="{{ $kondisiList[$rightIndex] }}">
+                                <span class="text-sm font-black text-slate-400">{{ $rightIndex + 1 }}</span>
+                                <span class="text-sm font-semibold text-slate-800">{{ $kondisiList[$rightIndex] }}</span>
+                            </div>
+                            <div>
+                                <input type="number" step="1" name="real_ratio[{{ $rightIndex }}]"
+                                    class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
+                            </div>
                         </div>
-                        <div>
-                            <input type="number" step="1" name="real_ratio[{{ $idx }}]"
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
-                        </div>
-                    </div>
                     @endforeach
 
                     <div class="mt-5 pt-5 border-t border-slate-100">

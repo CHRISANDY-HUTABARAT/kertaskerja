@@ -20,8 +20,6 @@
                             <p class="text-[10px] font-black tracking-[0.3em] text-red-600 uppercase mb-1">Witel Sumut</p>
                             <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">UTIP <span
                                     class="text-red-600">Management</span></h1>
-                            <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Unit Target Income
-                                Performance</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">

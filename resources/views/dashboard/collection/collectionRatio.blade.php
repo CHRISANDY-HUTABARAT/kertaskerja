@@ -20,8 +20,6 @@
                             <h1 class="text-2xl font-black tracking-tight text-slate-900 leading-none uppercase">
                                 <span class="text-red-600">Collection</span> Ratio
                             </h1>
-                            <p class="text-slate-400 text-xs font-bold mt-1 uppercase tracking-tight">Kelola data Collection
-                                Ratio (GOV / PRIVATE / SME / SOE)</p>
                         </div>
                     </div>
                     <div class="flex items-center space-x-4">
