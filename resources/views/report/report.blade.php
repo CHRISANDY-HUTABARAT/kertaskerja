@@ -1141,9 +1141,6 @@
         { id:'utip-row-{{ $utipSlug }}', href:'{{ $utipDetailRoutes[$utipSlug] ?? '' }}', download:'{{ $utipDownloadRoutes[$utipSlug] ?? '' }}', hasFile:{{ ($utipHasFile[$utipSlug] ?? false) ? 'true' : 'false' }} },
         @endforeach
         { id:'ar-row-dgs', download:'{{ $arDownloadRoutes['dgs'] }}', hasFile:{{ $arHasFile['dgs'] ? 'true' : 'false' }} },
-        { id:'ar-row-dbs', download:'{{ $arDownloadRoutes['dbs'] }}', hasFile:{{ $arHasFile['dbs'] ? 'true' : 'false' }} },
-        { id:'ar-row-dss', download:'{{ $arDownloadRoutes['dss'] }}', hasFile:{{ $arHasFile['dss'] ? 'true' : 'false' }} },
-        { id:'ar-row-rbs', download:'{{ $arDownloadRoutes['rbs'] }}', hasFile:{{ $arHasFile['rbs'] ? 'true' : 'false' }} },
         { id:'ngtma-row-gov',     href:'{{ $ngtmaDetailRoutes['gov'] }}' },
         { id:'ngtma-row-private', href:'{{ $ngtmaDetailRoutes['private'] }}' },
         { id:'ngtma-row-soe',     href:'{{ $ngtmaDetailRoutes['soe'] }}' },
@@ -1157,9 +1154,6 @@
     'utip-row-{{ $utipSlug }}',
     @endforeach
     'ar-row-dgs',
-    'ar-row-dbs',
-    'ar-row-dss',
-    'ar-row-rbs',
 ];
 
 function renderDetailButtons() {
@@ -1188,9 +1182,24 @@ function renderDetailButtons() {
             var wrap = document.createElement('div');
             wrap.style.cssText = 'position:absolute;left:'+(tableRight+6)+'px;top:'+btnTop+'px;pointer-events:all;z-index:50;';
 
+            if (hasDownload && !hasDetail) {
+                var btnA = document.createElement('a');
+                btnA.textContent = 'Download';
+                btnA.style.cssText = 'display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);text-decoration:none;';
+                if (g.hasFile) {
+                    btnA.href = g.download + '&t=' + Date.now();
+                } else {
+                    btnA.style.cssText += 'background:#f1f5f9;color:#94a3b8;cursor:not-allowed;pointer-events:none;';
+                    btnA.title = 'Belum ada file yang diupload';
+                }
+                wrap.appendChild(btnA);
+                container.appendChild(wrap);
+                return;
+            }
+
             var btn = document.createElement('button');
             btn.dataset.utipBtn = '1';
-            btn.innerHTML = hasDownload && !hasDetail ? 'download' : 'detail ▾';
+            btn.innerHTML = 'detail ▾';
             btn.style.cssText = 'display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);border:none;cursor:pointer;';
 
             var menu = document.createElement('div');

@@ -156,7 +156,7 @@
                             <span class="text-sm font-black text-slate-400">{{ $idx + 1 }}</span>
                             <span class="text-sm font-semibold text-slate-800">{{ $kondisiName }}</span>
                         </div>
-                        <div class="col-span-3">
+                        <div>
                             <input type="number" step="1" name="real_ratio[{{ $idx }}]"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
                         </div>
