@@ -116,7 +116,7 @@ class ReportController extends Controller
             'updated_at' => $utipCorUpdated?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
 
-        $arSegments = ['DGS', 'DBS', 'DSS', 'RBS'];
+        $arSegments = ['DGS', 'DPS', 'DSS', 'RBS'];
         $arRows = [];
         foreach ($arSegments as $segment) {
             $rows = Collection::where('type', 'ar')
