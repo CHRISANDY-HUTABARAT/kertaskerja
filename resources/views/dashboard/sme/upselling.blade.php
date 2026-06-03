@@ -52,8 +52,23 @@
         </div>
         @endif
 
+        {{-- ══ PILIH PERIODE ══ --}}
+        <form method="GET" action="{{ route('dashboard.sme.upselling') }}" class="mb-6">
+            <div class="flex items-center space-x-3">
+                <label class="text-xs font-black text-slate-500 uppercase tracking-widest whitespace-nowrap">Periode</label>
+                <select name="selected_periode" onchange="this.form.submit()"
+                    class="px-4 py-2.5 border border-slate-200 rounded-xl text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 bg-white shadow-sm">
+                    @foreach($periodeOptions as $opt)
+                        <option value="{{ $opt }}" {{ $selectedPeriode === $opt ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::parse($opt . '-01')->translatedFormat('F Y') }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </form>
+
         {{-- ══ STATUS PERIODE INI ══ --}}
-        @php $periode = now()->format('F Y'); @endphp
+        @php $periode = \Carbon\Carbon::parse($selectedPeriode . '-01')->translatedFormat('F Y'); @endphp
         <div class="grid grid-cols-1 md:grid-cols-2 gap-5 mb-8">
             {{-- Commitment dari Admin --}}
             <div class="bg-white rounded-2xl border-2 border-slate-100 p-6 relative overflow-hidden">
@@ -103,8 +118,9 @@
             </div>
             <div class="p-8">
                 <form method="POST" action="{{ route('dashboard.sme.upselling.store') }}">
-                    @csrf
-                    <input type="hidden" name="type" value="Next Level HSI">
+                @csrf
+                <input type="hidden" name="type" value="Next Level HSI">
+                <input type="hidden" name="selected_periode" value="{{ $selectedPeriode }}">
                     <div class="max-w-md mx-auto space-y-5">
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2 text-center">Komitmen (Rp)</label>
@@ -126,7 +142,7 @@
                             <div class="relative">
                                 <input type="number" name="real_ratio"
                                     value="{{ old('real_ratio', $existing?->real_ratio) }}"
-                                    placeholder="2000000" min="0" 
+                                    placeholder="2000000" min="0"
                                     class="w-full px-6 py-5 text-4xl font-black text-red-600 border-2 border-slate-200 rounded-xl bg-slate-50 text-center focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors @error('real_ratio') border-red-400 @enderror">
                                 <div class="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none">
                                     <span class="text-slate-400 font-black text-2xl">Rp</span>

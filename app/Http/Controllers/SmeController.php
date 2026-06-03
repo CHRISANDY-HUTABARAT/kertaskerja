@@ -687,18 +687,34 @@ class SmeController extends Controller
 
 public function upselling(Request $request)
 {
-    $periode = now()->format('Y-m-01');
+    $selectedPeriode = $request->filled('selected_periode')
+        ? $request->selected_periode
+        : now()->format('Y-m');
 
-    $existing = Hsi::where('user_id', auth()->id())
-        ->where('type', 'Next Level HSI')
-        ->where('periode', $periode)
-        ->orderBy('created_at', 'desc')
-        ->first();
+    $periode = $selectedPeriode . '-01';
+
+    // Ambil periode yang statusnya active dari admin
+    $periodeOptions = Hsi::where('type', 'Next Level HSI')
+    ->whereRaw("(status IS NULL OR status = 'active')")
+    ->selectRaw('DATE_FORMAT(periode, "%Y-%m") as periode_ym')
+    ->groupBy('periode_ym')
+    ->orderByDesc('periode_ym')
+    ->pluck('periode_ym');
+
+    // Pastikan periode sekarang selalu ada di opsi
+    if (!$periodeOptions->contains(now()->format('Y-m'))) {
+        $periodeOptions->prepend(now()->format('Y-m'));
+    }
+
+    $existing = Hsi::where('type', 'Next Level HSI')
+    ->where('periode', $periode)
+    ->orderBy('created_at', 'desc')
+    ->first();
 
     $query = Hsi::with(['user'])
-        ->where('user_id', auth()->id())
-        ->where('type', 'Next Level HSI')
-        ->orderBy('created_at', 'desc');
+    ->where('user_id', auth()->id())
+    ->where('type', 'Next Level HSI')
+    ->orderBy('created_at', 'asc');
 
     if ($request->filled('bulan')) {
         $query->whereMonth('periode', $request->bulan);
@@ -728,7 +744,8 @@ public function upselling(Request $request)
 
     return view('dashboard.sme.upselling', compact(
         'history', 'existing', 'tahuns',
-        'selectedBulan', 'selectedTahun', 'selectedCari'
+        'selectedBulan', 'selectedTahun', 'selectedCari',
+        'periodeOptions', 'selectedPeriode'
     ));
 }
 
@@ -746,17 +763,17 @@ public function storeUpselling(Request $request)
             ->withInput();
     }
 
-    $periode = now()->format('Y-m-01');
+    $periode = $request->filled('selected_periode')
+    ? $request->selected_periode . '-01'
+    : now()->format('Y-m-01');
 
-    $lastCommitment = Hsi::where('user_id', auth()->id())
-        ->where('type', $request->type)
+    $lastCommitment = Hsi::where('type', $request->type)
         ->where('periode', $periode)
         ->whereNotNull('commitment')
         ->orderBy('created_at', 'desc')
         ->value('commitment');
 
-    $lastRealRow = Hsi::where('user_id', auth()->id())
-        ->where('type', $request->type)
+    $lastRealRow = Hsi::where('type', $request->type)
         ->where('periode', $periode)
         ->whereNotNull('real_ratio')
         ->orderBy('created_at', 'desc')

@@ -95,6 +95,11 @@ Route::middleware('auth')->group(function () {
         Route::get('/hsi-agency', [Admin2Controller::class, 'hsiTable'])->name('admin.hsi-agency');
         Route::post('/hsi-agency', [Admin2Controller::class, 'hsiStore'])->name('admin.hsi-agency.store');
 
+        // Upselling Hsi routes
+        Route::get('/upselling-hsi', [Admin2Controller::class, 'upsellingHsiIndex'])->name('admin.upselling-hsi.index');
+        Route::post('/upselling-hsi', [Admin2Controller::class, 'upsellingHsiStore'])->name('admin.upselling-hsi.store');
+        Route::patch('/upselling-hsi/{id}/toggle', [Admin2Controller::class, 'upsellingHsiToggleStatus'])->name('admin.upselling-hsi.toggleStatus');
+
         // Telda routes
         Route::get('/admin/telda', [Admin2Controller::class, 'teldaTable'])->name('admin.telda.index');
         Route::post('/admin/telda', [Admin2Controller::class, 'teldaStore'])->name('admin.telda.store');

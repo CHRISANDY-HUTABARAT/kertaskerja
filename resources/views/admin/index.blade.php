@@ -103,6 +103,13 @@
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>'
                             ],
                             [
+                                'label' => 'Upselling HSI',
+                                'sub'   => 'Scalling Upselling HSI',
+                                'badge' => 'UP-HSI',
+                                'route' => route('admin.upselling-hsi.index'),
+                                'icon'  => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"/>'
+                            ],
+                            [
                                 'label' => 'Telda',
                                 'sub' => 'Scalling Telda (9 Wilayah)',
                                 'badge' => 'Telda',

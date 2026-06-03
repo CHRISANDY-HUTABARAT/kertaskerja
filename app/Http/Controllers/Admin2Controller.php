@@ -377,6 +377,108 @@ public function hsiStore(Request $request)
     return back()->with('success', 'Data HSI periode ' . Carbon::parse($periodeDate)->format('F Y') . ' berhasil disimpan.');
 }
 
+// ══ Upselling HSI ══
+
+public function upsellingHsiIndex(Request $request)
+{
+    $ringkasanAll = Hsi::with('user')
+    ->where('type', 'Next Level HSI')
+    ->whereIn('id', function($q) {
+        $q->selectRaw('MAX(id)')
+          ->from('hsis')
+          ->where('type', 'Next Level HSI')
+          ->groupBy('periode');
+    })
+    ->orderBy('periode', 'asc')
+    ->get();
+
+    $query = Hsi::with('user')
+    ->where('type', 'Next Level HSI')
+    ->orderBy('created_at', 'asc');
+
+    if ($request->filled('bulan'))   $query->whereMonth('periode', $request->bulan);
+    if ($request->filled('tahun'))   $query->whereYear('periode', $request->tahun);
+    if ($request->filled('user_id')) $query->where('user_id', $request->user_id);
+
+    $history = $query->paginate(15)->withQueryString();
+
+    $tahuns = Hsi::where('type', 'Next Level HSI')
+        ->selectRaw('YEAR(periode) as tahun')
+        ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+    $users         = User::all();
+    $selectedBulan = $request->bulan;
+    $selectedTahun = $request->tahun;
+    $selectedUser  = $request->user_id;
+
+    return view('admin.upsellinghsi.upselling', compact(
+        'ringkasanAll', 'history', 'users', 'tahuns',
+        'selectedBulan', 'selectedTahun', 'selectedUser'
+    ));
+}
+
+public function upsellingHsiStore(Request $request)
+{
+    $request->validate([
+        'periode'    => 'required|string',
+        'commitment' => 'nullable|numeric|min:0',
+        'real_ratio' => 'nullable|numeric|min:0',
+    ]);
+
+    $periodeDate = $request->periode . '-01';
+
+    $userId = auth()->id();
+
+    $existing = Hsi::where('user_id', $userId)
+        ->where('type', 'Next Level HSI')
+        ->where('periode', $periodeDate)
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $commitment = $request->filled('commitment') ? $request->commitment : ($existing->commitment ?? null);
+
+    $lastReal = Hsi::where('user_id', $userId)
+        ->where('type', 'Next Level HSI')
+        ->where('periode', $periodeDate)
+        ->whereNotNull('real_ratio')
+        ->orderBy('created_at', 'desc')
+        ->first();
+
+    $real          = $request->filled('real_ratio') ? $request->real_ratio : ($lastReal->real_ratio ?? null);
+    $realUpdatedAt = $request->filled('real_ratio') ? now() : ($lastReal->real_updated_at ?? null);
+
+    // Sync status semua record periode ini
+    Hsi::where('type', 'Next Level HSI')
+        ->where('periode', $periodeDate)
+        ->update(['status' => $request->status ?? 'active']);
+
+    Hsi::create([
+        'user_id'         => auth()->id(),
+        'type'            => 'Next Level HSI',
+        'periode'         => $periodeDate,
+        'status'          => $request->status ?? 'active',
+        'commitment'      => $commitment,
+        'real_ratio'      => $real,
+        'real_updated_at' => $realUpdatedAt,
+    ]);
+
+    return back()->with('success', 'Data Upselling HSI periode ' . \Carbon\Carbon::parse($periodeDate)->format('F Y') . ' berhasil disimpan.');
+}
+
+public function upsellingHsiToggleStatus($id)
+{
+    $item = Hsi::findOrFail($id);
+    $newStatus = ($item->status === 'active') ? 'inactive' : 'active';
+
+    // Toggle semua record dalam periode yang sama
+    Hsi::where('type', 'Next Level HSI')
+        ->where('periode', $item->periode)
+        ->update(['status' => $newStatus]);
+
+    return back()->with('success', 'Status periode berhasil diubah.');
+}
+
+
     // ══ Telda ══
 public function teldaTable(Request $request)
 {
