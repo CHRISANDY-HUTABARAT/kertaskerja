@@ -1262,19 +1262,40 @@ public function utipDetail(Request $request)
 
     // Ambil 1 record terbaru per kondisi (is_latest = true)
     $rows = \App\Models\Collection::where('type', $typeLabel)
-    ->where('periode', $periodeDate)
-    ->whereIn('id', function($q) use ($typeLabel, $periodeDate) {
+    ->whereIn('id', function($q) use ($typeLabel) {
         $q->selectRaw('MAX(id)')
           ->from('collections')
           ->where('type', $typeLabel)
-          ->where('periode', $periodeDate)
           ->groupBy('kondisi');
     })
     ->orderBy('kondisi')
     ->get();
 
+    // Hitung commitMultiplier sama persis seperti di report
+    $filterTahun = Carbon::now()->year;
+    $filterBulan = Carbon::now()->month;
+
+    // UTIP Corrective tidak pakai multiplier, commit = plan penuh
+    if (str_starts_with($typeLabel, 'New UTIP')) {
+        $parsedDate       = Carbon::parse('01 ' . str_replace('New UTIP ', '', $typeLabel));
+        $monthsDiff       = (($parsedDate->year - $filterTahun) * 12) + ($parsedDate->month - $filterBulan);
+
+        if ($monthsDiff >= 0) {
+            $commitMultiplier = 0;
+        } elseif ($monthsDiff === -1) {
+            $commitMultiplier = 0.30;
+        } elseif ($monthsDiff === -2) {
+            $commitMultiplier = 0.60;
+        } else {
+            $commitMultiplier = 1.00;
+        }
+    } else {
+        // UTIP Corrective: commit = plan, multiplier 1
+        $commitMultiplier = 1.00;
+    }
+
     return view('report.utip_detail', compact(
-        'typeLabel', 'periodeLabel', 'rows'
+        'typeLabel', 'periodeLabel', 'rows', 'commitMultiplier'
     ));
 }
 public function utipDownload(Request $request)

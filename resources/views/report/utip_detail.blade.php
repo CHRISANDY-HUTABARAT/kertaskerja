@@ -54,7 +54,8 @@
             $totalFlagHi   = $rows->sum('real_ratio');
             $totalOlFm     = $rows->sum('ol_fm');
             $totalSisa     = $totalPopulasi - $totalOlFm;
-            $totalAch      = $totalPopulasi > 0 ? ($totalFlagHi / $totalPopulasi) * 100 : 0;
+            $totalCommit = $totalPopulasi * $commitMultiplier;
+            $totalAch    = $totalCommit > 0 ? ($totalFlagHi / $totalCommit) * 100 : 0;
         @endphp
 
         <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
@@ -123,8 +124,9 @@ $rowMap = $rows->keyBy('kondisi');
                     $flagHiSet   = $row && $row->real_ratio !== null;
                     $olFmSet     = $row && $row->ol_fm !== null;
                     $sisa     = (!is_null($populasi) && !is_null($olFm)) ? $populasi - $olFm : null;
-                    $ach      = (!is_null($populasi) && $populasi > 0 && !is_null($flagHi))
-                                ? ($flagHi / $populasi) * 100 : null;
+                    $commit = !is_null($populasi) ? $populasi * $commitMultiplier : null;
+                    $ach    = (!is_null($commit) && $commit > 0 && !is_null($flagHi))
+                        ? ($flagHi / $commit) * 100 : null;
                     $achColor = is_null($ach) ? 'text-slate-400'
                         : ($ach >= 100 ? 'text-green-600' : ($ach >= 80 ? 'text-yellow-500' : 'text-red-600'));
                     $achBg    = is_null($ach) ? ''
