@@ -227,6 +227,7 @@ class ReportController extends Controller
                 'commitRp'   => $rows->isEmpty() ? null : round(($planRaw * $commitMultiplier) / 1000000, 2),
                 'realRp'     => $rows->isEmpty() ? null : $realRp,
                 'updated_at' => $rowUpdated?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                'raw_updated_at' => $rowUpdated?->real_updated_at,
             ];
         }
 
@@ -825,8 +826,8 @@ class ReportController extends Controller
         $utipProgRealTotal   = array_sum(array_column($newUtipPeriodes, 'realRp'));
 
         $utipProgUpdatedAt = collect($newUtipPeriodes)
-            ->where('updated_at', '!=', '-')
-            ->sortByDesc('updated_at')
+            ->whereNotNull('raw_updated_at')
+            ->sortByDesc('raw_updated_at')
             ->first()['updated_at'] ?? '-';
 
         $utipProgressive = [

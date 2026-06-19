@@ -726,9 +726,20 @@
 
                         @foreach($newUtipPeriodes as $utip)
                             @php
-                                $achU      = $utip['commitRp'] == 0 ? '-' : number_format(($utip['realRp'] / $utip['commitRp']) * 100, 2, ',', '.') . '%';
-                                $colorAchU = getColorClass($achU, $fairnessUTIP);
-                                $utipSlug  = strtolower(str_replace(' ', '-', $utip['label']));
+                                $utipSlug = strtolower(str_replace(' ', '-', $utip['label']));
+                                if ($utip['commitRp'] === null || $utip['commitRp'] == 0) {
+                                    $achU      = '-';
+                                    $colorAchU = '';
+                                } else {
+                                    $achPct = ($utip['realRp'] / $utip['commitRp']) * 100;
+                                    $achU   = number_format($achPct, 2, ',', '.') . '%';
+                                    $isFullCommit = ($utip['planRp'] !== null && $utip['planRp'] > 0 && round($utip['commitRp'], 2) == round($utip['planRp'], 2));
+                                    if ($isFullCommit && $achPct < 100) {
+                                        $colorAchU = 'bg-black text-white';
+                                    } else {
+                                        $colorAchU = getColorClass($achU, $fairnessUTIP);
+                                    }
+                                }
                             @endphp
                             <tr id="utip-row-{{ $utipSlug }}">
                                 <td class="border border-gray-400 px-2 py-1">{{ $utip['label'] }}</td>
