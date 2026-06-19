@@ -129,15 +129,18 @@
         $achCorrective       = $utipCorrective['commitRp'] == 0 ? '-' : number_format(($utipCorrective['realRp'] / $utipCorrective['commitRp']) * 100, 2, ',', '.') . '%';
         $colorAchCorrective  = getColorClass($achCorrective, $fairnessUTIP);
 
+        // UTIP Progressive
         $achProgressive      = ($utipProgressive['commitRp'] ?? 0) == 0 ? '-' : number_format(($utipProgressive['realRp'] / $utipProgressive['commitRp']) * 100, 2, ',', '.') . '%';
         $colorAchProgressive = getColorClass($achProgressive, $fairnessUTIP);
 
-        $allUtipRows      = array_merge([$utipCorrective], $newUtipPeriodes);
-        $totalCommitUTIP  = array_sum(array_column($allUtipRows, 'commitRp'));
-        $totalRealUTIP    = array_sum(array_column($allUtipRows, 'realRp'));
-        $scoreUTIP        = $totalCommitUTIP == 0 ? '-' : number_format(($totalRealUTIP / $totalCommitUTIP) * 100, 2) . '%';
-        $colorScoreUTIP   = getColorClass($scoreUTIP, $fairnessUTIP);
-        $utipRowspan      = 1 + count($newUtipPeriodes);
+        // Score UTIP
+        $totalCommitUTIP = ($utipCorrective['commitRp'] ?? 0) + ($utipProgressive['commitRp'] ?? 0);
+        $totalRealUTIP   = ($utipCorrective['realRp']   ?? 0) + ($utipProgressive['realRp']   ?? 0);
+        $scoreUTIP       = $totalCommitUTIP == 0 ? '-' : number_format(($totalRealUTIP / $totalCommitUTIP) * 100, 2, ',', '.') . '%';
+        $colorScoreUTIP  = getColorClass($scoreUTIP, $fairnessUTIP);
+
+        // rowspan
+        $utipRowspan      = 1 + 1 + count($newUtipPeriodes);
 
         $fairnessCt0     = '20-50';
         $fairnessCtc     = '0-100';
@@ -697,36 +700,47 @@
                         @endforeach
 
                             <tr id="utip-row-corrective">
-                                <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">e&nbsp;&nbsp;UTIP</td>
-                                <td class="border border-gray-400 px-2 py-1">{{ $utipCorrective['label'] }}</td>
-                                <td class="border border-gray-400 text-center">Rp</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['planRp'] !== null ? number_format($utipCorrective['planRp'], 2, ',', '.') : '' }}</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['commitRp'] !== null ? number_format($utipCorrective['commitRp'], 2, ',', '.') : '' }}</td>
-                                <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['realRp'] !== null ? number_format($utipCorrective['realRp'], 2, ',', '.') : '' }}</td>
-                                <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-center align-middle">{{ $fairnessUTIP }}</td>
-                                <td class="border border-gray-400 text-right font-bold {{ $colorAchCorrective }}">{{ $achCorrective }}</td>
-                                <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-right font-bold align-middle {{ $colorScoreUTIP }}">{{ $scoreUTIP }}</td>
-                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utipCorrective['updated_at'] ?? '-' }}</td>
-                            </tr>
+                            <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">e&nbsp;&nbsp;UTIP</td>
+                            <td class="border border-gray-400 px-2 py-1">{{ $utipCorrective['label'] }}</td>
+                            <td class="border border-gray-400 text-center">Rp</td>
+                            <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['planRp'] !== null ? number_format($utipCorrective['planRp'], 2, ',', '.') : '' }}</td>
+                            <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['commitRp'] !== null ? number_format($utipCorrective['commitRp'], 2, ',', '.') : '' }}</td>
+                            <td class="border border-gray-400"></td>
+                            <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['realRp'] !== null ? number_format($utipCorrective['realRp'], 2, ',', '.') : '' }}</td>
+                            <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-center align-middle">{{ $fairnessUTIP }}</td>
+                            <td class="border border-gray-400 text-right font-bold {{ $colorAchCorrective }}">{{ $achCorrective }}</td>
+                            <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-right font-bold align-middle {{ $colorScoreUTIP }}">{{ $scoreUTIP }}</td>
+                            <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utipCorrective['updated_at'] ?? '-' }}</td>
+                        </tr>
 
-                            @foreach($newUtipPeriodes as $utip)
-                                @php
-                                    $achU      = $utip['commitRp'] == 0 ? '-' : number_format(($utip['realRp'] / $utip['commitRp']) * 100, 2, ',', '.') . '%' ;
-                                    $colorAchU = getColorClass($achU, $fairnessUTIP);
-                                    $utipSlug  = strtolower(str_replace(' ', '-', $utip['label']));
-                                @endphp
-                                <tr id="utip-row-{{ $utipSlug }}">
-                                    <td class="border border-gray-400 px-2 py-1">{{ $utip['label'] }}</td>
-                                    <td class="border border-gray-400 text-center">Rp</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $utip['planRp'] !== null ? number_format($utip['planRp'], 2, ',', '.') : '' }}</td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $utip['commitRp'] !== null ? number_format($utip['commitRp'], 2, ',', '.') : '' }}</td>
-                                    <td class="border border-gray-400"></td>
-                                    <td class="border border-gray-400 px-2 text-right">{{ $utip['realRp'] !== null ? number_format($utip['realRp'], 2, ',', '.') : '' }}</td>
-                                    <td class="border border-gray-400 text-right font-bold {{ $colorAchU }}">{{ $achU }}</td>
-                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utip['updated_at'] ?? '-' }}</td>
-                                </tr>
-                            @endforeach
+                        <tr id="utip-row-progressive">
+                            <td class="border border-gray-400 px-2 py-1">{{ $utipProgressive['label'] }}</td>
+                            <td class="border border-gray-400 text-center">Rp</td>
+                            <td class="border border-gray-400 px-2 text-right">{{ $utipProgressive['planRp'] !== null ? number_format($utipProgressive['planRp'], 2, ',', '.') : '' }}</td>
+                            <td class="border border-gray-400 px-2 text-right">{{ $utipProgressive['commitRp'] !== null ? number_format($utipProgressive['commitRp'], 2, ',', '.') : '' }}</td>
+                            <td class="border border-gray-400"></td>
+                            <td class="border border-gray-400 px-2 text-right">{{ $utipProgressive['realRp'] !== null ? number_format($utipProgressive['realRp'], 2, ',', '.') : '' }}</td>
+                            <td class="border border-gray-400 text-right font-bold {{ $colorAchProgressive }}">{{ $achProgressive }}</td>
+                            <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utipProgressive['updated_at'] ?? '-' }}</td>
+                        </tr>
+
+                        @foreach($newUtipPeriodes as $utip)
+                            @php
+                                $achU      = $utip['commitRp'] == 0 ? '-' : number_format(($utip['realRp'] / $utip['commitRp']) * 100, 2, ',', '.') . '%';
+                                $colorAchU = getColorClass($achU, $fairnessUTIP);
+                                $utipSlug  = strtolower(str_replace(' ', '-', $utip['label']));
+                            @endphp
+                            <tr id="utip-row-{{ $utipSlug }}">
+                                <td class="border border-gray-400 px-2 py-1">{{ $utip['label'] }}</td>
+                                <td class="border border-gray-400 text-center">Rp</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $utip['planRp'] !== null ? number_format($utip['planRp'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $utip['commitRp'] !== null ? number_format($utip['commitRp'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400"></td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $utip['realRp'] !== null ? number_format($utip['realRp'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 text-right font-bold {{ $colorAchU }}">{{ $achU }}</td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utip['updated_at'] ?? '-' }}</td>
+                            </tr>
+                        @endforeach
 
                             @foreach($arRows as $ai => $ar)
                                 <tr id="ar-row-{{ $ar['slug'] }}">
@@ -1170,10 +1184,14 @@
         { id:'scaling-row-sme-qualified',    href:'{{ $scalingDetailRoutes['sme']['qualified'] }}' },
         { id:'scaling-row-sme-initiate',     href:'{{ $scalingDetailRoutes['sme']['initiate'] }}' },
         { id:'scaling-row-sme-koreksi',      href:'{{ $scalingDetailRoutes['sme']['koreksi'] }}' },
-        { id:'utip-row-corrective', href:'{{ $utipDetailRoutes['corrective'] }}', download:'{{ $utipDownloadRoutes['corrective'] }}', hasFile:{{ $utipHasFile['corrective'] ? 'true' : 'false' }} },
+        // UTIP Corrective → tombol detail biasa
+        { id:'utip-row-corrective', href:'{{ $utipDetailRoutes['corrective'] }}' },
+        // UTIP Progressive → tombol download saja
+        { id:'utip-row-progressive', download:'{{ route('report.utip.download', ['type' => 'all', 'periode' => $scalingPeriodeYm]) }}', hasFile:{{ \App\Models\Collection::whereIn('type', array_merge(['UTIP Corrective'], array_column($periodes ?? [], 'type')))->whereNotNull('file_path')->exists() ? 'true' : 'false' }} },
+        // New UTIP → tombol detail biasa
         @foreach($newUtipPeriodes as $utip)
         @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
-        { id:'utip-row-{{ $utipSlug }}', href:'{{ $utipDetailRoutes[$utipSlug] ?? '' }}', download:'{{ $utipDownloadRoutes[$utipSlug] ?? '' }}', hasFile:{{ ($utipHasFile[$utipSlug] ?? false) ? 'true' : 'false' }} },
+        { id:'utip-row-{{ $utipSlug }}', href:'{{ $utipDetailRoutes[$utipSlug] ?? '' }}' },
         @endforeach
         { id:'ar-row-dgs', download:'{{ $arDownloadRoutes['dgs'] }}', hasFile:{{ $arHasFile['dgs'] ? 'true' : 'false' }} },
         { id:'ngtma-row-gov',     href:'{{ $ngtmaDetailRoutes['gov'] }}' },
@@ -1183,13 +1201,9 @@
     ];
 
     var utipRowIds = [
-    'utip-row-corrective',
-    @foreach($newUtipPeriodes as $utip)
-    @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
-    'utip-row-{{ $utipSlug }}',
-    @endforeach
-    'ar-row-dgs',
-];
+        'utip-row-progressive',
+        'ar-row-dgs',
+    ];
 
 function renderDetailButtons() {
     var container = document.getElementById('scaling-detail-btns');
@@ -1205,10 +1219,22 @@ function renderDetailButtons() {
     var tableRight = table.offsetWidth + 6;
     var containerTopInScroll = table.offsetTop + table.offsetHeight;
 
-    detailRoutes.forEach(function(g) {
+        detailRoutes.forEach(function(g) {
         var tr = document.getElementById(g.id);
         if (!tr) return;
-        var btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
+
+        var btnTop;
+        if (g.id === 'utip-row-progressive') {
+            var refTr = document.getElementById('utip-row-corrective');
+            if (refTr) {
+                btnTop = table.offsetTop + refTr.offsetTop + refTr.offsetHeight + (tr.offsetHeight / 2) - 10 - containerTopInScroll - 5;
+            } else {
+                btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
+            }
+        } else {
+            btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
+        }
+
         var hasDownload = typeof g.download === 'string' && g.download.length > 0;
         var hasDetail   = typeof g.href === 'string' && g.href.length > 0;
         var isUtip      = utipRowIds.indexOf(g.id) !== -1 || hasDownload;

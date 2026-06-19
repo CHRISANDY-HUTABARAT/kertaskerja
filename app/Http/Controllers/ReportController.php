@@ -820,6 +820,23 @@ class ReportController extends Controller
                 ->exists();
         }
 
+        $utipProgPlanTotal   = array_sum(array_column($newUtipPeriodes, 'planRp'));
+        $utipProgCommitTotal = array_sum(array_column($newUtipPeriodes, 'commitRp'));
+        $utipProgRealTotal   = array_sum(array_column($newUtipPeriodes, 'realRp'));
+
+        $utipProgUpdatedAt = collect($newUtipPeriodes)
+            ->where('updated_at', '!=', '-')
+            ->sortByDesc('updated_at')
+            ->first()['updated_at'] ?? '-';
+
+        $utipProgressive = [
+            'label'      => 'UTIP Progressive',
+            'planRp'     => $utipProgPlanTotal   > 0 ? $utipProgPlanTotal   : null,
+            'commitRp'   => $utipProgCommitTotal > 0 ? $utipProgCommitTotal : null,
+            'realRp'     => $utipProgRealTotal   > 0 ? $utipProgRealTotal   : null,
+            'updated_at' => $utipProgUpdatedAt,
+        ];
+
         return view('report.report', compact(
             'filtered', 'filterBulan', 'filterTahun', 'filterTanggal',
             'c3mrKomitmen', 'c3mrRealisasi', 'c3mrUpdatedAt',
@@ -827,6 +844,7 @@ class ReportController extends Controller
             'crData', 'crUpdatedAt',
             'cycData', 'cycUpdatedAt',
             'utipCorrective',
+            'utipProgressive',
             'newUtipPeriodes',
             'utipDetailRoutes',
             'utipDownloadRoutes',
@@ -1277,8 +1295,6 @@ public function progressKoreksiUpdate(Request $request, string $segment)
 }
 public function utipDetail(Request $request)
 {
-    // Decode slug kembali ke type asli, misal "utip-corrective" → "UTIP Corrective"
-    // Tapi kita pakai query string langsung saja
     $typeLabel   = $request->input('type', '');
     $periodeYm   = $request->input('periode', Carbon::now()->format('Y-m'));
 
@@ -1286,7 +1302,6 @@ public function utipDetail(Request $request)
     $periodeDate  = Carbon::createFromDate((int)$y, (int)$m, 1)->format('Y-m-d');
     $periodeLabel = Carbon::createFromDate((int)$y, (int)$m, 1)->translatedFormat('F Y');
 
-    // Ambil 1 record terbaru per kondisi (is_latest = true)
     $rows = \App\Models\Collection::where('type', $typeLabel)
     ->whereIn('id', function($q) use ($typeLabel) {
         $q->selectRaw('MAX(id)')
@@ -1297,13 +1312,21 @@ public function utipDetail(Request $request)
     ->orderBy('kondisi')
     ->get();
 
-    // Hitung commitMultiplier sama persis seperti di report
     $filterTahun = Carbon::now()->year;
     $filterBulan = Carbon::now()->month;
 
-    // UTIP Corrective tidak pakai multiplier, commit = plan penuh
     if (str_starts_with($typeLabel, 'New UTIP')) {
-        $parsedDate       = Carbon::parse('01 ' . str_replace('New UTIP ', '', $typeLabel));
+    $monthStr = str_replace('New UTIP ', '', $typeLabel);
+    $bulanMap = [
+        'Jan' => 'January',  'Feb' => 'February', 'Mar' => 'March',
+        'Apr' => 'April',    'Mei' => 'May',       'Jun' => 'June',
+        'Jul' => 'July',     'Aug' => 'August',    'Sep' => 'September',
+        'Okt' => 'October',  'Nov' => 'November',  'Des' => 'December',
+    ];
+    foreach ($bulanMap as $id => $en) {
+        $monthStr = str_replace($id, $en, $monthStr);
+    }
+    $parsedDate = Carbon::parse('01 ' . $monthStr);
         $monthsDiff       = (($parsedDate->year - $filterTahun) * 12) + ($parsedDate->month - $filterBulan);
 
         if ($monthsDiff >= 0) {
@@ -1316,7 +1339,6 @@ public function utipDetail(Request $request)
             $commitMultiplier = 1.00;
         }
     } else {
-        // UTIP Corrective: commit = plan, multiplier 1
         $commitMultiplier = 1.00;
     }
 
@@ -1329,20 +1351,27 @@ public function utipDownload(Request $request)
     $typeLabel = $request->input('type', '');
     $periodeYm = $request->input('periode', Carbon::now()->format('Y-m'));
 
-    [$y, $m] = explode('-', $periodeYm);
-    $periodeDate = Carbon::createFromDate((int)$y, (int)$m, 1)->format('Y-m-d');
-
-    $record = \App\Models\Collection::where('type', $typeLabel)
-    ->whereNotNull('file_path')
-    ->orderBy('created_at', 'desc')
-    ->first();
+    if ($typeLabel === 'all') {
+        // Ambil file terbaru dari semua tipe UTIP (corrective + new utip)
+        $record = \App\Models\Collection::where(function($q) {
+                $q->where('type', 'UTIP Corrective')
+                  ->orWhere('type', 'like', 'New UTIP%');
+            })
+            ->whereNotNull('file_path')
+            ->orderBy('created_at', 'desc')
+            ->first();
+    } else {
+        $record = \App\Models\Collection::where('type', $typeLabel)
+            ->whereNotNull('file_path')
+            ->orderBy('created_at', 'desc')
+            ->first();
+    }
 
     if (!$record || !$record->file_path) {
         abort(404, 'File tidak ditemukan.');
     }
 
     $fullPath = storage_path('app/public/' . $record->file_path);
-
     if (!file_exists($fullPath)) {
         abort(404, 'File tidak ditemukan di server.');
     }
