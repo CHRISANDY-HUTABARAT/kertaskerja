@@ -94,6 +94,30 @@ class ReportController extends Controller
             $crUpdatedAt[$key] = $crRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-';
         }
 
+        $cycSegmentMap = [
+            'GOV'     => 'Government',
+            'PRIVATE' => 'Private',
+            'SME'     => 'SME',
+            'SOE'     => 'SOE',
+        ];
+        $cycData = [];
+        $cycUpdatedAt = [];
+        foreach ($cycSegmentMap as $key => $dbSegment) {
+            $cycData[$key] = [
+                'komitmen'  => $latestVal('CYC', 'commitment', $dbSegment),
+                'realisasi' => $latestVal('CYC', 'real_ratio', $dbSegment),
+            ];
+            $cycRow = Collection::where('type', 'CYC')
+                ->where('segment', $dbSegment)->tap($filterPeriode)
+                ->orderBy('created_at', 'desc')->first();
+            $cycUpdatedAt[$key] = $cycRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-';
+        }
+
+        $cycVals = [];
+        foreach ($cycData as $seg => $val) {
+            $cycVals[$seg] = $val['komitmen'] == 0 ? 0 : ($val['realisasi'] / $val['komitmen']) * 100;
+        }
+
         // UTIP Corrective — ambil record terbaru dalam periode filter
         $utipCorRows = Collection::where('type', 'UTIP Corrective')
             ->whereIn('id', function($q) {
@@ -205,6 +229,7 @@ class ReportController extends Controller
                 'updated_at' => $rowUpdated?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
             ];
         }
+
 
         $filterPeriodeCt0 = function ($q) use ($filtered, $filterBulan, $filterTahun, $filterTanggal, $isLastDayOfMonth) {
             if ($filtered && $filterBulan) $q->whereMonth('periode', $filterBulan);
@@ -800,6 +825,7 @@ class ReportController extends Controller
             'c3mrKomitmen', 'c3mrRealisasi', 'c3mrUpdatedAt',
             'bilperKomitmen', 'bilperRealisasi', 'bilperUpdatedAt',
             'crData', 'crUpdatedAt',
+            'cycData', 'cycUpdatedAt',
             'utipCorrective',
             'newUtipPeriodes',
             'utipDetailRoutes',

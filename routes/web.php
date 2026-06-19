@@ -45,6 +45,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/collection-ratio', [AdminController::class, 'collectionRatioTable'])->name('admin.collection-ratio');
         Route::post('/collection-ratio', [AdminController::class, 'collectionRatioStore'])->name('admin.collection-ratio.store');
 
+        // CYC routes
+        Route::get('/cyc', [AdminController::class, 'cycTable'])->name('admin.cyc');
+        Route::post('/cyc', [AdminController::class, 'cycStore'])->name('admin.cyc.store');
+
         // toggle status helper (used by tables)
         Route::patch('/collection/{id}/status', [AdminController::class, 'toggleCollectionStatus'])
             ->name('admin.collection.toggleStatus');
@@ -349,6 +353,8 @@ Route::middleware('auth')->group(function () {
         Route::post('/collection/ar', [CollectionController::class, 'storeArRealisasi'])->name('collection.ar.storeRealisasi');
         Route::get('/collection/cr', [CollectionController::class, 'cr'])->name('collection.cr');
         Route::post('/collection/cr', [CollectionController::class, 'storeCrRealisasi'])->name('collection.cr.storeRealisasi');
+        Route::get('/collection/cyc', [CollectionController::class, 'cyc'])->name('collection.cyc');
+        Route::post('/collection/cyc', [CollectionController::class, 'storeCycRealisasi'])->name('collection.cyc.storeRealisasi');
     });
 
     // CTC dashboard (role: ctc)

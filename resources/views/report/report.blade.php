@@ -115,9 +115,22 @@
         $crTotalPct   = number_format(($crVals['GOV']*0.4)+($crVals['SME']*0.2)+($crVals['PRIVATE']*0.2)+($crVals['SOE']*0.2),2, ',', '.') . '%';
         $colorCRTotal = getColorClass($crTotalPct, $fairnessCR);
 
+        $fairnessCYC  = '90-100';
+        $cycScores = []; $cycVals2 = [];
+        foreach ($cycData as $seg => $val) {
+            $pct = $val['komitmen'] == 0 ? '-' : number_format(($val['realisasi'] / $val['komitmen']) * 100, 2, ',', '.') . '%';
+            $cycScores[$seg] = ['text' => $pct, 'color' => getColorClass($pct, $fairnessCYC)];
+            $cycVals2[$seg]  = $val['komitmen'] == 0 ? 0 : ($val['realisasi'] / $val['komitmen']) * 100;
+        }
+        $cycTotalPct   = number_format(($cycVals2['GOV']*0.4)+($cycVals2['SME']*0.2)+($cycVals2['PRIVATE']*0.2)+($cycVals2['SOE']*0.2), 2, ',', '.') . '%';
+        $colorCYCTotal = getColorClass($cycTotalPct, $fairnessCYC);
+
         $fairnessUTIP        = '0-100';
         $achCorrective       = $utipCorrective['commitRp'] == 0 ? '-' : number_format(($utipCorrective['realRp'] / $utipCorrective['commitRp']) * 100, 2, ',', '.') . '%';
         $colorAchCorrective  = getColorClass($achCorrective, $fairnessUTIP);
+
+        $achProgressive      = ($utipProgressive['commitRp'] ?? 0) == 0 ? '-' : number_format(($utipProgressive['realRp'] / $utipProgressive['commitRp']) * 100, 2, ',', '.') . '%';
+        $colorAchProgressive = getColorClass($achProgressive, $fairnessUTIP);
 
         $allUtipRows      = array_merge([$utipCorrective], $newUtipPeriodes);
         $totalCommitUTIP  = array_sum(array_column($allUtipRows, 'commitRp'));
@@ -610,7 +623,7 @@
                                 <td colspan="10" class="border border-gray-400 px-2 py-1 uppercase bg-gray-50">Collection</td>
                             </tr>
 
-                            @php $sectionRowspan = 1 + 1 + 4 + $utipRowspan + $arRowspan; @endphp
+                            @php $sectionRowspan = 1 + 1 + 4 + 4 + $utipRowspan + $arRowspan; @endphp
 
                             <tr>
                                 <td rowspan="{{ $sectionRowspan }}" class="border border-gray-400"></td>
@@ -661,8 +674,30 @@
                                 </tr>
                             @endforeach
 
+                            @foreach(['GOV', 'SME', 'PRIVATE', 'SOE'] as $si => $seg)
+                            <tr>
+                                @if($si === 0)
+                                    <td rowspan="4" class="border border-gray-400 px-2 py-1 align-top font-semibold">d&nbsp;&nbsp;CYC</td>
+                                @endif
+                                <td class="border border-gray-400 px-2 py-1">CYC {{ $seg }}</td>
+                                <td class="border border-gray-400 text-center">%</td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $cycData[$seg]['komitmen'] > 0 ? number_format($cycData[$seg]['komitmen'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400"></td>
+                                <td class="border border-gray-400 px-2 text-right">{{ $cycData[$seg]['realisasi'] > 0 ? number_format($cycData[$seg]['realisasi'], 2, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400"></td>
+                                @if($si === 0)
+                                    <td rowspan="4" class="border border-gray-400 text-center align-middle">{{ $fairnessCYC }}</td>
+                                @endif
+                                <td class="border border-gray-400 text-right font-bold {{ $cycScores[$seg]['color'] }}">{{ $cycScores[$seg]['text'] }}</td>
+                                @if($si === 0)
+                                    <td rowspan="4" class="border border-gray-400 text-right font-bold align-middle {{ $colorCYCTotal }}">{{ $cycTotalPct }}</td>
+                                @endif
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $cycUpdatedAt[$seg] ?? '-' }}</td>
+                            </tr>
+                        @endforeach
+
                             <tr id="utip-row-corrective">
-                                <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">d&nbsp;&nbsp;UTIP</td>
+                                <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">e&nbsp;&nbsp;UTIP</td>
                                 <td class="border border-gray-400 px-2 py-1">{{ $utipCorrective['label'] }}</td>
                                 <td class="border border-gray-400 text-center">Rp</td>
                                 <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['planRp'] !== null ? number_format($utipCorrective['planRp'], 2, ',', '.') : '' }}</td>
@@ -696,7 +731,7 @@
                             @foreach($arRows as $ai => $ar)
                                 <tr id="ar-row-{{ $ar['slug'] }}">
                                     @if($ai === 0)
-                                        <td rowspan="{{ $arRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">e&nbsp;&nbsp;AR</td>
+                                        <td rowspan="{{ $arRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">f&nbsp;&nbsp;AR</td>
                                     @endif
                                     <td class="border border-gray-400 px-2 py-1">{{ $ar['label'] }}</td>
                                     <td class="border border-gray-400 text-center">Rp</td>

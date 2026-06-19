@@ -201,6 +201,13 @@
                                 'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>'
                             ],
                             [
+                                'label' => 'CYC',
+                                'sub' => 'CYC Management',
+                                'badge' => 'CYC',
+                                'route' => route('admin.cyc'),
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>'
+                            ],
+                            [
                                 'label' => 'UTIP',
                                 'sub' => 'UTIP Management',
                                 'badge' => 'UTIP',
@@ -212,8 +219,8 @@
                                 'sub' => 'AR Management',
                                 'badge' => 'AR',
                                 'route' => route('admin.ar'),
-                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>'
-                            ],
+                                'icon' => '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M9 14l6-6m-5.5.5h.01m4.99 5h.01M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16l3.5-2 3.5 2 3.5-2 3.5 2z"/>'
+                           ],
                         ];
                     @endphp
                     @foreach($collectionCards as $card)

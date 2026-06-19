@@ -336,6 +336,124 @@ class CollectionController extends Controller
         return back()->with('success', 'Data berhasil disimpan');
     }
 
+        public function cyc(Request $request)
+    {
+        $currentDate = Carbon::now();
+
+        $periodeOptions = Collection::where('type', 'CYC')
+            ->selectRaw('DATE_FORMAT(periode, "%Y-%m") as periode_ym, MAX(periode) as max_periode')
+            ->where('periode', '<=', Carbon::now()->endOfMonth()->format('Y-m-d'))
+            ->groupBy('periode_ym')
+            ->orderByDesc('max_periode')
+            ->pluck('periode_ym');
+
+        $selectedPeriode = $request->filled('selected_periode')
+            ? $request->selected_periode
+            : $currentDate->format('Y-m');
+
+        [$selYear, $selMonth] = explode('-', $selectedPeriode);
+
+        $latestSeg = Collection::where('type', 'CYC')
+            ->where('is_latest', true)
+            ->whereYear('periode', $selYear)
+            ->whereMonth('periode', $selMonth)
+            ->get();
+
+        $lockedSegments = Collection::where('type', 'CYC')
+            ->where('is_latest', true)
+            ->where('status', 'inactive')
+            ->whereYear('periode', $selYear)
+            ->whereMonth('periode', $selMonth)
+            ->pluck('segment')
+            ->toArray();
+
+        $query = Collection::where('type', 'CYC')
+            ->orderBy('created_at', 'desc');
+
+        if ($request->filled('segment')) $query->where('segment', $request->segment);
+        if ($request->filled('bulan'))   $query->whereMonth('periode', $request->bulan);
+        if ($request->filled('tahun'))   $query->whereYear('periode', $request->tahun);
+        if ($request->filled('cari')) {
+            $query->where(function($q) use ($request) {
+                $q->where('segment', 'like', '%'.$request->cari.'%')
+                ->orWhere('real_ratio', 'like', '%'.$request->cari.'%')
+                ->orWhere('commitment', 'like', '%'.$request->cari.'%');
+            });
+        }
+
+        $collections = $query->paginate(10)->withQueryString();
+
+        $segments = Collection::where('type', 'CYC')
+            ->whereNotNull('segment')->distinct()->orderBy('segment')->pluck('segment');
+
+        $tahuns = Collection::where('type', 'CYC')
+            ->selectRaw('YEAR(periode) as tahun')
+            ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
+
+        $selectedSegment = $request->segment;
+        $selectedBulan   = $request->bulan;
+        $selectedTahun   = $request->tahun;
+        $selectedCari    = $request->cari;
+
+        return view('dashboard.collection.cyc', compact(
+            'collections', 'segments', 'tahuns', 'latestSeg', 'lockedSegments',
+            'periodeOptions', 'selectedPeriode',
+            'selectedSegment', 'selectedBulan', 'selectedTahun', 'selectedCari'
+        ));
+    }
+
+    public function storeCycRealisasi(Request $request)
+    {
+        $request->validate([
+            'status'     => 'required|in:active,inactive',
+            'periode'    => 'required|date_format:Y-m',
+            'segment'    => 'required|string',
+            'real_ratio' => 'nullable|string',
+        ]);
+
+        $periodeDate = $request->periode . '-01';
+
+        $isLocked = Collection::where('type', 'CYC')
+            ->where('segment', $request->segment)
+            ->where('periode', $periodeDate)
+            ->where('is_latest', true)
+            ->where('status', 'inactive')
+            ->exists();
+
+        if ($isLocked) {
+            return back()
+                ->withInput()
+                ->with('error', 'Segment ' . $request->segment . ' sudah dinonaktifkan untuk periode ' . \Carbon\Carbon::parse($periodeDate)->translatedFormat('F Y') . '.');
+        }
+
+        $lastCommitment = Collection::where('type', 'CYC')
+            ->where('segment', $request->segment)
+            ->where('periode', $periodeDate)
+            ->where('is_latest', true)
+            ->value('commitment');
+
+        DB::transaction(function () use ($request, $periodeDate, $lastCommitment) {
+            Collection::where('type', 'CYC')
+                ->where('segment', $request->segment)
+                ->where('periode', $periodeDate)
+                ->update(['is_latest' => false]);
+
+            Collection::create([
+                'user_id'         => Auth::id(),
+                'type'            => 'CYC',
+                'segment'         => $request->segment,
+                'periode'         => $periodeDate,
+                'status'          => $request->status,
+                'is_latest'       => true,
+                'commitment'      => $lastCommitment,
+                'real_ratio'      => $request->real_ratio,
+                'real_updated_at' => now(),
+            ]);
+        });
+
+        return back()->with('success', 'Data CYC berhasil disimpan');
+    }
+
     public function utip(Request $request)
     {
         $currentDate = Carbon::now();
