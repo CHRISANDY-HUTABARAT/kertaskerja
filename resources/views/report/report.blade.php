@@ -1195,11 +1195,11 @@
         { id:'scaling-row-sme-qualified',    href:'{{ $scalingDetailRoutes['sme']['qualified'] }}' },
         { id:'scaling-row-sme-initiate',     href:'{{ $scalingDetailRoutes['sme']['initiate'] }}' },
         { id:'scaling-row-sme-koreksi',      href:'{{ $scalingDetailRoutes['sme']['koreksi'] }}' },
-        // UTIP Corrective → tombol detail biasa
+        // UTIP Corrective
         { id:'utip-row-corrective', href:'{{ $utipDetailRoutes['corrective'] }}' },
-        // UTIP Progressive → tombol download saja
+        // UTIP Progressive
         { id:'utip-row-progressive', download:'{{ route('report.utip.download', ['type' => 'all', 'periode' => $scalingPeriodeYm]) }}', hasFile:{{ \App\Models\Collection::whereIn('type', array_merge(['UTIP Corrective'], array_column($periodes ?? [], 'type')))->whereNotNull('file_path')->exists() ? 'true' : 'false' }} },
-        // New UTIP → tombol detail biasa
+        // New UTIP
         @foreach($newUtipPeriodes as $utip)
         @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
         { id:'utip-row-{{ $utipSlug }}', href:'{{ $utipDetailRoutes[$utipSlug] ?? '' }}' },
@@ -1242,6 +1242,11 @@ function renderDetailButtons() {
             } else {
                 btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
             }
+        } else if (g.id === 'ar-row-dgs') {
+            var arTr = document.getElementById('ar-row-dgs');
+            var arRect     = arTr.getBoundingClientRect();
+            var tableRect2 = table.getBoundingClientRect();
+            btnTop = (arRect.top - tableRect2.top) + table.offsetTop + (arRect.height / 2) - 15 - containerTopInScroll;
         } else {
             btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
         }
@@ -1259,6 +1264,8 @@ function renderDetailButtons() {
                 btnA.textContent = 'Download';
                 btnA.style.cssText = 'display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);text-decoration:none;';
                 if (g.hasFile) {
+                    btnA.onmouseenter = function(){ this.style.background='#dc2626'; };
+                    btnA.onmouseleave = function(){ this.style.background='#1e293b'; };
                     btnA.href = g.download + '&t=' + Date.now();
                 } else {
                     btnA.style.cssText += 'background:#f1f5f9;color:#94a3b8;cursor:not-allowed;pointer-events:none;';
