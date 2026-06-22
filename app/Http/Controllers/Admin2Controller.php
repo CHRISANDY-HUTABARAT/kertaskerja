@@ -302,13 +302,17 @@ public function toggleRisingStarStatus($id)
     $selectedPeriode = $request->get('periode', Carbon::now()->format('Y-m'));
     $currentPeriode = $selectedPeriode . '-01';
 
-    $existing = Hsi::where('type', 'Sales HSI Non AM Non Telda')
-        ->where('periode', $currentPeriode)
+    // $existing = Hsi::where('type', 'Sales HSI Non AM Non Telda')
+    //     ->where('periode', $currentPeriode)
+    //     ->orderBy('updated_at', 'desc')
+    //     ->first();
+
+    $existing = Hsi::where('periode', $currentPeriode)
         ->orderBy('updated_at', 'desc')
         ->first();
 
     $query = Hsi::with('user')
-        ->where('type', 'Sales HSI Non AM Non Telda')
+        // ->where('type', 'Sales HSI Non AM Non Telda')
         ->orderBy('periode', 'desc')
         ->orderBy('updated_at', 'desc');
 
@@ -321,8 +325,13 @@ public function toggleRisingStarStatus($id)
 
     $hsi = $query->paginate(10)->withQueryString();
 
-    $tahuns = Hsi::where('type', 'Sales HSI Non AM Non Telda')
-        ->selectRaw('YEAR(periode) as tahun')
+    // $tahuns = Hsi::where('type', 'Sales HSI Non AM Non Telda')
+    //     ->selectRaw('YEAR(periode) as tahun')
+    //     ->distinct()
+    //     ->orderBy('tahun', 'desc')
+    //     ->pluck('tahun');
+
+    $tahuns = Hsi::selectRaw('YEAR(periode) as tahun')
         ->distinct()
         ->orderBy('tahun', 'desc')
         ->pluck('tahun');
@@ -341,6 +350,7 @@ public function hsiStore(Request $request)
     $request->validate([
         'type'       => 'required|string',
         'periode'    => 'required|string',
+        'segment'    => 'required|string',
         'commitment' => 'nullable|numeric|min:0',
         'real_ratio' => 'nullable|numeric|min:0',
     ]);
@@ -348,15 +358,23 @@ public function hsiStore(Request $request)
     $periodeDate = $request->periode . '-01';
 
     $existing = Hsi::where('type', $request->type)
+        ->where('segment', $request->segment)
         ->where('periode', $periodeDate)
         ->orderBy('updated_at', 'desc')
         ->first();
+
+    // Reject if user tries to submit real_ratio while there is no commitment
+    // for the selected combination of type+segment+periode.
+    if ($request->filled('real_ratio') && ! $request->filled('commitment') && (is_null($existing) || is_null($existing->commitment))) {
+        return back()->withInput()->with('error', 'Gagal: Commitment belum diinput untuk kombinasi Tipe / Segment / Periode yang dipilih. Silakan masukkan Commitment terlebih dahulu.');
+    }
 
     $commitment = $request->filled('commitment')
         ? $request->commitment
         : ($existing->commitment ?? null);
 
     $lastRealRow = Hsi::where('type', $request->type)
+        ->where('segment', $request->segment)
         ->where('periode', $periodeDate)
         ->whereNotNull('real_ratio')
         ->orderBy('created_at', 'desc')
@@ -368,6 +386,7 @@ public function hsiStore(Request $request)
     Hsi::create([
         'user_id'         => Auth::id(),
         'type'            => $request->type,
+        'segment'         => $request->segment,
         'periode'         => $periodeDate,
         'commitment'      => $commitment,
         'real_ratio'      => $realRatio,

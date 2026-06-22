@@ -8,7 +8,7 @@ class Hsi extends Model
 {
     protected $fillable = [
     'user_id', 'status', 'type',
-    'periode', 'commitment', 'real_ratio',
+    'periode', 'segment', 'commitment', 'real_ratio',
     'real_updated_at',
 ];
 
