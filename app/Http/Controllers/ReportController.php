@@ -712,21 +712,62 @@ class ReportController extends Controller
                 'sme'     => route('report.detail', ['segment' => 'sme',     'type' => 'ngtma', 'periode' => $scalingPeriodeYm]),
             ];
 
-        $hsiAgencyRow = Hsi::where('type', 'Sales HSI Non AM Non Telda')
-            ->whereYear('periode', $scalingTahun)
-            ->whereMonth('periode', $scalingBulan)
-            ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
-                $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
-                $q->where('updated_at', '<=', $cutoff);
-            })
-            ->orderBy('created_at', 'desc')
-            ->first();
+        // $hsiAgencyRow = Hsi::where('type', 'Sales HSI Non AM Non Telda')
+        //     ->whereYear('periode', $scalingTahun)
+        //     ->whereMonth('periode', $scalingBulan)
+        //     ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+        //         $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+        //         $q->where('updated_at', '<=', $cutoff);
+        //     })
+        //     ->orderBy('created_at', 'desc')
+        //     ->first();
 
-        $hsiData = [
-            'commit_amount' => (float) ($hsiAgencyRow->commitment ?? 0),
-            'real_amount'   => (float) ($hsiAgencyRow->real_ratio ?? 0),
-            'updated_at' => $hsiAgencyRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
-        ];
+        // $hsiData = [
+        //     'commit_amount' => (float) ($hsiAgencyRow->commitment ?? 0),
+        //     'real_amount'   => (float) ($hsiAgencyRow->real_ratio ?? 0),
+        //     'updated_at' => $hsiAgencyRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
+        // ];
+
+        $salesProductTypes    = ['HSI', 'Wi-Fi', 'Bandwidth'];
+        $salesProductSegments = ['Government', 'Private', 'SOE', 'SME'];
+        $salesProductData     = [];
+
+        foreach ($salesProductTypes as $spType) {
+            $salesProductData[$spType] = [];
+            $totalCommit = 0;
+            $totalReal   = 0;
+
+            foreach ($salesProductSegments as $spSeg) {
+                $spRow = Hsi::where('type', $spType)
+                    ->where('segment', $spSeg)
+                    ->whereYear('periode', $scalingTahun)
+                    ->whereMonth('periode', $scalingBulan)
+                    ->when($filterTanggal && $filterBulan && $filterTahun && !$isLastDayOfMonth, function ($q) use ($filterTahun, $filterBulan, $filterTanggal) {
+                        $cutoff = Carbon::createFromDate($filterTahun, $filterBulan, $filterTanggal)->endOfDay();
+                        $q->where('updated_at', '<=', $cutoff);
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->first();
+
+                $commit = (float) ($spRow->commitment ?? 0);
+                $real   = (float) ($spRow->real_ratio ?? 0);
+                $totalCommit += $commit;
+                $totalReal   += $real;
+
+                $salesProductData[$spType][$spSeg] = [
+                    'commit'     => $commit,
+                    'real'       => $real,
+                    'updated_at' => $spRow?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
+                ];
+            }
+
+            $salesProductData[$spType]['_total'] = [
+                'commit'     => $totalCommit,
+                'real'       => $totalReal,
+                'updated_at' => '-',
+            ];
+        }
+        $hsiData = ['commit_amount' => 0, 'real_amount' => 0, 'updated_at' => '-'];
 
         $teldaRegions = [
             'lubukpakam'      => 'Lubuk Pakam',
@@ -861,7 +902,7 @@ class ReportController extends Controller
             'psakData',
             'scallingSegments', 'scallingTypes', 'scallingData',
             'ngtmaSegments', 'ngtmaData', 'ngtmaDetailRoutes',
-            'arRows', 'arRowspan', 'fairnessAR',
+            'arRows', 'arRowspan', 'fairnessAR', 'salesProductData',
             'hsiData', 'teldaData', 'teldaRegions', 'upsellingData',
             'scalingPeriodeYm', 'lossRateUpdatedAt'
         ));

@@ -463,8 +463,8 @@
                                     @endphp
                                     <tr id="scaling-row-{{ $segKey }}-{{ $typeKey }}">
                                         @if($segKey === 'gov' && $isFirst)
-                                            @php $fairnessScalingRowspan = $typeCount * count($scallingSegments) + 1 + count($teldaRegions) + 1; @endphp
-                                            <td rowspan="{{ $typeCount * count($scallingSegments) + 1 + count($teldaRegions) + 1 }}" class="border border-gray-400 text-center align-middle"></td>
+                                            @php $fairnessScalingRowspan = $typeCount * count($scallingSegments) + 15 + count($teldaRegions) + 1; @endphp
+                                            <td rowspan="{{ $typeCount * count($scallingSegments) + 15 + count($teldaRegions) + 1 }}" class="border border-gray-400 text-center align-middle"></td>
                                         @endif
 
                                         @if($isFirst)
@@ -530,28 +530,81 @@
                             @endforeach
 
                             @php
-                                $hsiCommit = $hsiData['commit_amount'];
-                                $hsiReal   = $hsiData['real_amount'];
-                                $hsiAchVal = $hsiCommit > 0 ? ($hsiReal / $hsiCommit) * 100 : null;
-                                $hsiC      = scalingAchColor($hsiAchVal);
+                                $spTypes       = ['HSI', 'Wi-Fi', 'Bandwidth'];
+                                $spSegKeys     = ['Government', 'Private', 'SOE', 'SME'];
+                                $spSegLabels   = ['Government' => 'Gov', 'Private' => 'Private', 'SOE' => 'SOE', 'SME' => 'SME'];
+                                $spTotalRows   = 15;
+                                $spRowsPerType = 5;
+                                $spGlobalFirst = true;
                             @endphp
-                            <tr>
-                                <td class="border border-gray-400 px-2 py-1 font-semibold">e&nbsp;&nbsp;HSI Agency</td>
-                                <td class="border border-gray-400 px-2 py-1">Sales HSI Non AM Non Telda</td>
-                                <td class="border border-gray-400 text-center">ssl</td>
-                                <td class="border border-gray-400 px-2 text-right">
-                                    {{ $hsiCommit > 0 ? number_format($hsiCommit, 0) : '' }}
-                                </td>
-                                <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right">
-                                    {{ $hsiReal > 0 ? number_format($hsiReal, 0) : '' }}
-                                </td>
-                                <td class="border border-gray-400"></td>
-                                <td colspan="2" class="border border-gray-400 text-right font-bold" style="{{ $hsiC['bg'] }}">
-                                    <span class="{{ $hsiC['text'] }}">{{ $hsiC['label'] }}</span>
-                                </td>
-                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $hsiData['updated_at'] ?? '-' }}</td>
-                            </tr>
+
+                            @foreach($spTypes as $spType)
+                                @php
+                                    $spTypeRows    = $salesProductData[$spType];
+                                    $spTotalCommit = $spTypeRows['_total']['commit'];
+                                    $spTotalReal   = $spTypeRows['_total']['real'];
+                                    $spScoreVal    = $spTotalCommit > 0 ? ($spTotalReal / $spTotalCommit) * 100 : null;
+                                    $spScoreC      = scalingAchColor($spScoreVal);
+                                    $spRenderScore = true;
+                                @endphp
+
+                                @foreach($spSegKeys as $spSeg)
+                                    @php
+                                        $spRow  = $spTypeRows[$spSeg];
+                                        $spC    = $spRow['commit'];
+                                        $spR    = $spRow['real'];
+                                        $spAchV = $spC > 0 ? ($spR / $spC) * 100 : null;
+                                        $spAchC = scalingAchColor($spAchV);
+                                    @endphp
+                                    <tr>
+                                        @if($spGlobalFirst)
+                                            <td class="border border-gray-400 px-2 py-1 font-semibold align-top" rowspan="{{ $spTotalRows }}">e&nbsp;&nbsp;Sales Product</td>
+                                            @php $spGlobalFirst = false; @endphp
+                                        @endif
+
+                                        @if($loop->first)
+                                            <td class="border border-gray-400 px-2 py-1 font-semibold align-top" rowspan="{{ $spRowsPerType }}">{{ $spType }}</td>
+                                        @endif
+
+                                        <td class="border border-gray-400 px-2 py-1">{{ $spSegLabels[$spSeg] }}</td>
+                                        <td class="border border-gray-400 text-center">ssl</td>
+                                        <td class="border border-gray-400 px-2 text-right">{{ $spC > 0 ? number_format($spC, 0) : '' }}</td>
+                                        <td class="border border-gray-400"></td>
+                                        <td class="border border-gray-400 px-2 text-right">{{ $spR > 0 ? number_format($spR, 0) : '' }}</td>
+                                        <td class="border border-gray-400"></td>
+                                        <td class="border border-gray-400 text-right font-bold" style="{{ $spAchC['bg'] }}">
+                                            <span class="{{ $spAchC['text'] }}">{{ $spAchC['label'] }}</span>
+                                        </td>
+                                        @if($spRenderScore)
+                                            <td class="border border-gray-400 text-right font-bold align-middle" rowspan="{{ $spRowsPerType }}" style="{{ $spScoreC['bg'] }}">
+                                                <span class="{{ $spScoreC['text'] }}">{{ $spScoreC['label'] }}</span>
+                                            </td>
+                                            @php $spRenderScore = false; @endphp
+                                        @endif
+                                        <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $spRow['updated_at'] }}</td>
+                                    </tr>
+                                @endforeach
+
+                                {{-- Baris Total per Type --}}
+                                @php
+                                    $spTAchV = $spTotalCommit > 0 ? ($spTotalReal / $spTotalCommit) * 100 : null;
+                                    $spTAchC = scalingAchColor($spTAchV);
+                                @endphp
+                                <tr >
+                                    {{-- type label sudah rowspan dari Gov, tidak perlu td --}}
+                                    <td class="border border-gray-400 px-2 py-1 font-bold text-slate-700" style="background:#ff7f50;color:#fff;">Total {{ $spType }}</td>
+                                    <td class="border border-gray-400 text-center" style="background:#ff7f50;color:#fff;">ssl</td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold" style="background:#ff7f50;color:#fff;">{{ $spTotalCommit > 0 ? number_format($spTotalCommit, 0) : '' }}</td>
+                                    <td class="border border-gray-400"></td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold" style="background:#ff7f50;color:#fff;">{{ $spTotalReal > 0 ? number_format($spTotalReal, 0) : '' }}</td>
+                                    <td class="border border-gray-400"></td>
+                                    <td class="border border-gray-400 text-right font-bold" style="{{ $spTAchC['bg'] }}">
+                                        <span class="{{ $spTAchC['text'] }}">{{ $spTAchC['label'] }}</span>
+                                    </td>
+                                    {{-- score sudah rowspan dari Gov, tidak perlu td --}}
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">-</td>
+                                </tr>
+                            @endforeach
 
                             @php
                                 $teldaCount      = count($teldaRegions);
