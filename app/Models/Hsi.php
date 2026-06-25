@@ -21,6 +21,8 @@ class Hsi extends Model
     'created_at'      => 'datetime',
     'updated_at'      => 'datetime',
     'real_updated_at' => 'datetime',
+    'commitment'      => 'decimal:2',
+    'real_ratio'      => 'decimal:2',
 ];
 
 protected static function booted(): void

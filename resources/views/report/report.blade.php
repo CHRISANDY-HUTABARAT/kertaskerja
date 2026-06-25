@@ -532,9 +532,9 @@
                            @php
                                 $spTypes       = ['HSI', 'Wi-Fi', 'Bandwidth'];
                                 $spSegKeys     = ['Government', 'Private', 'SOE', 'SME'];
+                                $spDenoms      = ['HSI' => 'ssl', 'Wi-Fi' => 'AP', 'Bandwidth' => 'Mbps'];
                                 $spTotalRows   = 15;
                                 $spGlobalFirst = true;
-                                // hitung score per type untuk rowspan
                             @endphp
 
                             @foreach($spTypes as $spType)
@@ -563,10 +563,10 @@
                                         @endif
 
                                         <td class="border border-gray-400 px-2 py-1">{{ $spType }} {{ $spSeg }}</td>
-                                        <td class="border border-gray-400 text-center">ssl</td>
-                                        <td class="border border-gray-400 px-2 text-right">{{ $spC > 0 ? number_format($spC, 0) : '' }}</td>
+                                        <td class="border border-gray-400 text-center">{{ $spDenoms[$spType] }}</td>
+                                        <td class="border border-gray-400 px-2 text-right">{{ $spC > 0 ? number_format($spC, 2, ',', '.') : '' }}</td>
                                         <td class="border border-gray-400"></td>
-                                        <td class="border border-gray-400 px-2 text-right">{{ $spR > 0 ? number_format($spR, 0) : '' }}</td>
+                                        <td class="border border-gray-400 px-2 text-right">{{ $spR > 0 ? number_format($spR, 2, ',', '.') : '' }}</td>
                                         <td class="border border-gray-400"></td>
                                         <td class="border border-gray-400 text-right font-bold" style="{{ $spAchC['bg'] }}">
                                             <span class="{{ $spAchC['text'] }}">{{ $spAchC['label'] }}</span>
@@ -588,10 +588,10 @@
                                 @endphp
                                 <tr>
                                     <td class="border border-gray-400 px-2 py-1 font-bold" style="background:#ff7f50;color:#fff;">Total {{ $spType }}</td>
-                                    <td class="border border-gray-400 text-center" style="background:#ff7f50;color:#fff;">ssl</td>
-                                    <td class="border border-gray-400 px-2 text-right font-bold" style="background:#ff7f50;color:#fff;">{{ $spTotalCommit > 0 ? number_format($spTotalCommit, 0) : '' }}</td>
+                                    <td class="border border-gray-400 text-center" style="background:#ff7f50;color:#fff;">{{ $spDenoms[$spType] }}</td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold" style="background:#ff7f50;color:#fff;">{{ $spTotalCommit > 0 ? number_format($spTotalCommit, 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400" style="background:#ff7f50;"></td>
-                                    <td class="border border-gray-400 px-2 text-right font-bold" style="background:#ff7f50;color:#fff;">{{ $spTotalReal > 0 ? number_format($spTotalReal, 0) : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-right font-bold" style="background:#ff7f50;color:#fff;">{{ $spTotalReal > 0 ? number_format($spTotalReal, 2, ',', '.') : '' }}</td>
                                     <td class="border border-gray-400" style="background:#ff7f50;"></td>
                                     <td class="border border-gray-400 text-right font-bold" style="{{ $spTAchC['bg'] }}">
                                         <span class="{{ $spTAchC['text'] }}">{{ $spTAchC['label'] }}</span>

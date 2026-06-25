@@ -351,8 +351,8 @@ public function hsiStore(Request $request)
         'type'       => 'required|string',
         'periode'    => 'required|string',
         'segment'    => 'required|string',
-        'commitment' => 'nullable|numeric|min:0',
-        'real_ratio' => 'nullable|numeric|min:0',
+        'commitment' => ['nullable', 'numeric', 'regex:/^\d+(\.\d{1,2})?$/', 'min:0'],
+        'real_ratio' => ['nullable', 'numeric', 'regex:/^\d+(\.\d{1,2})?$/', 'min:0'],
     ]);
 
     $periodeDate = $request->periode . '-01';

@@ -109,8 +109,10 @@
                             Commitment (SSL)
                         </label>
                         <input type="number" name="commitment" id="hsi_commitment"
-                            placeholder="Contoh: 150"
+                            placeholder="Contoh: 150.50"
                             min="0"
+                            step="0.01"
+                            inputmode="decimal"
                             value="{{ old('commitment') }}"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         @error('commitment')
@@ -118,14 +120,15 @@
                         @enderror
                     </div>
 
-                    {{-- Real — disabled if commitment empty --}}
                     <div>
                         <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">
                             Realisasi (SSL)
                         </label>
                         <input type="number" name="real_ratio" id="hsi_real"
-                            placeholder="Contoh: 145"
+                            placeholder="Contoh: 145.25"
                             min="0"
+                            step="0.01"
+                            inputmode="decimal"
                             value="{{ old('real_ratio') }}"
                             class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 transition-colors">
                         @error('real_ratio')
@@ -223,14 +226,14 @@
                             <td class="px-6 py-4 text-sm font-bold text-slate-400">{{$item->segment}}</td>
                             <td class="px-6 py-4 text-center">
                                 @if(!is_null($item->commitment))
-                                    <span class="text-sm font-black text-slate-800">{{ number_format($item->commitment, 0, ',', '.') }}</span>
+                                    <span class="text-sm font-black text-slate-800">{{ number_format((float) $item->commitment, 2, ',', '.') }}</span>
                                 @else
                                     <span class="text-slate-300 text-sm">—</span>
                                 @endif
                             </td>
                             <td class="px-6 py-4 text-center">
                                 @if(!is_null($item->real_ratio))
-                                    <span class="text-sm font-black text-red-600">{{ number_format($item->real_ratio, 0, ',', '.') }}</span>
+                                    <span class="text-sm font-black text-red-600">{{ number_format((float) $item->real_ratio, 2, ',', '.') }}</span>
                                 @else
                                     <span class="text-slate-300 text-sm">—</span>
                                 @endif
