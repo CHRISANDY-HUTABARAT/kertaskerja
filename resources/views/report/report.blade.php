@@ -529,13 +529,12 @@
                                 @endforeach
                             @endforeach
 
-                            @php
+                           @php
                                 $spTypes       = ['HSI', 'Wi-Fi', 'Bandwidth'];
                                 $spSegKeys     = ['Government', 'Private', 'SOE', 'SME'];
-                                $spSegLabels   = ['Government' => 'Gov', 'Private' => 'Private', 'SOE' => 'SOE', 'SME' => 'SME'];
                                 $spTotalRows   = 15;
-                                $spRowsPerType = 5;
                                 $spGlobalFirst = true;
+                                // hitung score per type untuk rowspan
                             @endphp
 
                             @foreach($spTypes as $spType)
@@ -546,6 +545,7 @@
                                     $spScoreVal    = $spTotalCommit > 0 ? ($spTotalReal / $spTotalCommit) * 100 : null;
                                     $spScoreC      = scalingAchColor($spScoreVal);
                                     $spRenderScore = true;
+                                    $spRowsPerType = 5; // 4 seg + 1 total
                                 @endphp
 
                                 @foreach($spSegKeys as $spSeg)
@@ -562,11 +562,7 @@
                                             @php $spGlobalFirst = false; @endphp
                                         @endif
 
-                                        @if($loop->first)
-                                            <td class="border border-gray-400 px-2 py-1 font-semibold align-top" rowspan="{{ $spRowsPerType }}">{{ $spType }}</td>
-                                        @endif
-
-                                        <td class="border border-gray-400 px-2 py-1">{{ $spSegLabels[$spSeg] }}</td>
+                                        <td class="border border-gray-400 px-2 py-1">{{ $spType }} {{ $spSeg }}</td>
                                         <td class="border border-gray-400 text-center">ssl</td>
                                         <td class="border border-gray-400 px-2 text-right">{{ $spC > 0 ? number_format($spC, 0) : '' }}</td>
                                         <td class="border border-gray-400"></td>
@@ -590,18 +586,17 @@
                                     $spTAchV = $spTotalCommit > 0 ? ($spTotalReal / $spTotalCommit) * 100 : null;
                                     $spTAchC = scalingAchColor($spTAchV);
                                 @endphp
-                                <tr >
-                                    {{-- type label sudah rowspan dari Gov, tidak perlu td --}}
-                                    <td class="border border-gray-400 px-2 py-1 font-bold text-slate-700" style="background:#ff7f50;color:#fff;">Total {{ $spType }}</td>
+                                <tr>
+                                    <td class="border border-gray-400 px-2 py-1 font-bold" style="background:#ff7f50;color:#fff;">Total {{ $spType }}</td>
                                     <td class="border border-gray-400 text-center" style="background:#ff7f50;color:#fff;">ssl</td>
                                     <td class="border border-gray-400 px-2 text-right font-bold" style="background:#ff7f50;color:#fff;">{{ $spTotalCommit > 0 ? number_format($spTotalCommit, 0) : '' }}</td>
-                                    <td class="border border-gray-400"></td>
+                                    <td class="border border-gray-400" style="background:#ff7f50;"></td>
                                     <td class="border border-gray-400 px-2 text-right font-bold" style="background:#ff7f50;color:#fff;">{{ $spTotalReal > 0 ? number_format($spTotalReal, 0) : '' }}</td>
-                                    <td class="border border-gray-400"></td>
+                                    <td class="border border-gray-400" style="background:#ff7f50;"></td>
                                     <td class="border border-gray-400 text-right font-bold" style="{{ $spTAchC['bg'] }}">
                                         <span class="{{ $spTAchC['text'] }}">{{ $spTAchC['label'] }}</span>
                                     </td>
-                                    {{-- score sudah rowspan dari Gov, tidak perlu td --}}
+                                    {{-- score sudah rowspan dari baris pertama seg, tidak perlu td --}}
                                     <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">-</td>
                                 </tr>
                             @endforeach
