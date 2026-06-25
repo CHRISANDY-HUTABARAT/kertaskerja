@@ -124,7 +124,7 @@ class ReportController extends Controller
                 $q->selectRaw('MAX(id)')
                 ->from('collections')
                 ->where('type', 'UTIP Corrective')
-                ->groupBy('kondisi', 'periode');
+                ->groupBy('kondisi');
             })
             ->get();
 
@@ -150,7 +150,7 @@ class ReportController extends Controller
                         ->from('collections')
                         ->where('type', 'ar')
                         ->where('segment', $segment)
-                        ->groupBy('kondisi', 'periode');
+                        ->groupBy('kondisi');
                 })
                 ->tap($filterPeriode)
                 ->get();
@@ -200,7 +200,7 @@ class ReportController extends Controller
                     $q->selectRaw('MAX(id)')
                     ->from('collections')
                     ->where('type', $p['type'])
-                    ->groupBy('kondisi', 'periode');
+                    ->groupBy('kondisi');
                 })
                 ->get();
 
