@@ -11,6 +11,8 @@ use App\Models\Psak;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class AdminController extends Controller
 {
@@ -29,7 +31,6 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('segment')) $query->where('segment', $request->segment);
-        // if ($request->filled('user'))    $query->where('user_id', $request->user);
         if ($request->filled('bulan'))   $query->whereMonth('periode', $request->bulan);
         if ($request->filled('tahun'))   $query->whereYear('periode', $request->tahun);
         if ($request->filled('cari')) {
@@ -42,7 +43,7 @@ class AdminController extends Controller
 
         $collections = $query->paginate(20)->withQueryString();
 
-        // ← is_latest per segment, dikelompokkan per periode untuk tampilan ringkasan
+       
         $ringkasanAll = Collection::where('type', 'Collection Ratio')
             ->where('is_latest', true)
             ->orderByDesc('periode')
@@ -76,7 +77,7 @@ class AdminController extends Controller
         $request->validate([
             'status'     => 'required|in:active,inactive',
             'periode'    => 'required|date_format:Y-m',
-            'segment'    => 'required|string',   // ← ubah nullable jadi required, segment wajib ada
+            'segment'    => 'required|string',   
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
@@ -101,7 +102,7 @@ class AdminController extends Controller
         $lastRealUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
         DB::transaction(function () use ($request, $periodeDate, $lastCommitment, $lastReal, $lastRealUpdatedAt) {
-            // ← Scope is_latest per segment juga, bukan seluruh periode
+           
             Collection::where('type', 'Collection Ratio')
                 ->where('segment', $request->segment)
                 ->where('periode', $periodeDate)
@@ -228,7 +229,6 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan);
-        // if ($request->filled('user'))  $query->where('user_id', $request->user);
         if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
@@ -239,13 +239,13 @@ class AdminController extends Controller
 
         $collections = $query->paginate(20)->withQueryString();
 
-        // ← Ambil 1 record terbaru per periode dari is_latest, tidak terbatas pagination
+        
         $ringkasanAll = Collection::where('type', 'C3MR')
             ->where('is_latest', true)
             ->orderByDesc('periode')
             ->get();
 
-            // dd($ringkasanAll);
+        
 
         $tahuns = Collection::where('type', 'C3MR')
             ->selectRaw('YEAR(periode) as tahun')
@@ -294,7 +294,7 @@ class AdminController extends Controller
         $lastRealUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
         DB::transaction(function () use ($request, $periodeDate, $lastCommitment, $lastReal, $lastRealUpdatedAt) {
-            // Set semua record periode ini is_latest = false
+          
             Collection::where('type', 'C3MR')
                 ->where('periode', $periodeDate)
                 ->update(['is_latest' => false]);
@@ -321,7 +321,7 @@ class AdminController extends Controller
     {
         $collection = Collection::findOrFail($id);
 
-        // Hanya boleh toggle record yang is_latest
+      
         abort_if(!$collection->is_latest, 403, 'Hanya record terbaru yang bisa diubah statusnya.');
 
         $collection->status = $collection->status === 'active' ? 'inactive' : 'active';
@@ -337,7 +337,7 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan);
-        // if ($request->filled('user'))  $query->where('user_id', $request->user);
+      
         if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
@@ -425,8 +425,8 @@ class AdminController extends Controller
 
         // if ($request->filled('user'))  $query->where('user_id', $request->user);
         if ($request->filled('tipe'))  $query->where('type', $request->tipe);
-        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan); // ← fix: periode bukan created_at
-        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);  // ← fix: periode bukan created_at
+        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan); 
+        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);  
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
                 $q->where('type', 'like', '%'.$request->cari.'%')
@@ -437,14 +437,14 @@ class AdminController extends Controller
 
         $collections = $query->paginate(20)->withQueryString();
 
-        // ← 1 record terbaru per type (is_latest), diurutkan Corrective duluan
+       
         $ringkasanAll = Collection::where('type', 'like', '%UTIP%')
             ->where('is_latest', true)
             ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
             ->orderBy('type')
             ->get();
 
-        // ← fix: tahun dari periode bukan created_at
+        
         $tahuns = Collection::where('type', 'like', '%UTIP%')
             ->selectRaw('YEAR(periode) as tahun')
             ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
@@ -475,9 +475,9 @@ class AdminController extends Controller
             'status'  => 'required|in:active,inactive',
             'periode' => 'required|date_format:Y-m',
             'type'    => 'required|string',
-            'file'    => 'required|file|max:10240',
+            'file'    => 'required|file|max:51200',
 
-            // kondisi 1-7 wajib ada nilainya (plan minimal)
+            
             'kondisi'   => 'required|array|size:7',
             'kondisi.*' => 'required|string',
             'plan'      => 'required|array|size:7',
@@ -486,6 +486,8 @@ class AdminController extends Controller
             'real_ratio.*' => 'nullable|numeric',
             'ol_fm'     => 'required|array|size:7',
             'ol_fm.*'   => 'nullable|numeric',
+            ], [
+    'file.max' => 'Ukuran file maksimal 50 MB.',
         ]);
 
         $periodeDate = $request->periode . '-01';
@@ -557,6 +559,129 @@ class AdminController extends Controller
         return back()->with('success', 'Data UTIP berhasil disimpan');
     }
 
+    public function utipPreviewImport(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:51200'],
+        ], [
+            'file.required' => 'File Excel wajib diunggah.',
+            'file.mimes'    => 'File harus berformat .xlsx atau .xls.',
+        ]);
+ 
+        try {
+              $readFilter = new class implements \PhpOffice\PhpSpreadsheet\Reader\IReadFilter {
+                public function readCell($column, $row, $worksheetName = ''): bool
+                {
+                    return $row <= 5000;
+                }
+            };
+ 
+            $reader = IOFactory::createReaderForFile($request->file('file')->getRealPath());
+            $reader->setReadFilter($readFilter);
+            $spreadsheet = $reader->load($request->file('file')->getRealPath());
+ 
+            // statusSums: 'DEPOSIT' => ['saldo'=>x, 'flag'=>y, 'sisa'=>z]
+            $statusSums = [];
+ 
+            foreach ($spreadsheet->getAllSheets() as $sheet) {
+                $colMap = $this->utipMapHeaderColumns($sheet);
+ 
+            
+                if (!isset($colMap['STATUS'], $colMap['SALDO AWAL'])) {
+                    continue;
+                }
+ 
+                $highestRow = $sheet->getHighestRow();
+ 
+                for ($row = 2; $row <= $highestRow; $row++) {
+                    $statusRaw = (string) $sheet->getCell([$colMap['STATUS'], $row])->getValue();
+                    $status    = strtoupper(trim($statusRaw));
+ 
+                  
+                    if ($status === '') {
+                        continue;
+                    }
+ 
+                    $saldo = $this->utipNumericCell($sheet, $colMap['SALDO AWAL'] ?? null, $row);
+                    $flag  = $this->utipNumericCell($sheet, $colMap['FLAG'] ?? null, $row);
+                    $sisa  = $this->utipNumericCell($sheet, $colMap['SISA_FLAG'] ?? null, $row);
+ 
+                    if (!isset($statusSums[$status])) {
+                        $statusSums[$status] = ['saldo' => 0, 'flag' => 0, 'sisa' => 0];
+                    }
+                    $statusSums[$status]['saldo'] += $saldo;
+                    $statusSums[$status]['flag']  += $flag;
+                    $statusSums[$status]['sisa']  += $sisa;
+                }
+            }
+ 
+            $statusToKondisiIndex = [
+                'DEPOSIT'                => 3, // Sudah BC, Deposit
+                'BELUM BC'               => 5, // Belum BC, Late Input
+                'BELUM TERIDENTIFIKASI'  => 6, // Belum teridentifikasi
+                'PROSES FLAGGING'        => 0, // Sudah BC, Potensi Flag 
+            ];
+ 
+            $mapped = [];
+            foreach ($statusToKondisiIndex as $statusKey => $idx) {
+                if (isset($statusSums[$statusKey])) {
+                    $mapped[$idx] = [
+                        'plan'       => round($statusSums[$statusKey]['saldo']),
+                        'real_ratio' => round($statusSums[$statusKey]['flag']),
+                        'ol_fm'      => round($statusSums[$statusKey]['sisa']),
+                    ];
+                }
+            }
+ 
+            return response()->json([
+                'success'    => true,
+                'mapped'     => $mapped,      
+                'raw_status' => $statusSums,    
+            ]);
+ 
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membaca file: ' . $e->getMessage(),
+            ], 422);
+        }
+    }
+ 
+    private function utipMapHeaderColumns(Worksheet $sheet): array
+    {
+        $colMap   = [];
+        $maxCol   = $sheet->getHighestColumn();
+        $maxColIx = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($maxCol);
+ 
+        for ($col = 1; $col <= $maxColIx; $col++) {
+            $raw        = (string) $sheet->getCell([$col, 1])->getValue();
+            $normalized = preg_replace('/\s+/', ' ', strtoupper(trim($raw)));
+            if ($normalized !== '') {
+                $colMap[$normalized] = $col;
+            }
+        }
+ 
+        return $colMap;
+    }
+ 
+    private function utipNumericCell(Worksheet $sheet, ?int $col, int $row): float
+    {
+        if ($col === null) {
+            return 0;
+        }
+        $value = $sheet->getCell([$col, $row])->getValue();
+ 
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+ 
+        $clean = preg_replace('/[^\d,.\-]/', '', (string) $value);
+        $clean = str_replace('.', '', $clean);
+        $clean = str_replace(',', '.', $clean);
+ 
+        return is_numeric($clean) ? (float) $clean : 0;
+    }
+
     public function arTable(Request $request)
     {
         // Ambil submit_token terbaru
@@ -578,14 +703,14 @@ class AdminController extends Controller
 
         $collections = $query->paginate(20)->withQueryString();
 
-        // ← 1 record terbaru per type (is_latest), diurutkan Corrective duluan
+
         $ringkasanAll = Collection::where('type', 'like', '%ar%')
             ->where('is_latest', true)
             ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
             ->orderBy('type')
             ->get();
 
-        // ← fix: tahun dari periode bukan created_at
+    
         $tahuns = Collection::where('type', 'like', '%ar%')
             ->selectRaw('YEAR(periode) as tahun')
             ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
@@ -618,7 +743,6 @@ class AdminController extends Controller
             'segment' => 'required|string',
             'file'    => 'required|file|max:10240',
 
-            // kondisi 1-7 wajib ada nilainya (plan minimal)
             'kondisi'   => 'required|array|size:8',
             'kondisi.*' => 'required|string',
             'real_ratio'=> 'required|array|size:8',
@@ -642,7 +766,7 @@ class AdminController extends Controller
             $filePath = $file->store('ar_files', 'public');
         }
 
-        // Simpan per kondisi
+    
         foreach ($request->kondisi as $idx => $kondisiName) {
             $existing = Collection::where('type', $request->segment)
                 ->where('periode', $periodeDate)
@@ -660,7 +784,7 @@ class AdminController extends Controller
             // Skip kondisi yang tidak diisi sama sekali
             $realVal = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '') ? $request->real_ratio[$idx] : null;
 
-            // Kalau semua kosong, skip — tidak perlu simpan
+            
             if (is_null($realVal)) {
                 continue;
             }

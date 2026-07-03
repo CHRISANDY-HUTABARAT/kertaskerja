@@ -130,15 +130,20 @@ class ReportController extends Controller
 
         $utipCorPlan = $utipCorRows->sum(fn($r) => $toFloat($r->plan));
         $utipCorReal = $utipCorRows->sum(fn($r) => $toFloat($r->real_ratio));
+        $utipCorSisaSaldo = $utipCorRows->sum(fn($r) => $toFloat($r->ol_fm));
         $utipCorUpdated = $utipCorRows->whereNotNull('real_updated_at')->sortByDesc('real_updated_at')->first();
-
+ 
         $utipCorrective = [
             'label'      => 'UTIP Corrective',
             'planRp'     => $utipCorRows->isEmpty() ? null : round($utipCorPlan / 1000000, 2),
             'commitRp'   => $utipCorRows->isEmpty() ? null : round($utipCorPlan / 1000000, 2),
             'realRp'     => $utipCorRows->isEmpty() ? null : round($utipCorReal / 1000000, 2),
+            'saldoAwal'  => $utipCorRows->isEmpty() ? null : $utipCorPlan,
+            'flag'       => $utipCorRows->isEmpty() ? null : $utipCorReal,
+            'sisaSaldo'  => $utipCorRows->isEmpty() ? null : $utipCorSisaSaldo,
             'updated_at' => $utipCorUpdated?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
         ];
+ 
 
         $arSegments = ['DGS', 'DPS', 'DSS', 'RBS'];
         $arRows = [];
@@ -203,9 +208,11 @@ class ReportController extends Controller
                     ->groupBy('kondisi');
                 })
                 ->get();
-
+                
             $planRaw = $rows->sum(fn($r) => $toFloat($r->plan));
-            $realRp  = round($rows->sum(fn($r) => $toFloat($r->real_ratio)) / 1000000, 2);
+            $realRaw = $rows->sum(fn($r) => $toFloat($r->real_ratio));
+            $sisaSaldoRaw = $rows->sum(fn($r) => $toFloat($r->ol_fm));
+            $realRp  = round($realRaw / 1000000, 2);
             $rowUpdated = $rows->whereNotNull('real_updated_at')->sortByDesc('real_updated_at')->first();
 
             $rowDate    = Carbon::createFromDate($p['tahun'], $p['bulan'], 1);
@@ -221,11 +228,14 @@ class ReportController extends Controller
                 $commitMultiplier = 1.00;
             }
 
-            $newUtipPeriodes[] = [
+             $newUtipPeriodes[] = [
                 'label'      => $p['label'],
                 'planRp'     => $rows->isEmpty() ? null : round($planRaw / 1000000, 2),
                 'commitRp'   => $rows->isEmpty() ? null : round(($planRaw * $commitMultiplier) / 1000000, 2),
                 'realRp'     => $rows->isEmpty() ? null : $realRp,
+                'saldoAwal'  => $rows->isEmpty() ? null : $planRaw,
+                'flag'       => $rows->isEmpty() ? null : $realRaw,
+                'sisaSaldo'  => $rows->isEmpty() ? null : $sisaSaldoRaw,
                 'updated_at' => $rowUpdated?->real_updated_at?->translatedFormat('d M Y H:i') ?? '-',
                 'raw_updated_at' => $rowUpdated?->real_updated_at,
             ];
@@ -862,20 +872,26 @@ class ReportController extends Controller
                 ->exists();
         }
 
-        $utipProgPlanTotal   = array_sum(array_column($newUtipPeriodes, 'planRp'));
+       $utipProgPlanTotal   = array_sum(array_column($newUtipPeriodes, 'planRp'));
         $utipProgCommitTotal = array_sum(array_column($newUtipPeriodes, 'commitRp'));
         $utipProgRealTotal   = array_sum(array_column($newUtipPeriodes, 'realRp'));
-
+        $utipProgSaldoAwalTotal = array_sum(array_column($newUtipPeriodes, 'saldoAwal'));
+        $utipProgFlagTotal      = array_sum(array_column($newUtipPeriodes, 'flag'));
+        $utipProgSisaSaldoTotal = array_sum(array_column($newUtipPeriodes, 'sisaSaldo'));
+ 
         $utipProgUpdatedAt = collect($newUtipPeriodes)
             ->whereNotNull('raw_updated_at')
             ->sortByDesc('raw_updated_at')
             ->first()['updated_at'] ?? '-';
-
+ 
         $utipProgressive = [
-            'label'      => 'UTIP Progressive',
+            'label'      => 'UTIP Progressive Total',
             'planRp'     => $utipProgPlanTotal   > 0 ? $utipProgPlanTotal   : null,
             'commitRp'   => $utipProgCommitTotal > 0 ? $utipProgCommitTotal : null,
             'realRp'     => $utipProgRealTotal   > 0 ? $utipProgRealTotal   : null,
+            'saldoAwal'  => $utipProgSaldoAwalTotal > 0 ? $utipProgSaldoAwalTotal : null,
+            'flag'       => $utipProgFlagTotal      > 0 ? $utipProgFlagTotal      : null,
+            'sisaSaldo'  => $utipProgSisaSaldoTotal > 0 ? $utipProgSisaSaldoTotal : null,
             'updated_at' => $utipProgUpdatedAt,
         ];
 

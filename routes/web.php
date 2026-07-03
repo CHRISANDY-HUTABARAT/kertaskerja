@@ -64,6 +64,7 @@ Route::middleware('auth')->group(function () {
         // UTIP routes
         Route::get('/utip', [AdminController::class, 'utipTable'])->name('admin.utip');
         Route::post('/utip', [AdminController::class, 'utipStore'])->name('admin.utip.store');
+        Route::post('/utip/preview-import', [AdminController::class, 'utipPreviewImport'])->name('admin.utip.previewImport');
 
         // AR routes
         Route::get('/ar', [AdminController::class, 'arTable'])->name('admin.ar');
@@ -349,6 +350,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/collection/billing', [CollectionController::class, 'storeBillingRealisasi'])->name('collection.billing.storeRealisasi');
         Route::get('/collection/utip', [CollectionController::class, 'utip'])->name('collection.utip');
         Route::post('/collection/utip', [CollectionController::class, 'storeUtipRealisasi'])->name('collection.utip.storeRealisasi');
+        Route::post('/collection/utip/preview-import', [CollectionController::class, 'utipPreviewImport'])->name('collection.utip.previewImport');
         Route::get('/collection/ar', [CollectionController::class, 'ar'])->name('collection.ar');
         Route::post('/collection/ar', [CollectionController::class, 'storeArRealisasi'])->name('collection.ar.storeRealisasi');
         Route::get('/collection/cr', [CollectionController::class, 'cr'])->name('collection.cr');

@@ -8,6 +8,8 @@ use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
+use PhpOffice\PhpSpreadsheet\IOFactory;
+use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 
 class CollectionController extends Controller
 {
@@ -513,7 +515,7 @@ class CollectionController extends Controller
             'status'       => 'required|in:active,inactive',
             'periode'      => 'required|date_format:Y-m',
             'type'         => 'required|string',
-            'file'         => 'required|file|max:10240',
+            'file'         => 'required|file|max:51200',
             'kondisi'      => 'required|array|size:7',
             'kondisi.*'    => 'required|string',
             'plan'         => 'required|array|size:7',
@@ -582,6 +584,126 @@ class CollectionController extends Controller
         }
 
         return back()->with('success', 'Data UTIP berhasil disimpan');
+    }
+     public function utipPreviewImport(Request $request)
+    {
+        $request->validate([
+            'file' => ['required', 'file', 'mimes:xlsx,xls', 'max:51200'],
+        ], [
+            'file.required' => 'File Excel wajib diunggah.',
+            'file.mimes'    => 'File harus berformat .xlsx atau .xls.',
+        ]);
+ 
+        try {
+              $readFilter = new class implements \PhpOffice\PhpSpreadsheet\Reader\IReadFilter {
+                public function readCell($column, $row, $worksheetName = ''): bool
+                {
+                    return $row <= 5000;
+                }
+            };
+ 
+            $reader = IOFactory::createReaderForFile($request->file('file')->getRealPath());
+            $reader->setReadFilter($readFilter);
+            $spreadsheet = $reader->load($request->file('file')->getRealPath());
+ 
+            $statusSums = [];
+ 
+            foreach ($spreadsheet->getAllSheets() as $sheet) {
+                $colMap = $this->utipMapHeaderColumns($sheet);
+ 
+                if (!isset($colMap['STATUS'], $colMap['SALDO AWAL'])) {
+                    continue;
+                }
+ 
+                $highestRow = $sheet->getHighestRow();
+ 
+                for ($row = 2; $row <= $highestRow; $row++) {
+                   $statusRaw = (string) $sheet->getCell([$colMap['STATUS'], $row])->getValue();
+                    $status    = strtoupper(trim($statusRaw));
+ 
+                    if ($status === '') {
+                        continue;
+                    }
+ 
+                    $saldo = $this->utipNumericCell($sheet, $colMap['SALDO AWAL'] ?? null, $row);
+                    $flag  = $this->utipNumericCell($sheet, $colMap['FLAG'] ?? null, $row);
+                    $sisa  = $this->utipNumericCell($sheet, $colMap['SISA_FLAG'] ?? null, $row);
+ 
+                    if (!isset($statusSums[$status])) {
+                        $statusSums[$status] = ['saldo' => 0, 'flag' => 0, 'sisa' => 0];
+                    }
+                    $statusSums[$status]['saldo'] += $saldo;
+                    $statusSums[$status]['flag']  += $flag;
+                    $statusSums[$status]['sisa']  += $sisa;
+                }
+            }
+ 
+         
+            $statusToKondisiIndex = [
+                'DEPOSIT'                => 3, // Sudah BC, Deposit
+                'BELUM BC'               => 5, // Belum BC, Late Input
+                'BELUM TERIDENTIFIKASI'  => 6, // Belum teridentifikasi
+                'PROSES FLAGGING'        => 0, // Sudah BC, Potensi Flag (ASUMSI)
+            ];
+ 
+            $mapped = [];
+            foreach ($statusToKondisiIndex as $statusKey => $idx) {
+                if (isset($statusSums[$statusKey])) {
+                    $mapped[$idx] = [
+                        'plan'       => round($statusSums[$statusKey]['saldo']),
+                        'real_ratio' => round($statusSums[$statusKey]['flag']),
+                        'ol_fm'      => round($statusSums[$statusKey]['sisa']),
+                    ];
+                }
+            }
+ 
+            return response()->json([
+                'success'    => true,
+                'mapped'     => $mapped,
+                'raw_status' => $statusSums,
+            ]);
+ 
+        } catch (\Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Gagal membaca file: ' . $e->getMessage(),
+            ], 422);
+        }
+    }
+ 
+    private function utipMapHeaderColumns(Worksheet $sheet): array
+    {
+        $colMap   = [];
+        $maxCol   = $sheet->getHighestColumn();
+        $maxColIx = \PhpOffice\PhpSpreadsheet\Cell\Coordinate::columnIndexFromString($maxCol);
+ 
+        for ($col = 1; $col <= $maxColIx; $col++) {
+        $raw = (string) $sheet->getCell([$col, 1])->getValue();
+            $normalized = preg_replace('/\s+/', ' ', strtoupper(trim($raw)));
+            if ($normalized !== '') {
+                $colMap[$normalized] = $col;
+            }
+        }
+ 
+        return $colMap;
+    }
+ 
+    private function utipNumericCell(Worksheet $sheet, ?int $col, int $row): float
+    {
+        if ($col === null) {
+            return 0;
+        }
+       $value = $sheet->getCell([$col, $row])->getValue();
+ 
+        if (is_numeric($value)) {
+            return (float) $value;
+        }
+ 
+        $clean = preg_replace('/[^\d,.\-]/', '', (string) $value);
+        $clean = str_replace('.', '', $clean);
+        $clean = str_replace(',', '.', $clean);
+ 
+        return is_numeric($clean) ? (float) $clean : 0;
     }
 
     public function ar(Request $request)

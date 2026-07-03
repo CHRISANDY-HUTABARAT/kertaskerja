@@ -202,15 +202,15 @@
                                 <span class="text-sm font-semibold text-slate-800">{{ $kondisiName }}</span>
                             </div>
                             <div>
-                                <input type="number" step="1" name="plan[{{ $idx }}]"
+                                <input type="number" step="1" name="plan[{{ $idx }}]" id="plan-{{ $idx }}"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
                             </div>
                             <div>
-                                <input type="number" step="1" name="real_ratio[{{ $idx }}]"
+                                <input type="number" step="1" name="real_ratio[{{ $idx }}]" id="real_ratio-{{ $idx }}"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
                             </div>
                             <div>
-                                <input type="number" step="1" name="ol_fm[{{ $idx }}]"
+                               <input type="number" step="1" name="ol_fm[{{ $idx }}]" id="ol_fm-{{ $idx }}"
                                     class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 text-right">
                             </div>
                         </div>
@@ -218,9 +218,10 @@
 
                         <div class="mt-5 pt-5 border-t border-slate-100">
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Upload File <span class="text-red-500">*</span></label>
-                            <input type="file" name="file" required
+                            <input type="file" name="file" id="utipFileInput" required onchange="autoFillFromExcel(this)"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-700 bg-white focus:outline-none focus:border-red-400 file:mr-4 file:py-1 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-slate-900 file:text-white hover:file:bg-red-600">
                             <p class="text-xs text-slate-400 mt-1">Wajib upload file setiap input data.</p>
+                            <p id="autoFillStatus" class="text-xs font-bold mt-1"></p>
                         </div>
 
                         <div class="flex justify-end space-x-3 mt-6">
@@ -400,6 +401,56 @@
                 btn.disabled = false;
                 btn.className = 'flex items-center space-x-2 bg-slate-900 hover:bg-red-600 text-white font-bold text-xs px-6 py-3 rounded-xl transition-all duration-200 uppercase tracking-wider shadow-md hover:shadow-lg hover:shadow-red-200';
             }
+        }
+        // ── Auto-fill kondisi UTIP dari Excel (SALDO AWAL / PLAN / SECURING) ──
+        function autoFillFromExcel(input) {
+            const file = input.files[0];
+            const statusEl = document.getElementById('autoFillStatus');
+            if (!file) return;
+
+            statusEl.textContent = 'Membaca file Excel...';
+            statusEl.className = 'text-xs font-bold mt-1 text-slate-500';
+
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('_token', '{{ csrf_token() }}');
+
+            fetch('{{ route('collection.utip.previewImport') }}', {
+                method: 'POST',
+                body: formData,
+                headers: { 'Accept': 'application/json' }
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (!data.success) {
+                    statusEl.textContent = 'Gagal membaca file: ' + (data.message || 'format tidak dikenali, isi manual ya.');
+                    statusEl.className = 'text-xs font-bold mt-1 text-amber-600';
+                    return;
+                }
+
+                const mapped = data.mapped || {};
+                let count = 0;
+                Object.keys(mapped).forEach(idx => {
+                    const planEl = document.getElementById('plan-' + idx);
+                    const realEl = document.getElementById('real_ratio-' + idx);
+                    const olfmEl = document.getElementById('ol_fm-' + idx);
+                    if (planEl) { planEl.value = mapped[idx].plan; count++; }
+                    if (realEl) realEl.value = mapped[idx].real_ratio;
+                    if (olfmEl) olfmEl.value = mapped[idx].ol_fm;
+                });
+
+                if (count > 0) {
+                    statusEl.textContent = '✓ ' + count + ' kondisi terisi otomatis dari Excel. Cek dulu sebelum simpan!';
+                    statusEl.className = 'text-xs font-bold mt-1 text-green-600';
+                } else {
+                    statusEl.textContent = 'Tidak ada kondisi yang cocok dari Excel ini. Isi manual ya.';
+                    statusEl.className = 'text-xs font-bold mt-1 text-amber-600';
+                }
+            })
+            .catch(() => {
+                statusEl.textContent = 'Gagal membaca file. Isi manual ya.';
+                statusEl.className = 'text-xs font-bold mt-1 text-amber-600';
+            });
         }
     </script>
 @endsection

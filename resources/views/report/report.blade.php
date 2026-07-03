@@ -392,6 +392,11 @@
                                 <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 text-[9px] font-black flex items-center justify-center flex-shrink-0">6</span>
                                 <span>New GTMA</span>
                             </button>
+                            <button data-export="utip"
+                                class="export-option w-full flex items-center space-x-2.5 px-4 py-2.5 hover:bg-slate-50 text-slate-600 text-xs font-semibold transition-colors text-left">
+                                <span class="w-4 h-4 rounded bg-slate-200 text-slate-700 text-[9px] font-black flex items-center justify-center flex-shrink-0">7</span>
+                                <span>UTIP</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -747,60 +752,6 @@
                             </tr>
                         @endforeach
 
-                            <tr id="utip-row-corrective">
-                            <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 px-2 py-1 align-top font-semibold">e&nbsp;&nbsp;UTIP</td>
-                            <td class="border border-gray-400 px-2 py-1">{{ $utipCorrective['label'] }}</td>
-                            <td class="border border-gray-400 text-center">Rp</td>
-                            <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['planRp'] !== null ? number_format($utipCorrective['planRp'], 2, ',', '.') : '' }}</td>
-                            <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['commitRp'] !== null ? number_format($utipCorrective['commitRp'], 2, ',', '.') : '' }}</td>
-                            <td class="border border-gray-400"></td>
-                            <td class="border border-gray-400 px-2 text-right">{{ $utipCorrective['realRp'] !== null ? number_format($utipCorrective['realRp'], 2, ',', '.') : '' }}</td>
-                            <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-center align-middle">{{ $fairnessUTIP }}</td>
-                            <td class="border border-gray-400 text-right font-bold {{ $colorAchCorrective }}">{{ $achCorrective }}</td>
-                            <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-right font-bold align-middle {{ $colorScoreUTIP }}">{{ $scoreUTIP }}</td>
-                            <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utipCorrective['updated_at'] ?? '-' }}</td>
-                        </tr>
-
-                        <tr id="utip-row-progressive">
-                            <td class="border border-gray-400 px-2 py-1">{{ $utipProgressive['label'] }}</td>
-                            <td class="border border-gray-400 text-center">Rp</td>
-                            <td class="border border-gray-400 px-2 text-right">{{ $utipProgressive['planRp'] !== null ? number_format($utipProgressive['planRp'], 2, ',', '.') : '' }}</td>
-                            <td class="border border-gray-400 px-2 text-right">{{ $utipProgressive['commitRp'] !== null ? number_format($utipProgressive['commitRp'], 2, ',', '.') : '' }}</td>
-                            <td class="border border-gray-400"></td>
-                            <td class="border border-gray-400 px-2 text-right">{{ $utipProgressive['realRp'] !== null ? number_format($utipProgressive['realRp'], 2, ',', '.') : '' }}</td>
-                            <td class="border border-gray-400 text-right font-bold {{ $colorAchProgressive }}">{{ $achProgressive }}</td>
-                            <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utipProgressive['updated_at'] ?? '-' }}</td>
-                        </tr>
-
-                        @foreach($newUtipPeriodes as $utip)
-                            @php
-                                $utipSlug = strtolower(str_replace(' ', '-', $utip['label']));
-                                if ($utip['commitRp'] === null || $utip['commitRp'] == 0) {
-                                    $achU      = '-';
-                                    $colorAchU = '';
-                                } else {
-                                    $achPct = ($utip['realRp'] / $utip['commitRp']) * 100;
-                                    $achU   = number_format($achPct, 2, ',', '.') . '%';
-                                    $isFullCommit = ($utip['planRp'] !== null && $utip['planRp'] > 0 && round($utip['commitRp'], 2) == round($utip['planRp'], 2));
-                                    if ($isFullCommit && $achPct < 100) {
-                                        $colorAchU = 'bg-black text-white';
-                                    } else {
-                                        $colorAchU = getColorClass($achU, $fairnessUTIP);
-                                    }
-                                }
-                            @endphp
-                            <tr id="utip-row-{{ $utipSlug }}">
-                                <td class="border border-gray-400 px-2 py-1">{{ $utip['label'] }}</td>
-                                <td class="border border-gray-400 text-center">Rp</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $utip['planRp'] !== null ? number_format($utip['planRp'], 2, ',', '.') : '' }}</td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $utip['commitRp'] !== null ? number_format($utip['commitRp'], 2, ',', '.') : '' }}</td>
-                                <td class="border border-gray-400"></td>
-                                <td class="border border-gray-400 px-2 text-right">{{ $utip['realRp'] !== null ? number_format($utip['realRp'], 2, ',', '.') : '' }}</td>
-                                <td class="border border-gray-400 text-right font-bold {{ $colorAchU }}">{{ $achU }}</td>
-                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utip['updated_at'] ?? '-' }}</td>
-                            </tr>
-                        @endforeach
-
                             @foreach($arRows as $ai => $ar)
                                 <tr id="ar-row-{{ $ar['slug'] }}">
                                     @if($ai === 0)
@@ -1081,6 +1032,78 @@
                     <div id="scaling-detail-btns" style="position:relative;height:0;overflow:visible;pointer-events:none;"></div>
                 </div>
             </div>
+            <div class="bg-white rounded-2xl border border-slate-200 shadow-sm mt-6">
+                <div class="flex items-center space-x-3 px-8 pt-6 pb-3">
+                    <div class="w-1.5 h-8 bg-red-600 rounded-full"></div>
+                    <h2 class="text-base font-black text-slate-900 uppercase tracking-wide">UTIP</h2>
+                </div>
+                <div class="overflow-x-auto px-8 pb-6">
+                    <table id="utip-table" class="min-w-full border-collapse border border-gray-400 text-[11px] font-sans">
+                        <thead class="bg-[#4a7795] text-white">
+                            <tr>
+                                <th class="border border-gray-400 px-2 py-2 text-center">No</th>
+                                <th class="border border-gray-400 px-2 py-2 text-center">Type</th>
+                                <th class="border border-gray-400 px-2 py-2 text-center">Saldo Awal</th>
+                                <th class="border border-gray-400 px-2 py-2 text-center">Flag</th>
+                                <th class="border border-gray-400 px-2 py-2 text-center">Sisa Saldo</th>
+                                <th class="border border-gray-400 px-2 py-2 text-center">Ach</th>
+                                <th class="border border-gray-400 px-2 py-2 text-center">Score</th>
+                               <th class="border border-gray-400 px-2 py-2 text-center no-print">Last Update</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-800">
+                            <tr id="utip-row-corrective">
+                                <td class="border border-gray-400 px-2 py-1 text-center">1</td>
+                                <td class="border border-gray-400 px-2 py-1 font-semibold">{{ $utipCorrective['label'] }}</td>
+                                <td class="border border-gray-400 px-2 text-center">{{ $utipCorrective['saldoAwal'] !== null ? number_format($utipCorrective['saldoAwal'], 0, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-center">{{ $utipCorrective['flag'] !== null ? number_format($utipCorrective['flag'], 0, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-center">{{ $utipCorrective['sisaSaldo'] !== null ? number_format($utipCorrective['sisaSaldo'], 0, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 text-center font-bold {{ $colorAchCorrective }}">{{ $achCorrective }}</td>
+                                <td rowspan="{{ $utipRowspan }}" class="border border-gray-400 text-center align-middle font-bold {{ $colorScoreUTIP }}">{{ $scoreUTIP }}</td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utipCorrective['updated_at'] ?? '-' }}</td>
+                            </tr>
+                            <tr id="utip-row-progressive">
+                                <td class="border border-gray-400 px-2 py-1 text-center">2</td>
+                                <td class="border border-gray-400 px-2 py-1 font-semibold">{{ $utipProgressive['label'] }}</td>
+                                <td class="border border-gray-400 px-2 text-center">{{ $utipProgressive['saldoAwal'] !== null ? number_format($utipProgressive['saldoAwal'], 0, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-center">{{ $utipProgressive['flag'] !== null ? number_format($utipProgressive['flag'], 0, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 px-2 text-center">{{ $utipProgressive['sisaSaldo'] !== null ? number_format($utipProgressive['sisaSaldo'], 0, ',', '.') : '' }}</td>
+                                <td class="border border-gray-400 text-center font-bold {{ $colorAchProgressive }}">{{ $achProgressive }}</td>
+                                <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utipProgressive['updated_at'] ?? '-' }}</td>
+                            </tr>
+                            @foreach($newUtipPeriodes as $ui => $utip)
+                                @php
+                                    $utipSlug = strtolower(str_replace(' ', '-', $utip['label']));
+                                    if ($utip['commitRp'] === null || $utip['commitRp'] == 0) {
+                                        $achU      = '-';
+                                        $colorAchU = '';
+                                    } else {
+                                        $achPct = ($utip['realRp'] / $utip['commitRp']) * 100;
+                                        $achU   = number_format($achPct, 2, ',', '.') . '%';
+                                        $isFullCommit = ($utip['planRp'] !== null && $utip['planRp'] > 0 && round($utip['commitRp'], 2) == round($utip['planRp'], 2));
+                                        if ($isFullCommit && $achPct < 100) {
+                                            $colorAchU = 'bg-black text-white';
+                                        } else {
+                                            $colorAchU = getColorClass($achU, $fairnessUTIP);
+                                        }
+                                    }
+                                @endphp
+                                <tr id="utip-row-{{ $utipSlug }}">
+                                    <td class="border border-gray-400 px-2 py-1 text-center">{{ $ui + 3 }}</td>
+                                    <td class="border border-gray-400 px-2 py-1">{{ $utip['label'] }}</td>
+                                    <td class="border border-gray-400 px-2 text-center">{{ $utip['saldoAwal'] !== null ? number_format($utip['saldoAwal'], 0, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-center">{{ $utip['flag'] !== null ? number_format($utip['flag'], 0, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 px-2 text-center">{{ $utip['sisaSaldo'] !== null ? number_format($utip['sisaSaldo'], 0, ',', '.') : '' }}</td>
+                                    <td class="border border-gray-400 text-center font-bold {{ $colorAchU }}">{{ $achU }}</td>
+                                    <td class="border border-gray-300 px-2 py-1 text-center text-[10px] no-print">{{ $utip['updated_at'] ?? '-' }}</td>
+                                </tr>
+                            @endforeach
+                        </tbody>
+                    </table>
+                    <div id="utip-detail-btns" style="position:relative;height:0;overflow:visible;pointer-events:none;"></div>
+                </div>
+            </div>
+ 
 
             <div class="bg-white rounded-2xl border border-slate-200 shadow-sm px-8 py-5 mt-6 no-print">
                 <div class="flex items-center space-x-3 mb-3">
@@ -1243,15 +1266,7 @@
         { id:'scaling-row-sme-qualified',    href:'{{ $scalingDetailRoutes['sme']['qualified'] }}' },
         { id:'scaling-row-sme-initiate',     href:'{{ $scalingDetailRoutes['sme']['initiate'] }}' },
         { id:'scaling-row-sme-koreksi',      href:'{{ $scalingDetailRoutes['sme']['koreksi'] }}' },
-        // UTIP Corrective
-        { id:'utip-row-corrective', href:'{{ $utipDetailRoutes['corrective'] }}' },
-        // UTIP Progressive
-        { id:'utip-row-progressive', download:'{{ route('report.utip.download', ['type' => 'all', 'periode' => $scalingPeriodeYm]) }}', hasFile:{{ \App\Models\Collection::whereIn('type', array_merge(['UTIP Corrective'], array_column($periodes ?? [], 'type')))->whereNotNull('file_path')->exists() ? 'true' : 'false' }} },
-        // New UTIP
-        @foreach($newUtipPeriodes as $utip)
-        @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
-        { id:'utip-row-{{ $utipSlug }}', href:'{{ $utipDetailRoutes[$utipSlug] ?? '' }}' },
-        @endforeach
+       
         { id:'ar-row-dgs', download:'{{ $arDownloadRoutes['dgs'] }}', hasFile:{{ $arHasFile['dgs'] ? 'true' : 'false' }} },
         { id:'ngtma-row-gov',     href:'{{ $ngtmaDetailRoutes['gov'] }}' },
         { id:'ngtma-row-private', href:'{{ $ngtmaDetailRoutes['private'] }}' },
@@ -1264,147 +1279,153 @@
         'ar-row-dgs',
     ];
 
+function buatOpsi(g, wrap, left, top) {
+    var btnCss  = 'display:inline-flex;align-items:center;gap:3px;padding:2px 10px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);border:none;cursor:pointer;';
+    var itemCss = 'display:flex;align-items:center;padding:9px 14px;font-size:10px;font-weight:700;text-decoration:none;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;color:#334155;';
+
+    wrap.style.cssText = 'position:absolute;left:'+left+'px;top:'+top+'px;pointer-events:all;z-index:50;';
+
+    var btn = document.createElement('button');
+    btn.textContent = 'Opsi \u25be';
+    btn.style.cssText = btnCss;
+
+    var menu = document.createElement('div');
+    menu.classList.add('opsi-dd-menu');
+    menu.style.cssText = 'display:none;position:fixed;background:#fff;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 20px rgba(0,0,0,.12);min-width:140px;z-index:99999;overflow:hidden;';
+
+    // --- Pilihan Detail ---
+    var aDetail = document.createElement('a');
+    aDetail.textContent = 'Detail';
+    if (g.href && g.href.length > 0) {
+        aDetail.href = g.href;
+        aDetail.style.cssText = itemCss + 'cursor:pointer;';
+        aDetail.onmouseover = function(){ this.style.background='#f8fafc'; this.style.color='#dc2626'; };
+        aDetail.onmouseout  = function(){ this.style.background=''; this.style.color='#334155'; };
+    } else {
+        aDetail.style.cssText = itemCss + 'color:#cbd5e1;cursor:default;pointer-events:none;';
+    }
+    menu.appendChild(aDetail);
+
+    // --- Pilihan Download ---
+    var aDl = document.createElement('a');
+    aDl.textContent = 'Download';
+    if (g.download && g.download.length > 0 && g.hasFile) {
+        aDl.href = g.download + '&t=' + Date.now();
+        aDl.style.cssText = itemCss + 'cursor:pointer;';
+        aDl.onmouseover = function(){ this.style.background='#f8fafc'; this.style.color='#dc2626'; };
+        aDl.onmouseout  = function(){ this.style.background=''; this.style.color='#334155'; };
+    } else {
+        aDl.style.cssText = itemCss + 'color:#cbd5e1;cursor:default;pointer-events:none;';
+        aDl.title = (g.download && !g.hasFile) ? 'Belum ada file' : 'Tidak tersedia';
+    }
+    menu.appendChild(aDl);
+
+    btn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var open = menu.style.display === 'block';
+        // tutup semua menu lain
+        document.querySelectorAll('.opsi-dd-menu').forEach(function(m){ m.style.display='none'; });
+        document.querySelectorAll('.opsi-dd-open').forEach(function(b){ b.style.background='#1e293b'; b.classList.remove('opsi-dd-open'); });
+        if (!open) {
+            menu.style.display = 'block';
+            var r  = btn.getBoundingClientRect();
+            var mw = menu.offsetWidth || 140;
+            menu.style.top  = (r.bottom + 4) + 'px';
+            menu.style.left = (r.right - mw) + 'px';
+            btn.style.background = '#dc2626';
+            btn.classList.add('opsi-dd-open');
+        }
+    });
+
+    wrap.appendChild(btn);
+    document.body.appendChild(menu);
+}
+
 function renderDetailButtons() {
     var container = document.getElementById('scaling-detail-btns');
     if (!container) return;
-    var wrapper = container.closest('.overflow-x-auto');
-    if (!wrapper) return;
-    var table = wrapper.querySelector('table');
-    if (!table) return;
+    var wrapper   = container.closest('.overflow-x-auto');
+    if (!wrapper)  return;
+    var table     = wrapper.querySelector('table');
+    if (!table)    return;
     container.innerHTML = '';
     container.style.pointerEvents = 'none';
-    var tableRect  = table.getBoundingClientRect();
-    var wrapRect   = wrapper.getBoundingClientRect();
-    var tableRight = table.offsetWidth + 6;
+    var tableRight           = table.offsetWidth + 6;
     var containerTopInScroll = table.offsetTop + table.offsetHeight;
 
-        detailRoutes.forEach(function(g) {
+    detailRoutes.forEach(function(g) {
         var tr = document.getElementById(g.id);
         if (!tr) return;
-
-        var btnTop;
-        if (g.id === 'utip-row-progressive') {
-            var refTr = document.getElementById('utip-row-corrective');
-            if (refTr) {
-                btnTop = table.offsetTop + refTr.offsetTop + refTr.offsetHeight + (tr.offsetHeight / 2) - 10 - containerTopInScroll - 5;
-            } else {
-                btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
-            }
-        } else if (g.id === 'ar-row-dgs') {
-            var arTr = document.getElementById('ar-row-dgs');
-            var arRect     = arTr.getBoundingClientRect();
-            var tableRect2 = table.getBoundingClientRect();
-            btnTop = (arRect.top - tableRect2.top) + table.offsetTop + (arRect.height / 2) - 15 - containerTopInScroll;
+        var top;
+        if (g.id === 'ar-row-dgs') {
+            var r  = tr.getBoundingClientRect();
+            var tr2 = table.getBoundingClientRect();
+            top = (r.top - tr2.top) + table.offsetTop + (r.height / 2) - 15 - containerTopInScroll;
         } else {
-            btnTop = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
+            top = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
         }
-
-        var hasDownload = typeof g.download === 'string' && g.download.length > 0;
-        var hasDetail   = typeof g.href === 'string' && g.href.length > 0;
-        var isUtip      = utipRowIds.indexOf(g.id) !== -1 || hasDownload;
-
-        if (isUtip) {
-            var wrap = document.createElement('div');
-            wrap.style.cssText = 'position:absolute;left:'+(tableRight+6)+'px;top:'+btnTop+'px;pointer-events:all;z-index:50;';
-
-            if (hasDownload && !hasDetail) {
-                var btnA = document.createElement('a');
-                btnA.textContent = 'Download';
-                btnA.style.cssText = 'display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);text-decoration:none;';
-                if (g.hasFile) {
-                    btnA.onmouseenter = function(){ this.style.background='#dc2626'; };
-                    btnA.onmouseleave = function(){ this.style.background='#1e293b'; };
-                    btnA.href = g.download + '&t=' + Date.now();
-                } else {
-                    btnA.style.cssText += 'background:#f1f5f9;color:#94a3b8;cursor:not-allowed;pointer-events:none;';
-                    btnA.title = 'Belum ada file yang diupload';
-                }
-                wrap.appendChild(btnA);
-                container.appendChild(wrap);
-                return;
-            }
-
-            var btn = document.createElement('button');
-            btn.dataset.utipBtn = '1';
-            btn.innerHTML = 'detail ▾';
-            btn.style.cssText = 'display:inline-flex;align-items:center;gap:3px;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);border:none;cursor:pointer;';
-
-            var menu = document.createElement('div');
-            menu.style.cssText = 'display:none;position:fixed;background:white;border:1px solid #e2e8f0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.13);min-width:155px;z-index:99999;overflow:hidden;';
-
-            var itemStyle = 'display:flex;align-items:center;gap:8px;padding:8px 13px;font-size:10px;font-weight:700;color:#334155;text-decoration:none;text-transform:uppercase;letter-spacing:0.04em;white-space:nowrap;cursor:pointer;';
-
-            if (hasDetail) {
-                var linkDetail = document.createElement('a');
-                linkDetail.href = g.href;
-                linkDetail.innerHTML = 'Lihat Detail';
-                linkDetail.style.cssText = itemStyle;
-                linkDetail.onmouseover = function(){ this.style.background='#f8fafc'; this.style.color='#dc2626'; };
-                linkDetail.onmouseout  = function(){ this.style.background=''; this.style.color='#334155'; };
-                menu.appendChild(linkDetail);
-            }
-
-            if (hasDownload) {
-                var linkDownload = document.createElement('a');
-                if (g.hasFile) {
-                    linkDownload.href = g.download + '&t=' + Date.now();
-                    linkDownload.innerHTML = 'Download File';
-                    linkDownload.style.cssText = itemStyle;
-                    linkDownload.onmouseover = function(){ this.style.background='#f8fafc'; this.style.color='#dc2626'; };
-                    linkDownload.onmouseout  = function(){ this.style.background=''; this.style.color='#334155'; };
-                } else {
-                    linkDownload.innerHTML = 'Download File';
-                    linkDownload.style.cssText = itemStyle + 'color:#94a3b8;cursor:not-allowed;pointer-events:none;';
-                    linkDownload.title = 'Belum ada file yang diupload';
-                }
-                menu.appendChild(linkDownload);
-            }
-
-            btn.addEventListener('click', function(e) {
-    e.stopPropagation();
-    var isOpen = menu.style.display === 'block';
-    document.querySelectorAll('.utip-floating-menu').forEach(function(m){ m.style.display='none'; });
-    document.querySelectorAll('.utip-dd-active').forEach(function(b){ b.style.background='#1e293b'; b.classList.remove('utip-dd-active'); });
-    if (!isOpen) {
-        // Posisikan menu pakai fixed — melekat di bawah tombol, melebar ke kiri
-        var rect = btn.getBoundingClientRect();
-        menu.style.display = 'block';
-        var menuWidth = menu.offsetWidth || 155;
-        menu.style.top  = (rect.bottom + 4) + 'px';
-        menu.style.left = (rect.right - menuWidth) + 'px';
-        btn.style.background = '#dc2626';
-        btn.classList.add('utip-dd-active');
-    }
-});
-
-            menu.classList.add('utip-floating-menu');
-            wrap.appendChild(btn);
-            document.body.appendChild(menu);
-            container.appendChild(wrap);
-
-        } else {
-            var btnA = document.createElement('a');
-            btnA.href = g.href;
-            btnA.textContent = 'detail';
-            btnA.style.cssText = 'position:absolute;left:'+(tableRight+6)+'px;top:'+btnTop+'px;display:inline-flex;align-items:center;padding:2px 8px;background:#1e293b;color:white;font-size:10px;font-weight:900;border-radius:5px;text-transform:uppercase;letter-spacing:0.05em;text-decoration:none;white-space:nowrap;box-shadow:0 1px 3px rgba(0,0,0,.3);pointer-events:all;z-index:50;';
-            btnA.onmouseenter = function(){ this.style.background='#dc2626'; };
-            btnA.onmouseleave = function(){ this.style.background='#1e293b'; };
-            container.appendChild(btnA);
-        }
+        var wrap = document.createElement('div');
+        buatOpsi(g, wrap, tableRight + 6, top);
+        container.appendChild(wrap);
     });
 }
 
-// Tutup menu kalau klik di luar
+function renderUtipDetailButtons() {
+    var container = document.getElementById('utip-detail-btns');
+    if (!container) return;
+    var wrapper   = container.closest('.overflow-x-auto');
+    if (!wrapper)  return;
+    var table     = wrapper.querySelector('table');
+    if (!table)    return;
+    container.innerHTML = '';
+    container.style.pointerEvents = 'none';
+    var tableRight           = table.offsetWidth + 6;
+    var containerTopInScroll = table.offsetTop + table.offsetHeight;
+    var utipRoutes = [
+    {
+        id: 'utip-row-corrective',
+        href: '{{ $utipDetailRoutes['corrective'] }}',
+        download: '{{ route('report.utip.download', ['type' => 'UTIP Corrective', 'periode' => $scalingPeriodeYm]) }}',
+        hasFile: {{ \App\Models\Collection::where('type', 'UTIP Corrective')->whereNotNull('file_path')->exists() ? 'true' : 'false' }}
+    },
+    {
+        id: 'utip-row-progressive',
+        href: '',
+        download: '',
+        hasFile: false
+    },
+    @foreach($newUtipPeriodes as $utip)
+    @php $utipSlug = strtolower(str_replace(' ', '-', $utip['label'])); @endphp
+    {
+        id: 'utip-row-{{ $utipSlug }}',
+        href: '{{ $utipDetailRoutes[$utipSlug] ?? '' }}',
+        download: '{{ route('report.utip.download', ['type' => $utip['label'], 'periode' => $scalingPeriodeYm]) }}',
+        hasFile: {{ \App\Models\Collection::where('type', $utip['label'])->whereNotNull('file_path')->exists() ? 'true' : 'false' }}
+    },
+    @endforeach
+];
+    utipRoutes.forEach(function(g) {
+        var tr = document.getElementById(g.id);
+        if (!tr) return;
+        var top = table.offsetTop + tr.offsetTop + (tr.offsetHeight / 2) - 10 - containerTopInScroll;
+        var wrap = document.createElement('div');
+        buatOpsi(g, wrap, tableRight + 6, top);
+        container.appendChild(wrap);
+    });
+}
+
 document.addEventListener('click', function() {
-    document.querySelectorAll('.utip-floating-menu').forEach(function(m){ m.style.display='none'; });
-    // Reset warna tombol
-    document.querySelectorAll('[data-utip-btn]').forEach(function(b){ b.style.background='#1e293b'; });
+    document.querySelectorAll('.opsi-dd-menu').forEach(function(m){ m.style.display='none'; });
+    document.querySelectorAll('.opsi-dd-open').forEach(function(b){ b.style.background='#1e293b'; b.classList.remove('opsi-dd-open'); });
 });
 
-
-    function init(){ setTimeout(renderDetailButtons, 80); }
+    function init(){
+        setTimeout(renderDetailButtons, 80);
+        setTimeout(renderUtipDetailButtons, 80);
+    }
     if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',init); else init();
     window.addEventListener('resize', renderDetailButtons);
+    window.addEventListener('resize', renderUtipDetailButtons);
 
     document.addEventListener('DOMContentLoaded', function() {
         var btn      = document.getElementById('btn-export-jpg');
@@ -1420,6 +1441,7 @@ document.addEventListener('click', function() {
                 dropdown.classList.add('hidden');
                 var target = this.getAttribute('data-export');
                 if (target === 'all') doExportFull();
+                else if (target === 'utip') doExportUtip();
                 else doExportSection(parseInt(target));
             });
         });
@@ -1554,6 +1576,67 @@ document.addEventListener('click', function() {
         }
         html += '</tr>';
         return html;
+    }
+
+    // ═══ UTIP table lives in its own <table>, separate from the main report table ═══
+    function getUtipRows() {
+        var utipTable = document.getElementById('utip-table');
+        if (!utipTable) return [];
+        return Array.from(utipTable.querySelectorAll('tbody tr'));
+    }
+
+    function utipColgroupHtml() {
+        var cols = '<col style="width:26px"><col style="width:150px"><col style="width:80px">'
+                 + '<col style="width:70px"><col style="width:80px"><col style="width:60px">'
+                 + '<col style="width:60px"><col style="width:90px">';
+        return '<colgroup>'+cols+'</colgroup>';
+    }
+
+    function utipColHeaderHtml() {
+        var thStyle = 'style="border:1px solid rgba(255,255,255,0.4);padding:6px;background:#4a7795;color:white;font-weight:700;font-size:7.5px;text-transform:uppercase;letter-spacing:0.04em;line-height:1.3;text-align:center;"';
+        return '<tr>'
+             + '<th '+thStyle+'>No</th>'
+             + '<th '+thStyle+'>Type</th>'
+             + '<th '+thStyle+'>Saldo Awal</th>'
+             + '<th '+thStyle+'>Flag</th>'
+             + '<th '+thStyle+'>Sisa Saldo</th>'
+             + '<th '+thStyle+'>Ach</th>'
+             + '<th '+thStyle+'>Score</th>'
+             + '<th '+thStyle+'>Last Update</th>'
+             + '</tr>';
+    }
+
+    function buildUtipPageEl() {
+        var trElements = getUtipRows();
+        var bodyHtml = '';
+        trElements.forEach(function(tr) { bodyHtml += cloneTrFull(tr, false); });
+
+        var div = document.createElement('div');
+        div.className = 'export-page';
+        div.innerHTML =
+            pageHeaderHtml('UTIP')
+          + '<div class="export-section-badge">UTIP</div>'
+          + '<table class="export-table" style="table-layout:fixed;width:100%;">'
+          +   utipColgroupHtml()
+          +   '<thead style="background:#4a7795;">'+utipColHeaderHtml()+'</thead>'
+          +   '<tbody>'+bodyHtml+'</tbody>'
+          + '</table>';
+        return div;
+    }
+
+    async function doExportUtip() {
+        showOverlay();
+        setStatus('Memproses UTIP...');
+        setProgress(20);
+        var pageEl = buildUtipPageEl();
+        setProgress(55);
+        setStatus('Merender...');
+        var canvas = await renderToCanvas(pageEl);
+        setProgress(90);
+        downloadCanvas(canvas, 'report-utip-'+slugify(periodeLabel)+'.jpg');
+        setProgress(100);
+        await new Promise(function(r){ setTimeout(r, 400); });
+        hideOverlay();
     }
 
     function getSectionRows(keyword) {
@@ -1750,11 +1833,12 @@ document.addEventListener('click', function() {
 
     async function doExportFull() {
     showOverlay();
+    var totalItems = SECTIONS.length + 1; // +1 untuk halaman UTIP
     for (var i = 0; i < SECTIONS.length; i++) {
         var sec = SECTIONS[i];
-        var pct = Math.round(10 + (i / SECTIONS.length) * 80);
+        var pct = Math.round(10 + (i / totalItems) * 80);
         setProgress(pct);
-        setStatus('Memproses '+sec.no+'. '+sec.name+'... ('+( i+1 )+'/'+SECTIONS.length+')');
+        setStatus('Memproses '+sec.no+'. '+sec.name+'... ('+( i+1 )+'/'+totalItems+')');
 
         var trElements = getSectionRows(sec.keyword);
         var bodyHtml = '';
@@ -1776,6 +1860,14 @@ document.addEventListener('click', function() {
 
         await new Promise(function(r){ setTimeout(r, 150); });
     }
+
+    // Halaman ke-7: UTIP (tabel terpisah, tidak ikut loop SECTIONS di atas)
+    setProgress(Math.round(10 + (SECTIONS.length / totalItems) * 80));
+    setStatus('Memproses 7. UTIP... ('+totalItems+'/'+totalItems+')');
+    var utipCanvas = await renderToCanvas(buildUtipPageEl());
+    downloadCanvas(utipCanvas, 'report-7-utip-'+slugify(periodeLabel)+'.jpg');
+    await new Promise(function(r){ setTimeout(r, 150); });
+
     setProgress(100);
     setStatus('Selesai!');
     await new Promise(function(r){ setTimeout(r, 400); });
