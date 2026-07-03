@@ -31,7 +31,6 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('segment')) $query->where('segment', $request->segment);
-        // if ($request->filled('user'))    $query->where('user_id', $request->user);
         if ($request->filled('bulan'))   $query->whereMonth('periode', $request->bulan);
         if ($request->filled('tahun'))   $query->whereYear('periode', $request->tahun);
         if ($request->filled('cari')) {
@@ -44,7 +43,7 @@ class AdminController extends Controller
 
         $collections = $query->paginate(20)->withQueryString();
 
-        // ← is_latest per segment, dikelompokkan per periode untuk tampilan ringkasan
+       
         $ringkasanAll = Collection::where('type', 'Collection Ratio')
             ->where('is_latest', true)
             ->orderByDesc('periode')
@@ -78,7 +77,7 @@ class AdminController extends Controller
         $request->validate([
             'status'     => 'required|in:active,inactive',
             'periode'    => 'required|date_format:Y-m',
-            'segment'    => 'required|string',   // ← ubah nullable jadi required, segment wajib ada
+            'segment'    => 'required|string',   
             'commitment' => 'nullable|string',
             'real_ratio' => 'nullable|string',
         ]);
@@ -103,7 +102,7 @@ class AdminController extends Controller
         $lastRealUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
         DB::transaction(function () use ($request, $periodeDate, $lastCommitment, $lastReal, $lastRealUpdatedAt) {
-            // ← Scope is_latest per segment juga, bukan seluruh periode
+           
             Collection::where('type', 'Collection Ratio')
                 ->where('segment', $request->segment)
                 ->where('periode', $periodeDate)
@@ -230,7 +229,6 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan);
-        // if ($request->filled('user'))  $query->where('user_id', $request->user);
         if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
@@ -241,13 +239,13 @@ class AdminController extends Controller
 
         $collections = $query->paginate(20)->withQueryString();
 
-        // ← Ambil 1 record terbaru per periode dari is_latest, tidak terbatas pagination
+        
         $ringkasanAll = Collection::where('type', 'C3MR')
             ->where('is_latest', true)
             ->orderByDesc('periode')
             ->get();
 
-            // dd($ringkasanAll);
+        
 
         $tahuns = Collection::where('type', 'C3MR')
             ->selectRaw('YEAR(periode) as tahun')
@@ -296,7 +294,7 @@ class AdminController extends Controller
         $lastRealUpdatedAt = $request->filled('real_ratio') ? now() : ($lastRealRow->real_updated_at ?? null);
 
         DB::transaction(function () use ($request, $periodeDate, $lastCommitment, $lastReal, $lastRealUpdatedAt) {
-            // Set semua record periode ini is_latest = false
+          
             Collection::where('type', 'C3MR')
                 ->where('periode', $periodeDate)
                 ->update(['is_latest' => false]);
@@ -323,7 +321,7 @@ class AdminController extends Controller
     {
         $collection = Collection::findOrFail($id);
 
-        // Hanya boleh toggle record yang is_latest
+      
         abort_if(!$collection->is_latest, 403, 'Hanya record terbaru yang bisa diubah statusnya.');
 
         $collection->status = $collection->status === 'active' ? 'inactive' : 'active';
@@ -339,7 +337,7 @@ class AdminController extends Controller
             ->orderBy('created_at', 'desc');
 
         if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan);
-        // if ($request->filled('user'))  $query->where('user_id', $request->user);
+      
         if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
@@ -427,8 +425,8 @@ class AdminController extends Controller
 
         // if ($request->filled('user'))  $query->where('user_id', $request->user);
         if ($request->filled('tipe'))  $query->where('type', $request->tipe);
-        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan); // ← fix: periode bukan created_at
-        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);  // ← fix: periode bukan created_at
+        if ($request->filled('bulan')) $query->whereMonth('periode', $request->bulan); 
+        if ($request->filled('tahun')) $query->whereYear('periode', $request->tahun);  
         if ($request->filled('cari')) {
             $query->where(function($q) use ($request) {
                 $q->where('type', 'like', '%'.$request->cari.'%')
@@ -439,14 +437,14 @@ class AdminController extends Controller
 
         $collections = $query->paginate(20)->withQueryString();
 
-        // ← 1 record terbaru per type (is_latest), diurutkan Corrective duluan
+       
         $ringkasanAll = Collection::where('type', 'like', '%UTIP%')
             ->where('is_latest', true)
             ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
             ->orderBy('type')
             ->get();
 
-        // ← fix: tahun dari periode bukan created_at
+        
         $tahuns = Collection::where('type', 'like', '%UTIP%')
             ->selectRaw('YEAR(periode) as tahun')
             ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
@@ -489,7 +487,7 @@ class AdminController extends Controller
             'ol_fm'     => 'required|array|size:7',
             'ol_fm.*'   => 'nullable|numeric',
             ], [
-    'file.max' => 'TES KODE BARU JALAN - limit sekarang 51200KB',
+    'file.max' => 'Ukuran file maksimal 50 MB.',
         ]);
 
         $periodeDate = $request->periode . '-01';
@@ -588,7 +586,7 @@ class AdminController extends Controller
             foreach ($spreadsheet->getAllSheets() as $sheet) {
                 $colMap = $this->utipMapHeaderColumns($sheet);
  
-                // Sheet ini tidak punya kolom STATUS / SALDO AWAL → skip (bukan sheet data UTIP)
+            
                 if (!isset($colMap['STATUS'], $colMap['SALDO AWAL'])) {
                     continue;
                 }
@@ -599,7 +597,7 @@ class AdminController extends Controller
                     $statusRaw = (string) $sheet->getCell([$colMap['STATUS'], $row])->getValue();
                     $status    = strtoupper(trim($statusRaw));
  
-                    // Baris kosong / baris TOTAL (status-nya kosong) → skip
+                  
                     if ($status === '') {
                         continue;
                     }
@@ -617,13 +615,11 @@ class AdminController extends Controller
                 }
             }
  
-            // ── Pemetaan STATUS Excel → index Kondisi di form ──
-            // ⚠️ PROSES FLAGGING masih ASUMSI, perlu konfirmasi ke kakak mentor.
             $statusToKondisiIndex = [
                 'DEPOSIT'                => 3, // Sudah BC, Deposit
                 'BELUM BC'               => 5, // Belum BC, Late Input
                 'BELUM TERIDENTIFIKASI'  => 6, // Belum teridentifikasi
-                'PROSES FLAGGING'        => 0, // Sudah BC, Potensi Flag (ASUMSI)
+                'PROSES FLAGGING'        => 0, // Sudah BC, Potensi Flag 
             ];
  
             $mapped = [];
@@ -639,8 +635,8 @@ class AdminController extends Controller
  
             return response()->json([
                 'success'    => true,
-                'mapped'     => $mapped,       // siap diisi otomatis ke form
-                'raw_status' => $statusSums,    // buat verifikasi manual kalau perlu
+                'mapped'     => $mapped,      
+                'raw_status' => $statusSums,    
             ]);
  
         } catch (\Throwable $e) {
@@ -707,14 +703,14 @@ class AdminController extends Controller
 
         $collections = $query->paginate(20)->withQueryString();
 
-        // ← 1 record terbaru per type (is_latest), diurutkan Corrective duluan
+
         $ringkasanAll = Collection::where('type', 'like', '%ar%')
             ->where('is_latest', true)
             ->orderByRaw("CASE WHEN type LIKE '%Corrective%' THEN 0 ELSE 1 END")
             ->orderBy('type')
             ->get();
 
-        // ← fix: tahun dari periode bukan created_at
+    
         $tahuns = Collection::where('type', 'like', '%ar%')
             ->selectRaw('YEAR(periode) as tahun')
             ->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
@@ -747,7 +743,6 @@ class AdminController extends Controller
             'segment' => 'required|string',
             'file'    => 'required|file|max:10240',
 
-            // kondisi 1-7 wajib ada nilainya (plan minimal)
             'kondisi'   => 'required|array|size:8',
             'kondisi.*' => 'required|string',
             'real_ratio'=> 'required|array|size:8',
@@ -771,7 +766,7 @@ class AdminController extends Controller
             $filePath = $file->store('ar_files', 'public');
         }
 
-        // Simpan per kondisi
+    
         foreach ($request->kondisi as $idx => $kondisiName) {
             $existing = Collection::where('type', $request->segment)
                 ->where('periode', $periodeDate)
@@ -789,7 +784,7 @@ class AdminController extends Controller
             // Skip kondisi yang tidak diisi sama sekali
             $realVal = ($request->real_ratio[$idx] !== null && $request->real_ratio[$idx] !== '') ? $request->real_ratio[$idx] : null;
 
-            // Kalau semua kosong, skip — tidak perlu simpan
+            
             if (is_null($realVal)) {
                 continue;
             }
