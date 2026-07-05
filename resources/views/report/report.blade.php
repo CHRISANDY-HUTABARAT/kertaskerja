@@ -679,7 +679,7 @@
                                 <td colspan="10" class="border border-gray-400 px-2 py-1 uppercase bg-gray-50">Collection</td>
                             </tr>
 
-                            @php $sectionRowspan = 1 + 1 + 4 + 4 + $utipRowspan + $arRowspan; @endphp
+                           @php $sectionRowspan = 1 + 1 + 4 + 4 + $arRowspan; @endphp
 
                             <tr>
                                 <td rowspan="{{ $sectionRowspan }}" class="border border-gray-400"></td>
