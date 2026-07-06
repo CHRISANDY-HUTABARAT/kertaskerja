@@ -1434,7 +1434,14 @@ public function utipDownload(Request $request)
         abort(404, 'File tidak ditemukan di server.');
     }
 
-    return response()->download($fullPath, $record->file_name ?? basename($record->file_path));
+    $downloadName = $record->file_name ?? basename($record->file_path);
+$ext = strtolower(pathinfo($downloadName, PATHINFO_EXTENSION));
+if (!in_array($ext, ['xlsx', 'xls', 'csv'])) {
+    $downloadName = pathinfo($downloadName, PATHINFO_FILENAME) . '.xlsx';
+}
+return response()->download($fullPath, $downloadName, [
+    'Content-Type' => 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+]);
 }
 
 public function arDownload(Request $request)

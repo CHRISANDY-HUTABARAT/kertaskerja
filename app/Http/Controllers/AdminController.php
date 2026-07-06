@@ -475,7 +475,7 @@ class AdminController extends Controller
             'status'  => 'required|in:active,inactive',
             'periode' => 'required|date_format:Y-m',
             'type'    => 'required|string',
-            'file'    => 'required|file|max:51200',
+           'file'    => 'required|file|mimes:xlsx,xls,csv|max:51200',
 
             
             'kondisi'   => 'required|array|size:7',
