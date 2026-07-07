@@ -512,7 +512,7 @@ class CollectionController extends Controller
     public function storeUtipRealisasi(Request $request)
     {
         $request->validate([
-            'status'       => 'required|in:active,inactive',
+           
             'periode'      => 'required|date_format:Y-m',
             'type'         => 'required|string',
             'file'         => 'required|file|mimes:xlsx,xls,csv|max:51200',
@@ -571,7 +571,7 @@ class CollectionController extends Controller
                 'type'            => $request->type,
                 'kondisi'         => $kondisiName,
                 'periode'         => $periodeDate,
-                'status'          => $request->status,
+               'status'       => 'active',
                 'is_latest'       => true,
                 'plan'            => $planVal ?? ($existing->plan ?? null),
                 'ol_fm'           => $olFmVal ?? ($existing->ol_fm ?? null),

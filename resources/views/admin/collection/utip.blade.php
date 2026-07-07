@@ -110,14 +110,7 @@
                             <input type="month" name="periode" required value="{{ date('Y-m') }}"
                                 class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 focus:ring-1 focus:ring-red-100 bg-white">
                         </div>
-                        <div>
-                            <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Status</label>
-                            <select name="status" required
-                                class="w-full px-4 py-2.5 border border-slate-200 rounded-lg text-sm font-semibold text-slate-800 focus:outline-none focus:border-red-400 bg-white">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                            </select>
-                        </div>
+                        
                         <div>
                             <label class="block text-xs font-bold text-slate-500 uppercase tracking-widest mb-2">Tipe</label>
                             <select name="type" required
@@ -231,7 +224,7 @@
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Flag sd HI</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">OL FM</th>
                                     <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Status</th>
-                                    <th class="px-6 py-3 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">Aksi</th>
+                               
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-slate-100">
@@ -261,26 +254,9 @@
                                             {{ $item->ol_fm !== null ? number_format($item->ol_fm, 0, ',', '.') : '—' }}
                                         </td>
                                         <td class="px-6 py-4 text-center">
-                                            @if($isActive)
-                                                <span class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1">Active</span>
-                                            @else
-                                                <span class="text-xs font-bold text-slate-500 bg-slate-100 border border-slate-200 rounded-md px-2.5 py-1">Inactive</span>
-                                            @endif
+                                            <span class="text-xs font-bold text-green-700 bg-green-50 border border-green-200 rounded-md px-2.5 py-1">Active</span>
                                         </td>
-                                        <td class="px-6 py-4 text-center">
-                                            <form action="{{ route('admin.collection.toggleStatus', $item->id) }}" method="POST" class="inline">
-                                                @csrf
-                                                @method('PATCH')
-                                                <button type="submit"
-                                                    onclick="return confirm('{{ $isActive ? 'Nonaktifkan data ini?' : 'Aktifkan kembali data ini?' }}')"
-                                                    class="inline-flex items-center space-x-1.5 text-xs font-bold px-3 py-1.5 rounded-lg border transition-all duration-200
-                                                        {{ $isActive
-                                                            ? 'text-amber-700 hover:text-white border-amber-200 hover:border-amber-500 bg-amber-50 hover:bg-amber-500'
-                                                            : 'text-green-700 hover:text-white border-green-200 hover:border-green-500 bg-green-50 hover:bg-green-500' }}">
-                                                    {{ $isActive ? 'Nonaktifkan' : 'Aktifkan' }}
-                                                </button>
-                                            </form>
-                                        </td>
+                                        
                                     </tr>
                                 @empty
                                     <tr>
