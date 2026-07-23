@@ -119,18 +119,13 @@ class ReportController extends Controller
         }
 
         // UTIP Corrective — ambil record terbaru dalam periode filter
-        $utipCorRows = Collection::where('type', 'UTIP Corrective')
-            ->whereIn('id', function($q) {
-                $q->selectRaw('MAX(id)')
-                ->from('collections')
-                ->where('type', 'UTIP Corrective')
-                ->groupBy('kondisi');
-            })
-            ->get();
+       $utipCorRows = Collection::where('type', 'UTIP Corrective')
+       ->where('is_latest', true)
+       ->get();
 
         $utipCorPlan = $utipCorRows->sum(fn($r) => $toFloat($r->plan));
         $utipCorReal = $utipCorRows->sum(fn($r) => $toFloat($r->real_ratio));
-        $utipCorSisaSaldo = $utipCorRows->sum(fn($r) => $toFloat($r->ol_fm));
+        $utipCorSisaSaldo = $utipCorPlan - $utipCorReal;
         $utipCorUpdated = $utipCorRows->whereNotNull('real_updated_at')->sortByDesc('real_updated_at')->first();
  
         $utipCorrective = [
@@ -200,38 +195,24 @@ class ReportController extends Controller
         $filterDate = Carbon::createFromDate($filterTahun, $filterBulan, 1);
 
         foreach ($periodes as $p) {
-            $rows = Collection::where('type', $p['type'])
-                ->whereIn('id', function($q) use ($p) {
-                    $q->selectRaw('MAX(id)')
-                    ->from('collections')
-                    ->where('type', $p['type'])
-                    ->groupBy('kondisi');
-                })
-                ->get();
+           $rows = Collection::where('type', $p['type'])
+           ->where('is_latest', true)
+           ->get();
                 
             $planRaw = $rows->sum(fn($r) => $toFloat($r->plan));
             $realRaw = $rows->sum(fn($r) => $toFloat($r->real_ratio));
-            $sisaSaldoRaw = $rows->sum(fn($r) => $toFloat($r->ol_fm));
+            $sisaSaldoRaw = $planRaw - $realRaw;
             $realRp  = round($realRaw / 1000000, 2);
             $rowUpdated = $rows->whereNotNull('real_updated_at')->sortByDesc('real_updated_at')->first();
 
             $rowDate    = Carbon::createFromDate($p['tahun'], $p['bulan'], 1);
             $monthsDiff = (($p['tahun'] - $filterTahun) * 12) + ($p['bulan'] - $filterBulan);
 
-            if ($monthsDiff >= 0) {
-                $commitMultiplier = 0;
-            } elseif ($monthsDiff === -1) {
-                $commitMultiplier = 0.30;
-            } elseif ($monthsDiff === -2) {
-                $commitMultiplier = 0.60;
-            } else {
-                $commitMultiplier = 1.00;
-            }
 
              $newUtipPeriodes[] = [
                 'label'      => $p['label'],
                 'planRp'     => $rows->isEmpty() ? null : round($planRaw / 1000000, 2),
-                'commitRp'   => $rows->isEmpty() ? null : round(($planRaw * $commitMultiplier) / 1000000, 2),
+                'commitRp'   => $rows->isEmpty() ? null : round($planRaw / 1000000, 2),
                 'realRp'     => $rows->isEmpty() ? null : $realRp,
                 'saldoAwal'  => $rows->isEmpty() ? null : $planRaw,
                 'flag'       => $rows->isEmpty() ? null : $realRaw,

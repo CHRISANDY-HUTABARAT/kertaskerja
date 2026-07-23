@@ -53,7 +53,7 @@
             $totalPopulasi = $rows->sum('plan');
             $totalFlagHi   = $rows->sum('real_ratio');
             $totalOlFm     = $rows->sum('ol_fm');
-            $totalSisa     = $totalPopulasi - $totalOlFm;
+            $totalSisa = $totalPopulasi - $totalFlagHi;
             $totalCommit = $totalPopulasi * $commitMultiplier;
             $totalAch    = $totalCommit > 0 ? ($totalFlagHi / $totalCommit) * 100 : 0;
         @endphp
@@ -123,7 +123,7 @@ $rowMap = $rows->keyBy('kondisi');
                     $populasiSet = $row && $row->plan !== null;
                     $flagHiSet   = $row && $row->real_ratio !== null;
                     $olFmSet     = $row && $row->ol_fm !== null;
-                    $sisa     = (!is_null($populasi) && !is_null($olFm)) ? $populasi - $olFm : null;
+                    $sisa = (!is_null($populasi) && !is_null($flagHi)) ? $populasi - $flagHi : null;
                     $commit = !is_null($populasi) ? $populasi * $commitMultiplier : null;
                     $ach    = (!is_null($commit) && $commit > 0 && !is_null($flagHi))
                         ? ($flagHi / $commit) * 100 : null;

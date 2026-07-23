@@ -542,6 +542,10 @@ class CollectionController extends Controller
             return back()->with('error', 'Tipe UTIP ini sudah dinonaktifkan. Realisasi tidak dapat disimpan.');
         }
 
+        Collection::where('type', $request->type)
+        ->where('periode', $periodeDate)
+        ->update(['is_latest' => false]);
+
         $submitToken = \Illuminate\Support\Str::uuid()->toString();
         $filePath = null;
         $fileName = null;
@@ -566,20 +570,20 @@ class CollectionController extends Controller
                 continue;
             }
 
-            Collection::create([
-                'user_id'         => Auth::id(),
-                'type'            => $request->type,
-                'kondisi'         => $kondisiName,
-                'periode'         => $periodeDate,
-               'status'       => 'active',
-                'is_latest'       => true,
-                'plan'            => $planVal ?? ($existing->plan ?? null),
-                'ol_fm'           => $olFmVal ?? ($existing->ol_fm ?? null),
-                'real_ratio'      => $realVal ?? ($existing->real_ratio ?? null),
-                'real_updated_at' => !is_null($realVal) ? now() : ($existing->real_updated_at ?? null),
-                'file_path'       => $filePath,
-                'file_name'       => $fileName,
-                'submit_token'    => $submitToken,
+           Collection::create([
+            'user_id'         => Auth::id(),
+            'type'            => $request->type,
+            'kondisi'         => $kondisiName,
+            'periode'         => $periodeDate,
+            'status'          => 'active',
+            'is_latest'       => true,
+            'plan'            => $planVal ?? ($existing->plan ?? null),
+            'ol_fm'           => $olFmVal ?? ($existing->ol_fm ?? null),
+            'real_ratio'      => $realVal ?? ($existing->real_ratio ?? null),
+            'real_updated_at' => !is_null($realVal) ? now() : ($existing->real_updated_at ?? null),
+            'file_path'       => $filePath,
+            'file_name'       => $fileName,
+            'submit_token'    => $submitToken,
             ]);
         }
 
@@ -598,7 +602,7 @@ class CollectionController extends Controller
               $readFilter = new class implements \PhpOffice\PhpSpreadsheet\Reader\IReadFilter {
                 public function readCell($column, $row, $worksheetName = ''): bool
                 {
-                    return $row <= 5000;
+                   return $row <= 10000;
                 }
             };
  
@@ -609,13 +613,46 @@ class CollectionController extends Controller
             $statusSums = [];
  
             foreach ($spreadsheet->getAllSheets() as $sheet) {
-                $colMap = $this->utipMapHeaderColumns($sheet);
+               $colMap = $this->utipMapHeaderColumns($sheet);
+
+// Alias: STATUS EBG → STATUS (untuk file format baru)
+if (!isset($colMap['STATUS']) && isset($colMap['STATUS EBG'])) {
+    $colMap['STATUS'] = $colMap['STATUS EBG'];
+}
+// Alias: STATUS_EBG (pakai underscore, format export asli) → STATUS
+if (!isset($colMap['STATUS']) && isset($colMap['STATUS_EBG'])) {
+    $colMap['STATUS'] = $colMap['STATUS_EBG'];
+}
+
+// Alias: SALDO_AWAL (pakai underscore, format export asli) → SALDO AWAL
+if (!isset($colMap['SALDO AWAL']) && isset($colMap['SALDO_AWAL'])) {
+    $colMap['SALDO AWAL'] = $colMap['SALDO_AWAL'];
+}
+
+// Alias: OUTLOOK FM / OL FM / OUTLOOK FULL MONTH → SISA_FLAG
+// Kolom SISA_FLAG → untuk real_ratio (Flag sd Hari Ini)
+$sisaFlagCol = null;
+foreach (['SISA FLAG', 'SISA UTIP', 'SALDO AKHIR'] as $kandidat) {
+    if (isset($colMap[$kandidat])) {
+        $sisaFlagCol = $colMap[$kandidat];
+        break;
+    }
+}
+
+// Kolom OL_FM → untuk ol_fm (Outlook Full Month) — TIDAK ADA FALLBACK
+$olFmCol = null;
+foreach (['OL FM', 'OUTLOOK FM', 'OUTLOOK FULL MONTH', 'OL FULL MONTH'] as $kandidat) {
+    if (isset($colMap[$kandidat])) {
+        $olFmCol = $colMap[$kandidat];
+        break;
+    }
+}
+
+if (!isset($colMap['STATUS'], $colMap['SALDO AWAL'])) {
+    continue;
+}
  
-                if (!isset($colMap['STATUS'], $colMap['SALDO AWAL'])) {
-                    continue;
-                }
- 
-                $highestRow = $sheet->getHighestRow();
+            $highestRow = min($sheet->getHighestRow(), 10000);
  
                 for ($row = 2; $row <= $highestRow; $row++) {
                    $statusRaw = (string) $sheet->getCell([$colMap['STATUS'], $row])->getValue();
@@ -627,33 +664,37 @@ class CollectionController extends Controller
  
                     $saldo = $this->utipNumericCell($sheet, $colMap['SALDO AWAL'] ?? null, $row);
                     $flag  = $this->utipNumericCell($sheet, $colMap['FLAG'] ?? null, $row);
-                    $sisa  = $this->utipNumericCell($sheet, $colMap['SISA_FLAG'] ?? null, $row);
- 
+                    $sisa  = $this->utipNumericCell($sheet, $sisaFlagCol, $row);
+                    $olfm  = $this->utipNumericCell($sheet, $olFmCol, $row);
                     if (!isset($statusSums[$status])) {
-                        $statusSums[$status] = ['saldo' => 0, 'flag' => 0, 'sisa' => 0];
+                    $statusSums[$status] = ['saldo' => 0, 'flag' => 0, 'sisa' => 0, 'olfm' => 0];
                     }
                     $statusSums[$status]['saldo'] += $saldo;
                     $statusSums[$status]['flag']  += $flag;
                     $statusSums[$status]['sisa']  += $sisa;
+                    $statusSums[$status]['olfm']  += $olfm;
                 }
             }
  
          
             $statusToKondisiIndex = [
-                'DEPOSIT'                => 3, // Sudah BC, Deposit
-                'BELUM BC'               => 5, // Belum BC, Late Input
-                'BELUM TERIDENTIFIKASI'  => 6, // Belum teridentifikasi
-                'PROSES FLAGGING'        => 0, // Sudah BC, Potensi Flag (ASUMSI)
+                'SUDAH BC, POTENSI FLAG'              => 0, // Sudah BC, Potensi Flag
+                'SUDAH BC, OVER PAYMENT'              => 1, // Sudah BC, Over Payment
+                'SUDAH BC, REKON KONTRAK & TUNGGAKAN' => 2, // Sudah BC, Rekon Kontrak & Tunggakan
+                'SUDAH BC, DEPOSIT'                   => 3, // Sudah BC, Deposit
+                'SUDAH BC, PEMBAYARAN KURANG'         => 4, // Sudah BC, Pembayaran Kurang
+                'BELUM BC, LATE INPUT'                => 5, // Belum BC, Late Input
+                'BELUM TERIDENTIFIKASI'                => 6, // Belum teridentifikasi
             ];
  
             $mapped = [];
             foreach ($statusToKondisiIndex as $statusKey => $idx) {
                 if (isset($statusSums[$statusKey])) {
                     $mapped[$idx] = [
-                        'plan'       => round($statusSums[$statusKey]['saldo']),
-                        'real_ratio' => round($statusSums[$statusKey]['flag']),
-                        'ol_fm'      => round($statusSums[$statusKey]['sisa']),
-                    ];
+                        'plan'       => round($statusSums[$statusKey]['saldo']),  // SALDO_AWAL
+                        'real_ratio' => round($statusSums[$statusKey]['flag']),   // FLAG — BENAR
+                        'ol_fm'      => round($statusSums[$statusKey]['olfm']),   // OL_FM saja, kosong kalau tidak ada
+];
                 }
             }
  
@@ -679,7 +720,7 @@ class CollectionController extends Controller
  
         for ($col = 1; $col <= $maxColIx; $col++) {
         $raw = (string) $sheet->getCell([$col, 1])->getValue();
-            $normalized = preg_replace('/\s+/', ' ', strtoupper(trim($raw)));
+          $normalized = preg_replace('/[\s_]+/', ' ', strtoupper(trim($raw)));
             if ($normalized !== '') {
                 $colMap[$normalized] = $col;
             }
