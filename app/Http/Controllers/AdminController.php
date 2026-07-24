@@ -575,6 +575,7 @@ class AdminController extends Controller
         ]);
  
         try {
+             ini_set('memory_limit', '1024M');
               $readFilter = new class implements \PhpOffice\PhpSpreadsheet\Reader\IReadFilter {
                 public function readCell($column, $row, $worksheetName = ''): bool
                 {
@@ -582,9 +583,10 @@ class AdminController extends Controller
                 }
             };
  
-            $reader = IOFactory::createReaderForFile($request->file('file')->getRealPath());
-            $reader->setReadFilter($readFilter);
-            $spreadsheet = $reader->load($request->file('file')->getRealPath());
+           $reader = IOFactory::createReaderForFile($request->file('file')->getRealPath());
+           $reader->setReadFilter($readFilter);
+           $reader->setReadDataOnly(true);
+           $spreadsheet = $reader->load($request->file('file')->getRealPath());
  
             // statusSums: 'DEPOSIT' => ['saldo'=>x, 'flag'=>y, 'sisa'=>z]
             $statusSums = [];
